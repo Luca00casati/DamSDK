@@ -123,22 +123,26 @@ namespace Controls {
                 trackBitmap->drawMasked(offscreenContext, &trackRect, &srcOffset);
             }
         }
-
+        RECT handleRect;
+        handleRect.top    = this->handlePos.y;
+        handleRect.bottom = this->handleHeight + handleRect.top;
+        
         // Compute the handle's horizontal position based on the current normalized value.
         int valueRange = this->trackMaxX - this->trackMinX;
         int handleOffset = static_cast<int>(this->value * valueRange);
-        int handleX = this->trackMinX + handleOffset;
+        int handleMinPos = this->handleMinPos;
+        
+        handleRect.left = handleOffset + this->handlePos.x;
+        if (handleRect.left < handleMinPos) {
+            handleRect.left = handleMinPos;
+        }
 
-        // Clamp to allowed range.
-        if (handleX < this->handleMinPos) handleX = this->handleMinPos;
-        int handleRight = handleX + this->handleWidth;
-        if (handleRight > this->handleMaxPos) handleRight = this->handleMaxPos;
-
-        RECT handleRect;
-        handleRect.left   = handleX;
-        handleRect.top    = this->handlePos.y;
-        handleRect.right  = handleRight;
-        handleRect.bottom = this->handlePos.y + this->handleHeight;
+        handleRect.right = this->handleWidth + handleRect.left;
+        
+        handleMinPos = this->handleMaxPos;
+        if (handleMinPos < handleRect.right) {
+            handleRect.right = handleMinPos;
+        }
 
         // Draw the handle image.
         Platform::Windows::Bitmap* handleImage = this->handleImage;

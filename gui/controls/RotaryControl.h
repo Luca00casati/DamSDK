@@ -16,7 +16,7 @@ namespace Controls {
             Api::ColorRGBA indicatorHighlightColor;
             Api::ColorRGBA indicatorShadowColor;
             Platform::Windows::Bitmap *bmp;
-            float knobRadius;
+            int knobRadius;
             float startAngle;
             float totalRange;
             float deadZoneSize;

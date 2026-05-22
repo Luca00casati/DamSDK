@@ -30,7 +30,7 @@ namespace Windows {
             int maxChildren;
             Controls::Control **children;
             Base::View *modalView;
-            COLORREF* colors;
+            COLORREF* unknownClass;
             bool redrawPending;
             bool visible;
             char unused3[2];

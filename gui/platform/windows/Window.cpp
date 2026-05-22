@@ -30,7 +30,7 @@ namespace Windows {
         this->maxChildren = 0;
         this->children = NULL;
         this->modalView = NULL;
-        this->colors = nullptr;
+        this->unknownClass = nullptr;
         this->redrawPending = true;
         this->unused3[1] = 0;
         this->isActive = false;
@@ -236,23 +236,23 @@ namespace Windows {
 
             case WM_CTLCOLOREDIT:
             {
-                if (parentFramePtr != nullptr && parentFramePtr->colors != nullptr) {
+                if (parentFramePtr != nullptr && parentFramePtr->unknownClass != nullptr) {
                     HDC hdc = (HDC)wParam; 
 
-                    uint32_t rawTextColor = parentFramePtr->colors[30];
+                    uint32_t rawTextColor = parentFramePtr->unknownClass[30];
                     COLORREF textColor = RGB(rawTextColor & 0xFF, (rawTextColor >> 8) & 0xFF, (rawTextColor >> 16) & 0xFF);
                     SetTextColor(hdc, textColor);
 
-                    uint32_t rawBgColor = parentFramePtr->colors[31];
+                    uint32_t rawBgColor = parentFramePtr->unknownClass[31];
                     COLORREF bgColor = RGB(rawBgColor & 0xFF, (rawBgColor >> 8) & 0xFF, (rawBgColor >> 16) & 0xFF);
                     SetBkColor(hdc, bgColor);
 
-                    if (parentFramePtr->colors[37] != 0) {
-                        DeleteObject((HGDIOBJ)parentFramePtr->colors[37]);
+                    if (parentFramePtr->unknownClass[37] != 0) {
+                        DeleteObject((HGDIOBJ)parentFramePtr->unknownClass[37]);
                     }
 
                     HBRUSH hBrush = CreateSolidBrush(bgColor);
-                    parentFramePtr->colors[37] = (uint32_t)hBrush;
+                    parentFramePtr->unknownClass[37] = (uint32_t)hBrush;
 
                     return (LRESULT)hBrush;
                 }
@@ -286,43 +286,26 @@ namespace Windows {
         return DefWindowProcA(hWnd, uMsg, wParam, lParam);
     }
 
-    // STUB: DELAYLAMA 0x100077e0
+    // FUNCTION: DELAYLAMA 0x100077e0
     bool Window::onMouseWheel(GDIDrawingContext *drawingContext, POINT *relativeMousePoint, float scrollDelta) {
-        // Control *child;
-        // HDC hDC;
-        // GDIDrawingContext *newDrawingContext;
-        // void *drawingContextMemory;
-        // LONG LStack_10;
-        // undefined1 *puStack_8;
-        // undefined4 __som;
-        
-        // __som = 0xffffffff;
-        // puStack_8 = &LAB_1000accb;
-        // child = getChildAtMousePos(this);
-        // newDrawingContext = NULL;
-        // if (child != NULL) {
-        //     hDC = GetDC(this->hWnd);
-        //     drawingContextMemory = operator_new(0x74);
-        //     __som = 0;
-        //     if (drawingContextMemory != NULL) {
-        //     newDrawingContext =
-        //         GDIDrawingContext::GDIDrawingContext(drawingContextMemory,this,hDC,this->hWnd);
-        //     }
-        //     __som = 0xffffffff;
-        //     if (newDrawingContext != NULL) {
-        //     drawingContextMemory = NULL;
-        //     LStack_10 = 0;
-        //     getLocalMousePos(this,(POINT *)&drawingContextMemory);
-        //     (*(child->vtable->view).onMouseWheel)(newDrawingContext,&drawingContextMemory,scrollDelta);
-        //     (*newDrawingContext->vtable->Destructor_0x0)(1);
-        //     }
-        //     ReleaseDC(this->hWnd,hDC);
-        // }
-        // return;
+        Controls::Control* child = this->getChildAtMousePos();
+        GDIDrawingContext* newDrawingContext = nullptr;
+        if (child != nullptr) {
+            HDC hDC = GetDC(this->hWnd);
+            newDrawingContext = new GDIDrawingContext(this,hDC,this->hWnd);
+
+            if (newDrawingContext != nullptr) {
+                POINT mousePos;
+                this->getLocalMousePos(&mousePos);
+                child->onMouseWheel(newDrawingContext,&mousePos,scrollDelta);
+                delete newDrawingContext;
+            }
+            ReleaseDC(this->hWnd,hDC);
+        }
         return false;
     }
 
-    // STUB: DELAYLAMA 0x100075c0
+    // FUNCTION: DELAYLAMA 0x100075c0
     void Window::drawControlOrSelf(Controls::Control *target) {        
         Controls::Control* targetControl = NULL;
         if (target != NULL) {
@@ -355,7 +338,7 @@ namespace Windows {
         return;
     }
 
-    // STUB: DELAYLAMA 0x10007920
+    // FUNCTION: DELAYLAMA 0x10007920
     bool Window::needsRedraw() {
         bool isWindowDirty = this->isDirty();
         if (this->modalView == nullptr && isWindowDirty == false) {
@@ -471,47 +454,49 @@ namespace Windows {
     }
 
     // STUB: DELAYLAMA 0x10007690
-    void Window::onMouseDown(GDIDrawingContext* drawingContext, POINT* mousePos) {
-        // bool childEnabled;
-        // Control *currentChild;
-        // int i;
-        // View *modal;
-        //
-        // if (this->colors != (Color *)0x0) {
-        //   (**(code **)(this->colors->rgba + 0x18))(0);
-        //   this->colors = (Color *)0x0;
-        // }
-        // modal = this->modalView;
-        // if (modal == nullptr) {
-        //   i = this->numChildren;
-        //   do {
-        //     do {
-        //       i = i + -1;
-        //       if (i < 0) {
-        //         return;
-        //       }
-        //       childEnabled = (bool)(*(this->children[i]->vtable->view).getEnabled)();
-        //     } while (childEnabled == false);
-        //     currentChild = this->children[i];
-        //   } while ((((mousePos->x < (currentChild->members).viewMembers.rect.left) ||
-        //             ((currentChild->members).viewMembers.rect.right < mousePos->x)) ||
-        //            (mousePos->y < (currentChild->members).viewMembers.rect.top)) ||
-        //           ((currentChild->members).viewMembers.rect.bottom < mousePos->y));
-        //   (*(this->children[i]->vtable->view).onMouseDown)(drawingContext,mousePos);
-        // }
-        // else if ((((modal->members).rect.left <= mousePos->x) &&
-        //          (mousePos->x <= (modal->members).rect.right)) &&
-        //         (((modal->members).rect.top <= mousePos->y &&
-        //          (mousePos->y <= (modal->members).rect.bottom)))) {
-        //   (*modal->vtable->onMouseDown)(drawingContext,mousePos);
-        //   return;
-        // }
-        // return;
+    void Window::onMouseDown(GDIDrawingContext *drawingContext, POINT *mousePos)
+    {
+        if (this->unknownClass != nullptr)
+        {
+            //this->unknownClass->invalidate(0);
+            this->unknownClass = nullptr;
+        }
+
+        View* modal = this->modalView;
+        if (modal == nullptr)
+        {
+            Controls::Control* currentChild;
+            int i = this->numChildren;
+            do
+            {
+                bool childEnabled = false;
+                do
+                {
+                    i += -1;
+                    if (i < 0)
+                    {
+                        return;
+                    }
+                    childEnabled = this->children[i]->getEnabled();
+
+                } while (childEnabled == false);
+                
+                currentChild = this->children[i];
+            } while ((((mousePos->x < currentChild->rect.left) || (currentChild->rect.right < mousePos->x)) || (mousePos->y < currentChild->rect.top)) || (currentChild->rect.bottom < mousePos->y));
+            
+            this->children[i]->onMouseDown(drawingContext, mousePos);
+        }
+        else if (((modal->rect.left <= mousePos->x) && (mousePos->x <= modal->rect.right)) && ((modal->rect.top <= mousePos->y && (mousePos->y <= modal->rect.bottom))))
+        {
+            modal->onMouseDown(drawingContext, mousePos);
+            return;
+        }
+        return;
     }
 
-    // STUB: DELAYLAMA 0x10007740
+    // FUNCTION: DELAYLAMA 0x10007740
     bool Window::routeMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, POINT* mousePos) {
-        if ((this->modalView != nullptr) || (this->colors != nullptr)) {
+        if ((this->modalView != nullptr) || (this->unknownClass != nullptr)) {
           return false;
         }
         
@@ -574,9 +559,9 @@ namespace Windows {
         // int i;
         // int curChild;
         //
-        // if (this->colors != (Color *)0x0) {
-        //   (**(code **)(this->colors->rgba + 0x18))(0);
-        //   this->colors = (Color *)0x0;
+        // if (this->unknownClass != (Color *)0x0) {
+        //   (**(code **)(this->unknownClass->rgba + 0x18))(0);
+        //   this->unknownClass = (Color *)0x0;
         // }
         // if (this->children == (Control **)0x0) {
         //   return true;

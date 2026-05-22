@@ -7,48 +7,41 @@
 namespace DamSDK {
 namespace Gui {
 namespace Controls {
-    // STUB: DELAYLAMA 0x10008e40
+    // FUNCTION: DELAYLAMA 0x10008e40
     RotaryControl::RotaryControl(RECT* pRect, callbackCallback callback, int parameterId, Platform::Windows::Bitmap* bmp1, Platform::Windows::Bitmap* bmp2, POINT* srcPoint) : Control(pRect, callback, parameterId, bmp1) {
-        // int iVar1;
-        // int iVar2;
-        // undefined4 uVar3;
-        // float fVar4;
-        // undefined4 unaff_ESI;
-        // undefined4 unaff_EDI;
-        // LONG y;
-        //
-        // Control::Control((Control *)this,pRect,callback,parameterId,bmp1);
-        // this->srcPoint = srcPoint->x;
-        // y = srcPoint->y;
-        // this->bmp = bmp2;
-        // this->y = y;
-        // this->vtable = &RotaryControlVTable_1000bd78;
-        // if (bmp2 == (Bitmap *)0x0) {
-        //   this->knobRadius = 4.2039e-45;
-        // }
-        // else {
-        //   View::useBitmap(bmp2);
-        //   fVar4 = (float)_ftol((double)CONCAT44(unaff_ESI,unaff_EDI));
-        //   this->knobRadius = fVar4;
-        // }
-        // uVar3 = DAT_1000d854;
-        // this->indicatorShadowColor.bytes.r = (byte)DAT_1000d854;
-        // this->indicatorShadowColor.bytes.g = (byte)((uint)uVar3 >> 8);
-        // this->indicatorShadowColor.bytes.b = (byte)((uint)uVar3 >> 0x10);
-        // this->indicatorShadowColor.bytes.a = (byte)((uint)uVar3 >> 0x18);
-        // uVar3 = DAT_FOREGROUND_COLOR;
-        // this->indicatorHighlightColor.bytes.r = (byte)DAT_FOREGROUND_COLOR;
-        // this->indicatorHighlightColor.bytes.g = (byte)((uint)uVar3 >> 8);
-        // this->indicatorHighlightColor.bytes.b = (byte)((uint)uVar3 >> 0x10);
-        // this->indicatorHighlightColor.bytes.a = (byte)((uint)uVar3 >> 0x18);
-        // iVar1 = pRect->right;
-        // iVar2 = pRect->left;
-        // this->totalRange = 1.0;
-        // this->center = (float)(iVar1 - iVar2) * FLOAT_1000bb34;
-        // setStartAngle(this,3.9269907);
-        // setTotalRange(this,0xc096cbe4);
-        // this->fineTuneDivider = 1.5;
-        // return this;
+        this->srcPoint.x = srcPoint->x;
+        LONG y = srcPoint->y;
+        this->bmp = bmp2;
+        this->srcPoint.y = y;
+        if (bmp2 == nullptr) {
+            this->knobRadius = 3;
+        }
+        else {
+            View::useBitmap(bmp2);
+            int result = static_cast<int>(bmp2->width * 0.5f + 2.5f);
+            this->knobRadius = result;
+        }
+
+        COLORREF grayColor = Platform::Windows::DAT_GRAY_COLOR;
+        this->indicatorShadowColor.bytes.r = (byte)grayColor;
+        this->indicatorShadowColor.bytes.g = (byte)(grayColor >> 8);
+        this->indicatorShadowColor.bytes.b = (byte)(grayColor >> 0x10);
+        this->indicatorShadowColor.bytes.a = (byte)(grayColor >> 0x18);
+
+        COLORREF backgroundColor = Platform::Windows::DAT_FOREGROUND_COLOR;
+        this->indicatorHighlightColor.bytes.r = (byte)backgroundColor;
+        this->indicatorHighlightColor.bytes.g = (byte)(backgroundColor >> 8);
+        this->indicatorHighlightColor.bytes.b = (byte)(backgroundColor >> 0x10);
+        this->indicatorHighlightColor.bytes.a = (byte)(backgroundColor >> 0x18);
+
+        int iVar1 = pRect->right;
+        int iVar2 = pRect->left;
+
+        this->totalRange = 1.0f;
+        this->center = (float)(iVar1 - iVar2) * 0.5f;
+        setStartAngle(3.9269907f);
+        setTotalRange(-4.712389f);
+        this->fineTuneDivider = 1.5;
     }
 
     // FUNCTION: DELAYLAMA 0x10008f60
@@ -137,115 +130,138 @@ namespace Controls {
     // FUNCTION: DELAYLAMA 0x10009190
     void RotaryControl::onMouseDown(Platform::Windows::GDIDrawingContext *drawingContext, POINT *mousePos)
     {
+        float halfRange;
+        bool isDirty;
         uint32_t currentModifiers;
-        //
+        int prevMouseX;
+        int prevMouseY;
+        float defaultParamValue;
+        float calculatedAngle;
+        float valuePerPixel;
+        float paramRange;
+        float previousAngle;
+        float baseParamValue;
+        uint32_t prevModifiers;
+        POINT dragStartMouse;
+        bool isLinearMode;
+        int currentMouseX;
+        int currentMouseY;
+        int linearDelta;
+        int boundsTop;
+        float sensitivityPixels;
+        POINT relativeMousePos;
+
         if (this->isEnabled == false)
         {
             return;
         }
 
-        uint32_t lastModifiers = View::GetPressedModifiersAndMouseButtons();
+        prevModifiers = View::GetPressedModifiersAndMouseButtons();
 
-        // Left button not pressed
-        if ((lastModifiers & 1) == 0)
+        // Exit if Left Click is not down
+        if ((prevModifiers & 1) == 0)
         {
             return;
         }
 
-        // CTRL + Click: Reset to Default | 0x10 (Ctrl) | 0x01 (Left)
-        if (lastModifiers == 0x11)
+        // CTRL + Click: Reset to Default
+        if (prevModifiers == 0x11)
         {
-            float defaultVal = this->getDefaultValue();
-            this->value = defaultVal;
-            if (this->isDirty())
+            defaultParamValue = this->getDefaultValue();
+            this->value = (float)defaultParamValue;
+            isDirty = this->isDirty();
+            if (isDirty == false)
             {
-                this->callback(drawingContext, this);
+                return;
             }
+            this->callback(drawingContext, this);
             return;
         }
-        
-        POINT valueRange;
-        POINT startMouse;
-        
-        valueRange.x = this->max - this->min;
-        float defaultVal = 0;
-        float defaultValue = this->prevValue;
-        float lastValue = this->value;
-        float halfRange = valueRange.x * 0.5f;
-        float stepSize = valueRange.x * 0.005f;
-        startMouse.x = 0;
-        startMouse.y = 0;
-        float relativeY = 0;
-        bool isLinearMode = false;
-        float sensitivity = 200.0f;
+
+        paramRange = (float)(this->max - this->min);
+        previousAngle = this->prevValue;
+        baseParamValue = this->value;
+        dragStartMouse.x = 0;
+        dragStartMouse.y = 0;
+        halfRange = paramRange * 0.5f;
+        isLinearMode = false;
+        valuePerPixel = paramRange * 0.005f;
+        sensitivityPixels = 200.0f;
+
         if (Api::GLOBAL_KNOB_MODE == 2)
         {
             // If Alt is held, use Radial/Angular mode
-            if ((lastModifiers & 0x20) != 0)
+            if ((prevModifiers & 0x20) != 0)
             {
             LAB_RADIAL_MODE:
-                valueRange.x = mousePos->x - this->rect.left;
-                valueRange.y = mousePos->y - this->rect.top;
-                defaultVal = this->calculateAngleFromPoint(&valueRange);
-                defaultValue = defaultVal;
+                relativeMousePos.x = mousePos->x - this->rect.left;
+                relativeMousePos.y = mousePos->y - this->rect.top;
+                calculatedAngle = this->calculateAngleFromPoint(&relativeMousePos);
+                previousAngle = (float)calculatedAngle;
                 goto LAB_START_DRAG_LOOP;
             }
         }
-        else if ((lastModifiers & 0x20) == 0)
+        else if ((prevModifiers & 0x20) == 0)
             goto LAB_RADIAL_MODE;
 
         // Linear Mode Setup
-        if ((lastModifiers & 8) != 0)
+        if ((prevModifiers & 8) != 0)
         {
             // Shift-key for fine-tuning
-            sensitivity = this->fineTuneDivider * 200.0f;
+            sensitivityPixels = this->fineTuneDivider * 200.0f;
         }
-        stepSize = (float)valueRange.x / stepSize;
+        valuePerPixel = paramRange / sensitivityPixels;
         isLinearMode = true;
-        startMouse.x = mousePos->x;
-        startMouse.y = mousePos->y;
+        dragStartMouse.x = mousePos->x;
+        dragStartMouse.y = mousePos->y;
+
     LAB_START_DRAG_LOOP:
-        int lastMouseX = -1;
-        valueRange.y = -1;
+        prevMouseX = -1;
+        prevMouseY = -1;
         this->parent->beginEdit(this->parameterId);
         do
         {
             currentModifiers = View::GetPressedModifiersAndMouseButtons();
-            float mouseX = mousePos->x;
-            if ((mouseX != lastMouseX) || (mousePos->y != valueRange.y))
+            currentMouseX = mousePos->x;
+            currentMouseY = mousePos->y;
+
+            if ((currentMouseX != prevMouseX) || (currentMouseY != prevMouseY))
             {
-                valueRange.y = mousePos->y;
-                lastMouseX = mousePos->x;
+                prevMouseY = currentMouseY;
+                prevMouseX = currentMouseX;
+
                 if (isLinearMode)
                 {
-                    mouseX = ((mouseX - mousePos->y) - startMouse.x) + startMouse.y;
-                    if (currentModifiers != lastModifiers)
+                    linearDelta = ((currentMouseX - currentMouseY) - dragStartMouse.x) + dragStartMouse.y;
+                    if (currentModifiers != prevModifiers)
                     {
-                        sensitivity = 200.0f;
+                        sensitivityPixels = 200.0f;
                         if ((currentModifiers & 8) != 0)
                         {
-                            sensitivity = this->fineTuneDivider * 200.0f;
+                            sensitivityPixels = this->fineTuneDivider * 200.0f;
                         }
-                        sensitivity = (this->max - this->min) / sensitivity;
-                        lastValue = (stepSize - sensitivity) * (float)mouseX + lastValue;
-                        stepSize = sensitivity;
-                        lastModifiers = currentModifiers;
+                        sensitivityPixels = (this->max - this->min) / sensitivityPixels;
+                        baseParamValue = (valuePerPixel - sensitivityPixels) * (float)linearDelta + baseParamValue;
+                        valuePerPixel = sensitivityPixels;
+                        prevModifiers = currentModifiers;
                     }
-                    this->value = (float)mouseX * stepSize + lastValue;
+                    this->value = (float)linearDelta * valuePerPixel + baseParamValue;
                     this->clampValue();
                 }
                 else
                 {
-                    float rectTop = this->rect.top;
-                    mousePos->x = mouseX - this->rect.left;
-                    mousePos->y = mousePos->y - rectTop;
-                    defaultVal = this->calculateAngleFromPoint(mousePos);
-                    this->value = (float)defaultVal;
-                    if (defaultValue - defaultVal <= halfRange)
+                    boundsTop = this->rect.top;
+                    relativeMousePos.x = currentMouseX - this->rect.left;
+                    relativeMousePos.y = currentMouseY - boundsTop;
+                    calculatedAngle = this->calculateAngleFromPoint(&relativeMousePos);
+                    this->value = (float)calculatedAngle;
+
+                    // Wrap-around logic bounds checking
+                    if (previousAngle - calculatedAngle <= halfRange)
                     {
-                        if (defaultVal - defaultValue <= halfRange)
+                        if (calculatedAngle - previousAngle <= halfRange)
                         {
-                            defaultValue = (float)defaultVal;
+                            previousAngle = (float)calculatedAngle;
                         }
                         else
                         {
@@ -257,16 +273,19 @@ namespace Controls {
                         this->value = this->max;
                     }
                 }
-                bool isDirty2 = this->isDirty();
-                if (isDirty2 != false)
+
+                isDirty = this->isDirty();
+                if (isDirty != false)
                 {
                     this->callback(drawingContext, this);
                 }
             }
             drawingContext->getRelativeMousePos(mousePos);
             this->onIdle();
-        } while ((lastModifiers & 1) != 0);
+        } while ((currentModifiers & 1) != 0);
+
         this->parent->endEdit(this->parameterId);
+        return;
     }
 
     // FUNCTION: DELAYLAMA 0x10009470

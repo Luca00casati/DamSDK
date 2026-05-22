@@ -27,7 +27,7 @@ namespace Controls {
         this->xValueRange = (float)(maxValue - minValue);
         this->yValueRange = (float)(handleMaxY - this->yTop);
     }
-
+    
     // STUB: DELAYLAMA 0x10004420
     TwoAxisSlider::~TwoAxisSlider() {
         HorizontalSlider::destroy();

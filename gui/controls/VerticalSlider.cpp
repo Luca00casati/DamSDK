@@ -158,10 +158,10 @@ namespace Controls {
                 while ((modifiers & 0x01) != 0) {
                     float calculatedValue = (float)(relativeMousePos->y - verticalAnchor) / (float)(trackMaxY - trackMinY);
                     
-                    // Reverse if flag 0x40 is set (Standard for "Inverted" vertical sliders)
-                    if ((this->flags & 0x40) != 0) {
-                        calculatedValue = 1.0f - calculatedValue;
-                    }
+                    // Reverse if flag 0x40 is set
+                    // if ((this->flags & 0x40) != 0) {
+                    //     calculatedValue = 1.0f - calculatedValue;
+                    // }
 
                     // Fine-tuning logic (usually Shift key = 0x08)
                     if ((modifiers & 0x08) != 0) {

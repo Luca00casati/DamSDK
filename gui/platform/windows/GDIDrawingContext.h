@@ -19,6 +19,7 @@ namespace Windows {
     extern HINSTANCE g_hInstance;
 
     extern COLORREF DAT_FOREGROUND_COLOR;
+    extern COLORREF DAT_GRAY_COLOR;
     extern COLORREF DAT_BACK_COLOR;
 
     // VTABLE: DELAYLAMA 0x1000bbe4
