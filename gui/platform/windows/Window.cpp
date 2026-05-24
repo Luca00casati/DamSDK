@@ -462,7 +462,7 @@ namespace Windows {
             this->unknownClass = nullptr;
         }
 
-        View* modal = this->modalView;
+        Base::View* modal = this->modalView;
         if (modal == nullptr)
         {
             Controls::Control* currentChild;

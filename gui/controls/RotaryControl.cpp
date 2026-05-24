@@ -313,8 +313,8 @@ namespace Controls {
     void RotaryControl::calculateXYFromValue(POINT* outPoint) {
         float angle = (this->value - this->angleOffset) / this->angleRange;
 
-        float cosAngle = std::cos(angle);
-        float sinAngle = std::sin(angle);
+        float cosAngle = cos(angle);
+        float sinAngle = sin(angle);
 
         int radius = static_cast<int>(this->knobRadius);
 
