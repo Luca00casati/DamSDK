@@ -21,14 +21,12 @@ namespace Controls {
         public:
             int parameterId;
             float prevValue;
+            float defaultValue;
             float value;
             float min;
             float max;
-            float defaultValue;
             float wheelSensitivity;
             Platform::Windows::Bitmap *bitmap;
-            bool useAlphaBlending;
-            bool isEnabled;
             void (*callback)(Platform::Windows::GDIDrawingContext*, Control*);
         public:
             Control(RECT *pRect, callbackCallback callback, int parameterId, Platform::Windows::Bitmap *bmp);
