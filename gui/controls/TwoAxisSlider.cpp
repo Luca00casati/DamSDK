@@ -54,16 +54,15 @@ namespace Controls {
                 int isStillDown = (int)inputMask;
 
                 while (isStillDown != 0) {
-                    // X-Axis Update
+                    // X-Axis Update (vibrato amount, normalized 0-1)
                     this->value = (float)(mousePos->x - (handleWidth / 2 + minX)) / this->xValueRange;
                     this->clampValue();
                     this->callback(drawContext, this);
 
-                    // Y-Axis Update
+                    // Y-Axis Update (pitch, offset by 100 to distinguish in onControlChanged)
                     this->value = (float)(mousePos->y - this->yTop) / this->yValueRange;
                     this->clampValue();
-                    
-                    this->value = this->value + 100.0f; 
+                    this->value = this->value + 100.0f;
                     this->callback(drawContext, this);
 
                     drawContext->getRelativeMousePos(mousePos);

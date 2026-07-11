@@ -98,41 +98,53 @@ namespace Controls {
         Control::destroy();
     }
 
-    // FUNCTION: DELAYLAMA 0x1000a1a0
-    void HorizontalSlider::onDraw(Platform::Windows::GDIDrawingContext* drawingContext) {
-        Platform::Windows::OffscreenGDIDrawingContext* offscreenContext = new Platform::Windows::OffscreenGDIDrawingContext(
-            this->parent,
-            this->trackWidth,
-            this->trackHeight,
-            Platform::Windows::DAT_BACK_COLOR
-        );
+     // FUNCTION: DELAYLAMA 0x1000a1a0
+     void HorizontalSlider::onDraw(Platform::Windows::GDIDrawingContext* drawingContext) {
+         // Early out if no bitmaps to draw - prevents black square from being rendered
+         if (this->bitmap == nullptr && this->handleImage == nullptr) {
+             return;
+         }
+         
+         float valueToUse = this->value;
+         
+         // Check for flags & 8 to determine if value should be inverted
+         if ((this->flags & 8) == 0) {
+             valueToUse = 1.0f - valueToUse;
+         }
+         
+         Platform::Windows::OffscreenGDIDrawingContext* offscreenContext = new Platform::Windows::OffscreenGDIDrawingContext(
+             this->parent,
+             this->trackWidth,
+             this->trackHeight,
+             Platform::Windows::DAT_BACK_COLOR
+         );
 
-        RECT trackRect;
-        trackRect.left = 0;
-        trackRect.top = 0;
-        trackRect.right = this->trackWidth;
-        trackRect.bottom = this->trackHeight;
-        
-        // Draw the track background if a bitmap is provided.
-        Platform::Windows::Bitmap* trackBitmap = this->bitmap;
-        if (trackBitmap != nullptr) {
-            POINT srcOffset = this->backgroundOffset;
-            if (!this->useAlphaBlending) {
-                trackBitmap->blit(offscreenContext, &trackRect, &srcOffset);
-            } else {
-                trackBitmap->drawMasked(offscreenContext, &trackRect, &srcOffset);
-            }
-        }
-        RECT handleRect;
-        handleRect.top    = this->handlePos.y;
-        handleRect.bottom = this->handleHeight + handleRect.top;
-        
-        // Compute the handle's horizontal position based on the current normalized value.
-        int valueRange = this->trackMaxX - this->trackMinX;
-        int handleOffset = static_cast<int>(this->value * valueRange);
-        int handleMinPos = this->handleMinPos;
-        
-        handleRect.left = handleOffset + this->handlePos.x;
+         RECT trackRect;
+         trackRect.left = 0;
+         trackRect.top = 0;
+         trackRect.right = this->trackWidth;
+         trackRect.bottom = this->trackHeight;
+         
+         // Draw the track background if a bitmap is provided.
+         Platform::Windows::Bitmap* trackBitmap = this->bitmap;
+         if (trackBitmap != nullptr) {
+             POINT srcOffset = this->backgroundOffset;
+             if (!this->useAlphaBlending) {
+                 trackBitmap->blit(offscreenContext, &trackRect, &srcOffset);
+             } else {
+                 trackBitmap->drawMasked(offscreenContext, &trackRect, &srcOffset);
+             }
+         }
+         RECT handleRect;
+         handleRect.top    = this->handlePos.y;
+         handleRect.bottom = this->handleHeight + handleRect.top;
+         
+         // Compute the handle's horizontal position based on the current normalized value.
+         int valueRange = this->trackMaxX - this->trackMinX;
+         int handleOffset = static_cast<int>(valueToUse * valueRange);
+         int handleMinPos = this->handleMinPos;
+         
+         handleRect.left = handleOffset + this->handlePos.x;
         if (handleRect.left < handleMinPos) {
             handleRect.left = handleMinPos;
         }

@@ -53,17 +53,28 @@ namespace Controls {
         Control::destroy();
     }
 
-    // FUNCTION: DELAYLAMA 0x10009c50
-    void VerticalSlider::onDraw(Platform::Windows::GDIDrawingContext* drawingContext) {
-        Platform::Windows::OffscreenGDIDrawingContext* offscreenContext = new Platform::Windows::OffscreenGDIDrawingContext(
-            this->parent,
-            this->trackWidth,
-            this->trackHeight,
-            Platform::Windows::DAT_BACK_COLOR
-        );
+     // FUNCTION: DELAYLAMA 0x10009c50
+     void VerticalSlider::onDraw(Platform::Windows::GDIDrawingContext* drawingContext) {
+         // Early out if no bitmaps to draw - prevents black square from being rendered
+         if (this->bitmap == nullptr && this->handleImage == nullptr) {
+             return;
+         }
+         
+         // Check for flags & 0x20 to determine if value should be inverted (for pitch control)
+         float valueToUse = this->value;
+         if ((this->flags & 0x20) == 0) {
+             valueToUse = 1.0f - valueToUse;
+         }
+         
+         Platform::Windows::OffscreenGDIDrawingContext* offscreenContext = new Platform::Windows::OffscreenGDIDrawingContext(
+             this->parent,
+             this->trackWidth,
+             this->trackHeight,
+             Platform::Windows::DAT_BACK_COLOR
+         );
 
-        RECT trackRect = { 0, 0, this->trackWidth, this->trackHeight };
-        Platform::Windows::Bitmap* trackBitmap = this->bitmap;
+         RECT trackRect = { 0, 0, this->trackWidth, this->trackHeight };
+         Platform::Windows::Bitmap* trackBitmap = this->bitmap;
 
         if (trackBitmap != nullptr) {
             POINT srcOffset = this->backgroundOffset;
@@ -75,7 +86,7 @@ namespace Controls {
         }
 
         int valueRange = this->trackMaxY - this->trackMinY;
-        int handleOffset = static_cast<int>(this->value * valueRange);
+        int handleOffset = static_cast<int>(valueToUse * valueRange);
         int handleY = this->handlePos.y + handleOffset;
 
         if (handleY < this->handleMinPos) handleY = this->handleMinPos;
@@ -158,10 +169,10 @@ namespace Controls {
                 while ((modifiers & 0x01) != 0) {
                     float calculatedValue = (float)(relativeMousePos->y - verticalAnchor) / (float)(trackMaxY - trackMinY);
                     
-                    // Reverse if flag 0x40 is set
-                    // if ((this->flags & 0x40) != 0) {
-                    //     calculatedValue = 1.0f - calculatedValue;
-                    // }
+                    // Reverse if flag 0x40 is set (for vertical slider pitch control)
+                    if ((this->flags & 0x40) != 0) {
+                        calculatedValue = 1.0f - calculatedValue;
+                    }
 
                     // Fine-tuning logic (usually Shift key = 0x08)
                     if ((modifiers & 0x08) != 0) {
