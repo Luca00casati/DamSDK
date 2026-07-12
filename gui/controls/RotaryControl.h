@@ -29,9 +29,9 @@ namespace Controls {
             RotaryControl(RECT* pRect, callbackCallback callback, int parameterId, Platform::Windows::Bitmap* bmp1, Platform::Windows::Bitmap* bmp2, POINT* srcPoint);
             ~RotaryControl();
             void destroy();
-            void onDraw(Platform::Windows::GDIDrawingContext* drawingContext);
+            virtual void onDraw(Platform::Windows::GDIDrawingContext* drawingContext) override;
             void drawIndicator(Platform::Windows::GDIDrawingContext* drawingContext);
-            void onMouseDown(Platform::Windows::GDIDrawingContext* drawingContext, POINT* mousePos);
+            virtual void onMouseDown(Platform::Windows::GDIDrawingContext* drawingContext, POINT* mousePos) override;
             void setStartAngle(float startAngle);
             void setTotalRange(float totalRange);
             void updateMathConstants();

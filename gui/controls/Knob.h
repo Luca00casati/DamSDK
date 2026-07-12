@@ -16,7 +16,7 @@ namespace Controls {
             ~Knob();
             Knob* destructor(bool deleteObject);
             void destroy();
-            void onDraw(Platform::Windows::GDIDrawingContext* drawingContext);
+            virtual void onDraw(Platform::Windows::GDIDrawingContext* drawingContext) override;
     };
 }
 }

@@ -42,8 +42,8 @@ namespace Controls {
             virtual float getFinetuneDivider();
             virtual void changeHandle(Platform::Windows::Bitmap* newHandle);
             virtual void destroy();
-            virtual void onDraw(Platform::Windows::GDIDrawingContext* drawingContext);
-            virtual void onMouseDown(Platform::Windows::GDIDrawingContext* drawingContext, POINT* mousePos);
+            virtual void onDraw(Platform::Windows::GDIDrawingContext* drawingContext) override;
+            virtual void onMouseDown(Platform::Windows::GDIDrawingContext* drawingContext, POINT* mousePos) override;
     };
 }
 }

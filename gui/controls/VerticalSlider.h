@@ -30,8 +30,8 @@ namespace Controls {
             VerticalSlider(RECT *pRect, callbackCallback callback, int parameterId, int minValue, int maxValue, Platform::Windows::Bitmap *handleBmp, Platform::Windows::Bitmap *backgroundBmp, POINT* offset, int flags);
             ~VerticalSlider();
             void destroy();
-            void onDraw(Platform::Windows::GDIDrawingContext* drawingContext);
-            void onMouseDown(Platform::Windows::GDIDrawingContext* drawingContext, POINT* relativeMousePos);
+            virtual void onDraw(Platform::Windows::GDIDrawingContext* drawingContext) override;
+            virtual void onMouseDown(Platform::Windows::GDIDrawingContext* drawingContext, POINT* relativeMousePos) override;
     };
 }
 }

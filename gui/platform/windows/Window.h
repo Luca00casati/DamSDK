@@ -54,8 +54,8 @@ namespace Windows {
             virtual void cleanup();
             virtual bool closeWindow();
             virtual bool setDragAndDropState(bool enable);
-            virtual void onMouseDown(GDIDrawingContext* drawingContext, POINT* mousePos);
-            virtual bool routeMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, POINT* mousePos);
+            virtual void onMouseDown(GDIDrawingContext* drawingContext, POINT* mousePos) override;
+            virtual bool routeMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, POINT* mousePos) override;
             virtual bool removeChild(Controls::Control* child, bool shouldRelease);
             virtual bool destroyChildren(bool* callExtraFlag);
             virtual bool containsChild(Controls::Control* target);

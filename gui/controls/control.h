@@ -46,11 +46,11 @@ namespace Controls {
             void setWheelSensitivity(float sensitivity);
             float getWheelSensitivity();
             void destroy();
-            bool isDirty();
-            void setDirty(bool isDirty);
+            virtual bool isDirty() override;
+            virtual void setDirty(bool isDirty) override;
             void changeBitmap(Platform::Windows::Bitmap* newBitmap);
             void clampValue();
-            bool onMouseWheel(Platform::Windows::GDIDrawingContext* drawingContext, POINT* mousePos, float wheelDelta);
+            virtual bool onMouseWheel(Platform::Windows::GDIDrawingContext* drawingContext, POINT* mousePos, float wheelDelta) override;
             bool returnTrue(Platform::Windows::Window* window);
     };
 }
