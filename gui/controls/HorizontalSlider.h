@@ -37,7 +37,7 @@ namespace Controls {
             virtual void setIsHandleTransparent(bool transparent);
             virtual bool getSnapToMouse();
             virtual void setHandlePos(POINT* handlePos);
-            virtual Platform::Windows::Bitmap* HorizontalSlider::getHandleImage();
+            virtual Platform::Windows::Bitmap* getHandleImage();
             virtual void setFinetuneDivider(float currentValue);
             virtual float getFinetuneDivider();
             virtual void changeHandle(Platform::Windows::Bitmap* newHandle);
