@@ -7,7 +7,7 @@ namespace DamSDK {
 namespace Gui {
 namespace Controls {
 
-    // STUB: DELAYLAMA 0x10004350
+    // FUNCTION: DELAYLAMA 0x10004350
     TwoAxisSlider::TwoAxisSlider(RECT *bounds, callbackCallback callback, int parameterId, int minValue, int maxValue, Platform::Windows::Bitmap *handle, Platform::Windows::Bitmap *background, POINT* offset, int flags) : HorizontalSlider(bounds,callback,parameterId,minValue,maxValue,handle,background,offset,flags)
     {
         int handleHeight = this->handleHeight;
@@ -28,12 +28,12 @@ namespace Controls {
         this->yValueRange = (float)(handleMaxY - this->yTop);
     }
     
-    // STUB: DELAYLAMA 0x10004420
+    // FUNCTION: DELAYLAMA 0x10004420
     TwoAxisSlider::~TwoAxisSlider() {
         HorizontalSlider::destroy();
     }
 
-    // STUB: DELAYLAMA 0x10004460
+    // FUNCTION: DELAYLAMA 0x10004460
     void TwoAxisSlider::onMouseDown(DamSDK::Gui::Platform::Windows::GDIDrawingContext* drawContext, POINT* mousePos) {
         if (this->isEnabled != false) {
             uint8_t inputMask = View::GetPressedModifiersAndMouseButtons();
