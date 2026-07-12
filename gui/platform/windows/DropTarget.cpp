@@ -51,14 +51,14 @@ namespace Windows {
         return 0;
     }
 
-    // STUB: DELAYLAMA 0x100087a0
+    // FUNCTION: DELAYLAMA 0x100087a0
     int DropTarget::addRef() {
         int iVar1 = this->refCount + 1;
         this->refCount = iVar1;
         return iVar1;
     }
 
-    // STUB: DELAYLAMA 0x100087b0
+    // FUNCTION: DELAYLAMA 0x100087b0
     int DropTarget::release() {
         int newRefCount;
         
@@ -103,7 +103,7 @@ namespace Windows {
         return 0;
     }
 
-    // STUB: DELAYLAMA 0x100088c0
+    // FUNCTION: DELAYLAMA 0x100088c0
     HRESULT DropTarget::dragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) {
         if (this->canAcceptDrop != false) {
           *pdwEffect = 2 - ((grfKeyState & 8) != 0);
@@ -113,7 +113,7 @@ namespace Windows {
         return 0;
     }
 
-    // STUB: DELAYLAMA 0x10008900
+    // FUNCTION: DELAYLAMA 0x10008900
     HRESULT DropTarget::returnZero() {
         return 0;
     }

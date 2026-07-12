@@ -8,7 +8,7 @@ namespace DamSDK {
 namespace Gui {
 namespace Controls {
 
-    // STUB: DELAYLAMA 0x10009a40
+    // FUNCTION: DELAYLAMA 0x10009a40
     VerticalSlider::VerticalSlider(RECT *pRect, callbackCallback callback, int parameterId, int minValue, int maxValue, Platform::Windows::Bitmap *handleBmp, Platform::Windows::Bitmap *backgroundBmp, POINT* offset, int flags) : Control(pRect, callback, parameterId, backgroundBmp)
     {
         this->backgroundOffset.x = offset->x;

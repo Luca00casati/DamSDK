@@ -577,7 +577,7 @@ namespace Api {
         // return;
     }
 
-    // STUB: DELAYLAMA 0x10002280
+    // FUNCTION: DELAYLAMA 0x10002280
     uint32_t AudioBaseExtended::getBlockSize() {
         if (this->hostCallback != nullptr)
             this->hostCallback(&this->plugin, hostGetMaxFramesPerProcess, 0, 0, nullptr, 0.0f);

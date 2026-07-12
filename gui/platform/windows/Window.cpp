@@ -40,7 +40,7 @@ namespace Windows {
         openPluginWindow(hParent);
     }
 
-    // STUB: DELAYLAMA 0x10007330
+    // FUNCTION: DELAYLAMA 0x10007330
     Window::~Window() {
         cleanup();
     }
@@ -453,7 +453,7 @@ namespace Windows {
         return true;
     }
 
-    // STUB: DELAYLAMA 0x10007690
+    // FUNCTION: DELAYLAMA 0x10007690
     void Window::onMouseDown(GDIDrawingContext *drawingContext, POINT *mousePos)
     {
         if (this->unknownClass != nullptr)

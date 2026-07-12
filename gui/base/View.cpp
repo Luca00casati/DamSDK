@@ -35,7 +35,7 @@ namespace Base {
     // FUNCTION: DELAYLAMA 0x100071b0
     void View::setDirty(bool isDirty) { _isDirty = isDirty; }
 
-    // STUB: DELAYLAMA 0x10007220
+    // FUNCTION: DELAYLAMA 0x10007220
     void View::update(Platform::Windows::GDIDrawingContext *drawingContext) {
         bool isActive = this->isDirty();
         if (isActive != false) {
@@ -153,7 +153,7 @@ namespace Base {
     // FUNCTION: DELAYLAMA 0x10004670 FOLDED
     void View::returnTrue2(Platform::Windows::Window *frame) {}
 
-    // STUB: DELAYLAMA 0x10007280
+    // FUNCTION: DELAYLAMA 0x10007280
     void View::release() {
         int referenceCount = this->referenceCount;
         if (((0 < referenceCount) && (referenceCount = referenceCount + -1, this->referenceCount = referenceCount, referenceCount == 0)) && (this != nullptr)) {
