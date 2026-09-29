@@ -28,9 +28,9 @@ namespace Windows {
             int unknown; // 0x7c
             int height; // 0x80
             int width; // 0x84
-            COLORREF color; // 0x88
+            Api::Color color; // 0x88
         public:
-            OffscreenGDIDrawingContext(Window* parentFramePtr, int width, int height, COLORREF color);
+            OffscreenGDIDrawingContext(Window* parentFramePtr, int width, int height, Api::Color color);
             ~OffscreenGDIDrawingContext();
     };
 }

@@ -9,9 +9,9 @@ namespace Windows {
     // GLOBAL: DELAYLAMA 0x1000d400
     HINSTANCE g_hInstance = NULL;
 
-    COLORREF DAT_FOREGROUND_COLOR = RGB(255, 255, 255);
-    COLORREF DAT_GRAY_COLOR = RGB(127, 127, 127);
-    COLORREF DAT_BACK_COLOR = RGB(0, 0, 0);
+    Api::Color DAT_FOREGROUND_COLOR = {255, 255, 255, 0};
+    Api::Color DAT_GRAY_COLOR = {127, 127, 127, 0};
+    Api::Color DAT_BACK_COLOR = {0, 0, 0, 0};
 
     // FUNCTION: DELAYLAMA 0x10006960
     GDIDrawingContext::GDIDrawingContext(Window *parentFramePtr,HDC hDC,HWND hWnd) {
@@ -25,7 +25,7 @@ namespace Windows {
 
         memset(this->unused2, 0, sizeof(this->unused2));
         this->penWidth = 1;
-        this->penDashEnabled = false;
+        this->lineStyle = 0;
         memset(this->unused3, 0, sizeof(this->unused3));
 
         this->rect.left = 0;
@@ -89,101 +89,62 @@ namespace Windows {
         if (hDC != NULL)
         {
             this->setPenColor(this->penColor);
-            this->setPenDashMode(this->penDashEnabled);
+            this->setPenDashMode(this->lineStyle);
             this->setBackgroundColorAndBrush(this->backgroundColor);
             this->setTextColor(this->textColor);
         }
     }
 
     // FUNCTION: DELAYLAMA 0x10006da0
-    void GDIDrawingContext::setPenColor(COLORREF color)
+    void GDIDrawingContext::setPenColor(Api::Color color)
     {
         this->penColor = color;
-
-        LOGPEN pen;
-        pen.lopnWidth.x = this->penWidth;
-        pen.lopnWidth.y = this->penWidth;
-        pen.lopnStyle   = this->penStyle;
-        pen.lopnColor   = this->penColor;
-
+        LOGPEN pen = {this->penStyle, {this->penWidth, this->penWidth}, RGB(this->penColor.red, this->penColor.green, this->penColor.blue)};
         HPEN newPen = CreatePenIndirect(&pen);
-        if (newPen == NULL)
-            return;
-
         SelectObject(this->hDC, newPen);
-
         if (this->obj2 != NULL)
-        {
             DeleteObject(this->obj2);
-        }
-
         this->obj2 = newPen;
     }
 
     // FUNCTION: DELAYLAMA 0x10006be0
-    void GDIDrawingContext::setPenDashMode(bool penDashEnabled)
+    void GDIDrawingContext::setPenDashMode(int32_t lineStyle)
     {
-        this->penDashEnabled = penDashEnabled;
-
-        if (penDashEnabled == true)
-            this->penStyle = PS_DASH;
+        this->lineStyle = lineStyle;
+        if (lineStyle == 1)
+            this->penStyle = PS_DOT;
         else
             this->penStyle = PS_SOLID;
-
-        LOGPEN pen;
-        pen.lopnWidth.x = this->penWidth;
-        pen.lopnWidth.y = this->penWidth;
-        pen.lopnStyle   = this->penStyle;
-        pen.lopnColor   = this->penColor;
-
+        LOGPEN pen = {this->penStyle, {this->penWidth, this->penWidth}, RGB(this->penColor.red, this->penColor.green, this->penColor.blue)};
         HPEN newPen = CreatePenIndirect(&pen);
-        if (newPen == NULL)
-            return;
-
         SelectObject(this->hDC, newPen);
-
         if (this->obj2 != NULL)
-        {
             DeleteObject(this->obj2);
-        }
-
         this->obj2 = newPen;
     }
 
     // FUNCTION: DELAYLAMA 0x10006e20
-    void GDIDrawingContext::setBackgroundColorAndBrush(COLORREF color)
+    void GDIDrawingContext::setBackgroundColorAndBrush(Api::Color color)
     {
         this->backgroundColor = color;
-
-        SetBkColor(this->hDC, this->backgroundColor);
-
-        LOGBRUSH brush;
-        brush.lbStyle = BS_SOLID;
-        brush.lbColor = this->backgroundColor;
-        brush.lbHatch = 0;
-
+        SetBkColor(this->hDC, RGB(color.red, color.green, color.blue));
+        LOGBRUSH brush = {BS_SOLID, RGB(color.red, color.green, color.blue), 0};
         HBRUSH newBrush = CreateBrushIndirect(&brush);
-        if (newBrush == NULL)
-        {
+        if (newBrush == NULL) {
             GetLastError();
             return;
         }
-
         SelectObject(this->hDC, newBrush);
-
         if (this->obj1 != NULL)
-        {
             DeleteObject(this->obj1);
-        }
-
         this->obj1 = newBrush;
     }
 
     // FUNCTION: DELAYLAMA 0x10006d60
-    void GDIDrawingContext::setTextColor(COLORREF color)
+    void GDIDrawingContext::setTextColor(Api::Color color)
     {
         this->textColor = color;
-        SetTextColor(this->hDC, this->textColor);
+        SetTextColor(this->hDC, RGB(this->textColor.red, this->textColor.green, this->textColor.blue));
     }
 
     // FUNCTION: DELAYLAMA 0x10003620

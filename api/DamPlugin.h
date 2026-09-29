@@ -111,6 +111,22 @@ namespace Api {
         int32_t max;
     };
 
+    // 4-byte colour (VSTGUI CColor). Copied byte by byte, unlike COLORREF.
+    struct Color {
+        uint8_t red;
+        uint8_t green;
+        uint8_t blue;
+        uint8_t unused;
+
+        Color& operator=(Color newColor) {
+            red = newColor.red;
+            green = newColor.green;
+            blue = newColor.blue;
+            unused = newColor.unused;
+            return *this;
+        }
+    };
+
     union ColorRGBA {
         uint32_t raw;
         struct {

@@ -8,7 +8,7 @@ namespace Platform {
 namespace Windows {
 
     // FUNCTION: DELAYLAMA 0x10006f80
-    OffscreenGDIDrawingContext::OffscreenGDIDrawingContext(Window* parentFramePtr, int width, int height, COLORREF color) : GDIDrawingContext(parentFramePtr, nullptr, nullptr) {
+    OffscreenGDIDrawingContext::OffscreenGDIDrawingContext(Window* parentFramePtr, int width, int height, Api::Color color) : GDIDrawingContext(parentFramePtr, nullptr, nullptr) {
         this->bmp = nullptr;
         this->unknown = 0;
         this->width = width;

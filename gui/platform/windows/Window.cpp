@@ -665,16 +665,6 @@ namespace Windows {
         }
     }
 
-    // FUNCTION: DELAYLAMA 0x10008690
-    DropTarget* Window::createDropTarget() {
-
-        DropTarget* target = new DropTarget(this);
-        if (target != nullptr) {;
-          return target;
-        }
-        return nullptr;
-    }
-
 }
 }
 }

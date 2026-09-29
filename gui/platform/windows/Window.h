@@ -63,7 +63,6 @@ namespace Windows {
             void endEdit(int parameterId);
             Controls::Control* getChildAtMousePos();
             void getLocalMousePos(POINT* mousePos);
-            DropTarget* createDropTarget();
             static bool registerWindowClass();
             static void unregisterWindowClass();
     };

@@ -22,17 +22,8 @@ namespace Controls {
             this->knobRadius = result;
         }
 
-        COLORREF grayColor = Platform::Windows::DAT_GRAY_COLOR;
-        this->indicatorShadowColor.bytes.r = (byte)grayColor;
-        this->indicatorShadowColor.bytes.g = (byte)(grayColor >> 8);
-        this->indicatorShadowColor.bytes.b = (byte)(grayColor >> 0x10);
-        this->indicatorShadowColor.bytes.a = (byte)(grayColor >> 0x18);
-
-        COLORREF backgroundColor = Platform::Windows::DAT_FOREGROUND_COLOR;
-        this->indicatorHighlightColor.bytes.r = (byte)backgroundColor;
-        this->indicatorHighlightColor.bytes.g = (byte)(backgroundColor >> 8);
-        this->indicatorHighlightColor.bytes.b = (byte)(backgroundColor >> 0x10);
-        this->indicatorHighlightColor.bytes.a = (byte)(backgroundColor >> 0x18);
+        this->indicatorShadowColor = Platform::Windows::DAT_GRAY_COLOR;
+        this->indicatorHighlightColor = Platform::Windows::DAT_FOREGROUND_COLOR;
 
         int iVar1 = pRect->right;
         int iVar2 = pRect->left;
@@ -383,20 +374,14 @@ namespace Controls {
     }
 
     // FUNCTION: DELAYLAMA 0x100096c0
-    void RotaryControl::setIndicatorShadowColor(Api::ColorRGBA color) {
-        this->indicatorShadowColor.bytes.r = color.bytes.r;
-        this->indicatorShadowColor.bytes.g = color.bytes.g;
-        this->indicatorShadowColor.bytes.b = color.bytes.b;
-        this->indicatorShadowColor.bytes.a = color.bytes.a;
+    void RotaryControl::setIndicatorShadowColor(Api::Color color) {
+        this->indicatorShadowColor = color;
         this->setDirty(true);
     }
 
     // FUNCTION: DELAYLAMA 0x100096f0
-    void RotaryControl::setIndicatorHighlightColor(Api::ColorRGBA color) {
-        this->indicatorHighlightColor.bytes.r = color.bytes.r;
-        this->indicatorHighlightColor.bytes.g = color.bytes.g;
-        this->indicatorHighlightColor.bytes.b = color.bytes.b;
-        this->indicatorHighlightColor.bytes.a = color.bytes.a;
+    void RotaryControl::setIndicatorHighlightColor(Api::Color color) {
+        this->indicatorHighlightColor = color;
         this->setDirty(true);
     }
 

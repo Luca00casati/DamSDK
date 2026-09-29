@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <windef.h>
 #include <damsdk/utils/portable_stdint.h>
+#include <damsdk/api/DamPlugin.h>
 
 namespace DamSDK {
     namespace Gui {
@@ -18,9 +19,9 @@ namespace Windows {
 
     extern HINSTANCE g_hInstance;
 
-    extern COLORREF DAT_FOREGROUND_COLOR;
-    extern COLORREF DAT_GRAY_COLOR;
-    extern COLORREF DAT_BACK_COLOR;
+    extern Api::Color DAT_FOREGROUND_COLOR;
+    extern Api::Color DAT_GRAY_COLOR;
+    extern Api::Color DAT_BACK_COLOR;
 
     // VTABLE: DELAYLAMA 0x1000bbe4
     class GDIDrawingContext {
@@ -31,12 +32,12 @@ namespace Windows {
             HWND hWnd;
             void*	parentFrame;
             char unused1[8];
-            COLORREF textColor;
+            Api::Color textColor;
             char unused2[8];
             LONG penWidth;
-            COLORREF penColor;
-            COLORREF backgroundColor;
-            bool penDashEnabled;
+            Api::Color penColor;
+            Api::Color backgroundColor;
+            int32_t lineStyle;
             char unused3[4];
             RECT rect;
             HBRUSH obj1;
@@ -51,10 +52,10 @@ namespace Windows {
             GDIDrawingContext(Window *parentFramePtr,HDC hDC,HWND hWnd);
             virtual ~GDIDrawingContext();
             static int32_t setModuleHandle(HINSTANCE hInstance);
-            void setPenColor(COLORREF color);
-            void setPenDashMode(bool penDashEnabled);
-            void setBackgroundColorAndBrush(COLORREF color);
-            void setTextColor(COLORREF color);
+            void setPenColor(Api::Color color);
+            void setPenDashMode(int32_t lineStyle);
+            void setBackgroundColorAndBrush(Api::Color color);
+            void setTextColor(Api::Color color);
             void moveToEx(POINT* target);
             void lineTo(POINT* tageet);
             void drawRectangleOutline(RECT* param_1);

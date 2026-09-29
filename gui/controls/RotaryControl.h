@@ -13,8 +13,8 @@ namespace Controls {
     class RotaryControl : public Control {
         public:
             POINT srcPoint;
-            Api::ColorRGBA indicatorHighlightColor;
-            Api::ColorRGBA indicatorShadowColor;
+            Api::Color indicatorHighlightColor;
+            Api::Color indicatorShadowColor;
             Platform::Windows::Bitmap *bmp;
             int knobRadius;
             float startAngle;
@@ -36,8 +36,8 @@ namespace Controls {
             void updateMathConstants();
             void calculateXYFromValue(POINT* outPoint);
             float calculateAngleFromPoint(POINT* point);
-            void setIndicatorShadowColor(Api::ColorRGBA color);
-            void setIndicatorHighlightColor(Api::ColorRGBA color);
+            void setIndicatorShadowColor(Api::Color color);
+            void setIndicatorHighlightColor(Api::Color color);
             void setBitmap(Platform::Windows::Bitmap* bmp);
             float getStartAngle();
             float getTotalRange();
