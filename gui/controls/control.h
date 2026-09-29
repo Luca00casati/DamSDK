@@ -19,6 +19,7 @@ namespace Controls {
     // VTABLE: DELAYLAMA 0x1000bcd4
     class Control : public Base::View {
         public:
+            void (*callback)(Platform::Windows::GDIDrawingContext*, Control*);
             int parameterId;
             float prevValue;
             float defaultValue;
@@ -27,7 +28,6 @@ namespace Controls {
             float max;
             float wheelSensitivity;
             Platform::Windows::Bitmap *bitmap;
-            void (*callback)(Platform::Windows::GDIDrawingContext*, Control*);
         public:
             Control(RECT *pRect, callbackCallback callback, int parameterId, Platform::Windows::Bitmap *bmp);
             ~Control();

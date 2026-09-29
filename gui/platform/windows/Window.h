@@ -22,7 +22,6 @@ namespace Windows {
     // VTABLE: DELAYLAMA 0x1000bc48
     class Window : public Base::View {
         public:
-            char unused1;
             Api::EditorBase *editor;
             HWND handle;
             Bitmap *backgroundBitmap;
