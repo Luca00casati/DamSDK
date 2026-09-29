@@ -72,7 +72,7 @@ namespace Api {
         virtual bool runOffline(void *data, int32_t value);
         virtual int32_t getOfflinePassCount();
         virtual int32_t getOfflineMetaPassCount();
-        virtual int32_t setHostOutputSampleRate(float sampleRate);
+        virtual void setHostOutputSampleRate(float sampleRate);
         virtual bool getOutputSpeakerArrangement(int32_t arrangement, void* param_2);
 
         // -- Host Information --

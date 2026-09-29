@@ -94,22 +94,22 @@ namespace Api {
 
     namespace {
         // formatFloatAsDecibelString
-        const float  DECIBEL_THRESHOLD   = 0.0f;          // value <= 0 -> "-inf"
+#define DECIBEL_THRESHOLD ((float)(0.0f))          // value <= 0 -> "-inf"
         const char   INF_STRING[]        = "-inf";        // original was " -oo   "
-        const double DECIBEL_FACTOR      = 20.0;          // 20 * log10(linear)
+#define DECIBEL_FACTOR ((double)(20.0))          // 20 * log10(linear)
 
         // formatSamplesAsHzString
-        const float  HZ_THRESHOLD        = 0.0f;
+#define HZ_THRESHOLD ((float)(0.0f))
 
         // formatSamplesAsMsString
-        const double MS_FACTOR           = 1000.0;
+#define MS_FACTOR ((double)(1000.0))
 
         // formatFloatToString
-        const double HUGE_THRESHOLD      = 1e9;           // value >= 1e9 -> "Huge!"
+#define HUGE_THRESHOLD ((double)(1e9))           // value >= 1e9 -> "Huge!"
         const char   HUGE_STRING[]       = "Huge!";
-        const double ONE_TENTH           = 0.1;
-        const double TEN                 = 10.0;
-        const double ONE                 = 1.0;
+#define ONE_TENTH ((double)(0.1))
+#define TEN ((double)(10.0))
+#define ONE ((double)(1.0))
         const int    MAX_DIGITS          = 8;
 
         // formatIntToString

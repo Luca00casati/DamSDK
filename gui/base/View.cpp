@@ -53,7 +53,7 @@ namespace Base {
     // FUNCTION: DELAYLAMA 0x10004450 FOLDED
     void View::onFocusGained(Platform::Windows::GDIDrawingContext* drawingContext) {}
 
-    // FUNCTION: DELAYLAMA 0x10007ec0 FOLDED
+    // Folded with Bitmap::remember (0x10007ec0) in the original.
     void View::remember() {
         this->referenceCount = this->referenceCount + 1;
     }

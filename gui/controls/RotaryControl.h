@@ -9,7 +9,7 @@ namespace DamSDK {
 namespace Gui {
 namespace Controls {
 
-    // VTABLE: DELAYLAMA 0x1000be60
+    // VTABLE: DELAYLAMA 0x1000bd78
     class RotaryControl : public Control {
         public:
             POINT srcPoint;

@@ -257,18 +257,20 @@ namespace Api {
     
     // FUNCTION: DELAYLAMA 0x10001490
     bool AudioBase::isOutputChannelConnected(int32_t channel) {
-        if (this->hostCallback == nullptr)
-            return false;
-        int32_t resultInt = this->hostCallback(&this->plugin, hostIsInputConnected, channel, 1, nullptr, 0.0);
-        return resultInt == NULL;
+        if (this->hostCallback != nullptr) {
+            int32_t resultInt = this->hostCallback(&this->plugin, hostIsInputConnected, channel, 1, nullptr, 0.0);
+            return resultInt == NULL;
+        }
+        return false;
     }
     
     // FUNCTION: DELAYLAMA 0x10001460
     bool AudioBase::isInputChannelConnected(int32_t channel) { 
-        if (this->hostCallback == nullptr)
-            return false;
-        int32_t resultInt = this->hostCallback(&this->plugin, hostIsInputConnected, channel, 0, nullptr, 0.0);
-        return resultInt == NULL;
+        if (this->hostCallback != nullptr) {
+            int32_t resultInt = this->hostCallback(&this->plugin, hostIsInputConnected, channel, 0, nullptr, 0.0);
+            return resultInt == NULL;
+        }
+        return false;
     }
     
     // -- Plugin Properties --
@@ -323,20 +325,22 @@ namespace Api {
     
     // -- Host Communication --
     // FUNCTION: DELAYLAMA 0x100013f0
-    int32_t AudioBase::getHostApiVersion() { 
-        if (this->hostCallback == nullptr)
-            return 1;
-        int32_t hostVersionInt = this->hostCallback(&this->plugin, hostGetApiVersion, 0, NULL, nullptr, 0.0);
-        if (hostVersionInt == NULL)
-            return 1;
-        return hostVersionInt;
+    int32_t AudioBase::getHostApiVersion() {
+        int32_t version = 1;
+        if (this->hostCallback != nullptr) {
+            version = this->hostCallback(&this->plugin, hostGetApiVersion, 0, NULL, nullptr, 0.0);
+            if (version == 0)
+                version = 1;
+        }
+        return version;
     }
     
     // FUNCTION: DELAYLAMA 0x10001420
     int32_t AudioBase::getHostUniqueId() {
-        if (this->hostCallback == nullptr)
-            return 0;
-        return this->hostCallback(&this->plugin, hostGetHostId, 0, NULL, nullptr, 0.0);
+        int32_t id = 0;
+        if (this->hostCallback != nullptr)
+            id = this->hostCallback(&this->plugin, hostGetHostId, 0, NULL, nullptr, 0.0);
+        return id;
     }
     
     // FUNCTION: DELAYLAMA 0x10001440

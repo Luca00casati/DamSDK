@@ -55,8 +55,6 @@ namespace Windows {
                 DeleteObject(ho);
             }    
         }
-
-        GDIDrawingContext::cleanResources();
     }
 
 }

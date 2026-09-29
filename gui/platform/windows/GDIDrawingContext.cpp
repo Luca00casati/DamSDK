@@ -6,6 +6,7 @@ namespace Gui {
 namespace Platform {
 namespace Windows {
 
+    // GLOBAL: DELAYLAMA 0x1000d400
     HINSTANCE g_hInstance = NULL;
 
     COLORREF DAT_FOREGROUND_COLOR = RGB(255, 255, 255);
@@ -94,12 +95,6 @@ namespace Windows {
         }
     }
 
-    // FUNCTION: DELAYLAMA 0x10006af0
-    GDIDrawingContext::~GDIDrawingContext()
-    {
-        this->cleanResources();
-    }
-    
     // FUNCTION: DELAYLAMA 0x10006da0
     void GDIDrawingContext::setPenColor(COLORREF color)
     {
@@ -199,7 +194,7 @@ namespace Windows {
     }
 
     // FUNCTION: DELAYLAMA 0x10006b10
-    void GDIDrawingContext::cleanResources() {
+    GDIDrawingContext::~GDIDrawingContext() {
         HGDIOBJ pvVar1 = this->originalPen;
         
         if (pvVar1 != nullptr) {

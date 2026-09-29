@@ -49,19 +49,18 @@ namespace Windows {
 
         public:
             GDIDrawingContext(Window *parentFramePtr,HDC hDC,HWND hWnd);
-            ~GDIDrawingContext();
+            virtual ~GDIDrawingContext();
             static int32_t setModuleHandle(HINSTANCE hInstance);
-            virtual void setPenColor(COLORREF color);
-            virtual void setPenDashMode(bool penDashEnabled);
-            virtual void setBackgroundColorAndBrush(COLORREF color);
-            virtual void setTextColor(COLORREF color);
-            virtual void cleanResources();
-            virtual void moveToEx(POINT* target);
-            virtual void lineTo(POINT* tageet);
-            virtual void drawRectangleOutline(RECT* param_1);
-            virtual void fillRectangleInset(RECT* param_1);
-            virtual void getRelativeMousePos(POINT* outRelMousePos);
-            virtual void copyToScreen(GDIDrawingContext* dest, int dstLeft, int dstTop, int dstRight, int dstBottom, int srcX, int srcY);
+            void setPenColor(COLORREF color);
+            void setPenDashMode(bool penDashEnabled);
+            void setBackgroundColorAndBrush(COLORREF color);
+            void setTextColor(COLORREF color);
+            void moveToEx(POINT* target);
+            void lineTo(POINT* tageet);
+            void drawRectangleOutline(RECT* param_1);
+            void fillRectangleInset(RECT* param_1);
+            void getRelativeMousePos(POINT* outRelMousePos);
+            void copyToScreen(GDIDrawingContext* dest, int dstLeft, int dstTop, int dstRight, int dstBottom, int srcX, int srcY);
             static void setCursor(int cursorType);
     };
 }

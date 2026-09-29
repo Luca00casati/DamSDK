@@ -19,7 +19,7 @@ namespace Windows {
 
     extern HINSTANCE g_hInstance;
 
-    // VTABLE: DELAYLAMA 0x1000bbe4
+    // VTABLE: DELAYLAMA 0x1000bbe8
     class OffscreenGDIDrawingContext : public GDIDrawingContext {
         public:
             bool flag; // 0x74
