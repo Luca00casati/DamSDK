@@ -122,8 +122,6 @@ namespace Api {
         virtual bool notifyHostClientBeginningParameterEdit(int32_t parameterId);
         virtual bool notifyHostClientEndingParameterEdit(int32_t parameterId);
         virtual bool openFileDialogOnHost(char* outText);
-
-        void destroy();
     };
 }
 }

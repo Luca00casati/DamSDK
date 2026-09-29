@@ -83,25 +83,16 @@ namespace Api {
         this->plugin.processAudioFloat    = _processFloat;
     }
 
-    // FUNCTION: DELAYLAMA 0x100011a0
+    // FUNCTION: DELAYLAMA 0x100011c0
     AudioBase::~AudioBase() {
-    }
-
-    // STUB: DELAYLAMA 0x100011c0
-    void AudioBase::destroy() {
-        // DelayLamaEditor *editor;
-        //
-        // this->vtable = &AudioBaseVTable_1000b148;
-        // editor = this->editor;
-        // if (editor != (DelayLamaEditor *)0x0) {
-        //   (*(editor->vtable->editorBase).destructor)(1);
-        // }
-        // return;
+        if (this->editor != nullptr)
+            delete this->editor;
     }
 
     // FUNCTION: DELAYLAMA 0x100011e0
     int32_t AudioBase::dispatchPluginCallback(int32_t targetOperation, int32_t index, int32_t value, void * data, float optional)
     {
+        int32_t v = 0;
         switch(targetOperation) {
             case pluginInitialize:
                 this->initializePlugin();
@@ -115,7 +106,8 @@ namespace Api {
                 }
                 break;
             case pluginGetCurrentPreset:
-                return this->getActivePresetIndex();
+                v = this->getActivePresetIndex();
+                break;
             case pluginSetCurrentPresetName:
                 this->setCurrentPresetName((char*)data);
                 break;
@@ -131,8 +123,6 @@ namespace Api {
             case pluginGetParameterName:
                 this->getParameterName(index, (char*)data);
                 break;
-            case pluginGetVolume:
-                return static_cast<int32_t>(this->getVolume() * 32767.0f);
             case pluginSetSampleRate:
                 this->setSampleRate(optional);
                 break;
@@ -148,14 +138,17 @@ namespace Api {
                     this->enableAudioProcessing();
                 }
                 break;
+            case pluginGetVolume:
+                v = static_cast<int32_t>(this->getVolume() * 32767.);
+                break;
             case pluginGetEditorRect:
                 if (editor != nullptr) {
-                    editor->getRect((Rect**)data);
+                    v = editor->getRect((Rect**)data);
                 }
                 break;
             case pluginOpenEditor:
                 if (editor != nullptr) {
-                    editor->open((HWND)data);
+                    v = editor->open((HWND)data);
                 }
                 break;
             case pluginCloseEditor:
@@ -169,13 +162,16 @@ namespace Api {
                 }
                 break;
             case pluginGetIdentifier:
-                return 'NvEf'; //0x4e764566;
+                v = 'NvEf'; // 0x4e764566
+                break;
             case pluginGetPresetData:
-                return this->getPluginStateData(data, index != NULL);
+                v = this->getPluginStateData(data, index != NULL);
+                break;
             case pluginSetPresetData:
-                return this->setPluginStateData(data, value, index != NULL);
+                v = this->setPluginStateData(data, value, index != NULL);
+                break;
         }
-        return 0;
+        return v;
     }
 
     // FUNCTION: DELAYLAMA 0x100015b0 FOLDED

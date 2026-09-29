@@ -23,29 +23,30 @@ namespace Api {
         public:
             AudioBaseExtended* mainPlugin;
             HWND hParent;
-            bool needsRedraw;
+            BOOL needsRedraw;
             Rect rect;
             Gui::Platform::Windows::Window* window;
             DWORD lastIdleTick;
             bool isInIdleUpdate;
         public:
             EditorBase(AudioBaseExtended* plugin);
-            ~EditorBase();
-            virtual void open(HWND hParent);
-            virtual void getRect(Rect** outRect);
+            // Virtual functions in the original vtable order (VTABLE 0x1000bb80,
+            // VST 2.x AEffEditor). Do not reorder.
+            virtual ~EditorBase();
+            virtual int32_t getRect(Rect** outRect);
+            virtual int32_t open(HWND hParent);
             virtual void close();
             virtual void onIdle();
+            virtual void update();
+            virtual void invalidate();
             virtual int32_t keyDown(KeyCode* keycode);
             virtual int32_t keyUp(KeyCode* keycode);
             virtual void setKnobMode(int32_t mode);
-            void destroy();
-            
+            virtual bool onMouseWheel(float wheelDelta);
             virtual void dispatcher(int parameterIndex, float value);
             virtual void draw();
             virtual void idleHandler();
-            virtual void invalidate();
-            virtual bool onMouseWheel(float wheelDelta);
-            virtual void sleep(DWORD milliseconds);
+            void sleep(DWORD milliseconds);
     };
 }
 }

@@ -27,18 +27,22 @@ namespace Api {
         OleInitialize(NULL);
     }
 
-    // FUNCTION: DELAYLAMA 0x10006790
-    EditorBase::~EditorBase() {}
+    // FUNCTION: DELAYLAMA 0x100067b0
+    EditorBase::~EditorBase() {
+        OleUninitialize();
+    }
 
     // FUNCTION: DELAYLAMA 0x100067f0
-    void EditorBase::open(HWND hParent) {
+    int32_t EditorBase::open(HWND hParent) {
         this->invalidate();
         this->hParent = hParent;
+        return 0;
     }
 
     // FUNCTION: DELAYLAMA 0x10006940
-    void EditorBase::getRect(Rect** outRect) {
+    int32_t EditorBase::getRect(Rect** outRect) {
         *outRect = &this->rect;
+        return 1;
     }
 
     // STUB: DELAYLAMA 0x100015b0 FOLDED
@@ -75,13 +79,8 @@ namespace Api {
         GLOBAL_KNOB_MODE = mode;
     }
 
-    // STUB: DELAYLAMA 0x100067b0
-    void EditorBase::destroy() {
-        // this->vtable = &EditorBaseVTable_1000bb80;
-        // OleUninitialize();
-        // this->vtable = (EditorBaseVTable *)&UnusedClassVTable_1000bbb8;
-        // return;
-    }
+    // FUNCTION: DELAYLAMA 0x100015b0 FOLDED
+    void EditorBase::update() {}
 
     // FUNCTION: DELAYLAMA 0x10006ae0
     void EditorBase::dispatcher(int parameterIndex, float value) {

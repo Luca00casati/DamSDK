@@ -89,7 +89,6 @@ namespace Api {
 
         //unsorted
         void _process(DamPlugin* effect, float* * inputs, float* * outputs, int32_t sampleFrames);
-        void destroy();
     };
 
     namespace {

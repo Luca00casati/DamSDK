@@ -6,7 +6,7 @@ namespace Api {
     // FUNCTION: DELAYLAMA 0x10001a50
     AudioBaseExtended::AudioBaseExtended(dispatchFunc hostCallback, int32_t presetCount, int32_t parameterCount) : AudioBase(hostCallback, presetCount, parameterCount) {}
     
-    // FUNCTION: DELAYLAMA 0x10001a80
+    // FUNCTION: DELAYLAMA 0x10001aa0
     AudioBaseExtended::~AudioBaseExtended() {}
 
     // FUNCTION: DELAYLAMA 0x10001ab0
@@ -602,13 +602,6 @@ namespace Api {
             return this->hostCallback(&this->plugin, hostHandleCompanySpecific, index, valueHigh, context, valueLow);
         }
         return 0;
-    }
-
-    // STUB: DELAYLAMA 0x10001aa0
-    void AudioBaseExtended::destroy() {
-        // this->vtable = &AudioBaseExtendedVTable_1000b250;
-        // AudioBase::destroy((AudioBase *)this);
-        // return;
     }
 
     // FUNCTION: DELAYLAMA 0x10002280
