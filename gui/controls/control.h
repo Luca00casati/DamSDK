@@ -44,15 +44,16 @@ namespace Controls {
             virtual float getMin();
             virtual void setMax(float max);
             virtual float getMax();
+            virtual void setPreviousValue(float previousValue);
             virtual float getPreviousValue();
             virtual void setDefaultValue(float defaultValue = 0);
             virtual float getDefaultValue();
             virtual void setParameterId(int parameterId);
+            virtual void changeBitmap(Platform::Windows::Bitmap* newBitmap);
             virtual Platform::Windows::Bitmap* getBitmap();
             virtual void setWheelSensitivity(float sensitivity);
             virtual float getWheelSensitivity();
             virtual void clampValue();
-            virtual void changeBitmap(Platform::Windows::Bitmap* newBitmap);
             bool returnTrue(Platform::Windows::Window* window);
     };
 }

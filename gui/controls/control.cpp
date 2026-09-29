@@ -80,6 +80,11 @@ namespace Controls {
         return this->max;
     }
 
+    // FUNCTION: DELAYLAMA 0x10001950 FOLDED
+    void Control::setPreviousValue(float previousValue) {
+        this->prevValue = previousValue;
+    }
+
     // FUNCTION: DELAYLAMA 0x10004810
     float Control::getPreviousValue() {
         return this->prevValue;
