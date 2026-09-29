@@ -258,6 +258,24 @@ namespace Windows {
         return;
     }
 
+    // FUNCTION: DELAYLAMA 0x10006ec0
+    uint32_t GDIDrawingContext::getMouseButtons() {
+        uint32_t buttons = 0;
+        if (GetAsyncKeyState(VK_LBUTTON) < 0)
+            buttons |= 1;
+        if (GetAsyncKeyState(VK_MBUTTON) < 0)
+            buttons |= 2;
+        if (GetAsyncKeyState(VK_RBUTTON) < 0)
+            buttons |= 4;
+        if (GetAsyncKeyState(VK_SHIFT) < 0)
+            buttons |= 8;
+        if (GetAsyncKeyState(VK_CONTROL) < 0)
+            buttons |= 0x10;
+        if (GetAsyncKeyState(VK_MENU) < 0)
+            buttons |= 0x20;
+        return buttons;
+    }
+
     // FUNCTION: DELAYLAMA 0x100070f0
     void GDIDrawingContext::copyToScreen(GDIDrawingContext* dest, int dstLeft, int dstTop, int dstRight, int dstBottom, int srcX, int srcY) {
         BitBlt(dest->hDC,dest->drawOffset.x + dstLeft, dest->drawOffset.y + dstTop,dstRight - dstLeft,dstBottom - dstTop, this->hDC,srcX,srcY,SRCCOPY);

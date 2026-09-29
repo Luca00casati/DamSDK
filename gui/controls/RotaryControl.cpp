@@ -1,4 +1,5 @@
 #pragma once
+#include "damsdk/gui/platform/windows/GDIDrawingContext.h"
 #include <cmath>
 #include "RotaryControl.h"
 #include "damsdk/api/EditorBase.h"
@@ -8,7 +9,7 @@ namespace DamSDK {
 namespace Gui {
 namespace Controls {
     // FUNCTION: DELAYLAMA 0x10008e40
-    RotaryControl::RotaryControl(RECT* pRect, callbackCallback callback, int parameterId, Platform::Windows::Bitmap* bmp1, Platform::Windows::Bitmap* bmp2, POINT* srcPoint) : Control(pRect, callback, parameterId, bmp1) {
+    RotaryControl::RotaryControl(RECT* pRect, ControlListener* listener, int parameterId, Platform::Windows::Bitmap* bmp1, Platform::Windows::Bitmap* bmp2, POINT* srcPoint) : Control(pRect, listener, parameterId, bmp1) {
         this->srcPoint.x = srcPoint->x;
         LONG y = srcPoint->y;
         this->bmp = bmp2;
@@ -141,7 +142,7 @@ namespace Controls {
             return;
         }
 
-        prevModifiers = View::GetPressedModifiersAndMouseButtons();
+        prevModifiers = drawingContext->getMouseButtons();
 
         // Exit if Left Click is not down
         if ((prevModifiers & 1) == 0)
@@ -159,7 +160,7 @@ namespace Controls {
             {
                 return;
             }
-            this->callback(drawingContext, this);
+            this->listener->valueChanged(drawingContext, this);
             return;
         }
 
@@ -206,7 +207,7 @@ namespace Controls {
         this->parent->beginEdit(this->parameterId);
         do
         {
-            currentModifiers = View::GetPressedModifiersAndMouseButtons();
+            currentModifiers = drawingContext->getMouseButtons();
             currentMouseX = mousePos->x;
             currentMouseY = mousePos->y;
 
@@ -262,7 +263,7 @@ namespace Controls {
                 isDirty = this->isDirty();
                 if (isDirty != false)
                 {
-                    this->callback(drawingContext, this);
+                    this->listener->valueChanged(drawingContext, this);
                 }
             }
             drawingContext->getRelativeMousePos(mousePos);

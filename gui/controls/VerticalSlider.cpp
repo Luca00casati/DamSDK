@@ -9,7 +9,7 @@ namespace Gui {
 namespace Controls {
 
     // FUNCTION: DELAYLAMA 0x10009a40
-    VerticalSlider::VerticalSlider(RECT *pRect, callbackCallback callback, int parameterId, int minValue, int maxValue, Platform::Windows::Bitmap *handleBmp, Platform::Windows::Bitmap *backgroundBmp, POINT* offset, int flags) : Control(pRect, callback, parameterId, backgroundBmp)
+    VerticalSlider::VerticalSlider(RECT *pRect, ControlListener* listener, int parameterId, int minValue, int maxValue, Platform::Windows::Bitmap *handleBmp, Platform::Windows::Bitmap *backgroundBmp, POINT* offset, int flags) : Control(pRect, listener, parameterId, backgroundBmp)
     {
         this->backgroundOffset.x = offset->x;
         this->backgroundOffset.y = offset->y;
@@ -101,13 +101,13 @@ namespace Controls {
     void VerticalSlider::onMouseDown(Platform::Windows::GDIDrawingContext* drawingContext, POINT* relativeMousePos) {
         if (this->isEnabled != false) {
 
-            uint8_t modifiers = View::GetPressedModifiersAndMouseButtons();
+            uint8_t modifiers = drawingContext->getMouseButtons();
 
             // Ctrl + Left Click -> Reset
             if (modifiers == 0x11) { 
                 this->value = this->getDefaultValue();
                 if (this->isDirty()) {
-                    this->callback(drawingContext, this);
+                    this->listener->valueChanged(drawingContext, this);
                 }
                 return;
             }
@@ -164,12 +164,12 @@ namespace Controls {
                     this->clampValue();
 
                     if (this->isDirty()) {
-                        this->callback(drawingContext, this);
+                        this->listener->valueChanged(drawingContext, this);
                     }
 
                     drawingContext->getRelativeMousePos(relativeMousePos);
                     this->onIdle();
-                    modifiers = View::GetPressedModifiersAndMouseButtons();
+                    modifiers = drawingContext->getMouseButtons();
                 }
 
                 this->parent->endEdit(this->parameterId);

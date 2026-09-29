@@ -65,6 +65,7 @@ namespace Windows {
             void getRelativeMousePos(POINT* outRelMousePos);
             void copyToScreen(GDIDrawingContext* dest, int dstLeft, int dstTop, int dstRight, int dstBottom, int srcX, int srcY);
             static void setCursor(int cursorType);
+            uint32_t getMouseButtons();
     };
 }
 }

@@ -29,7 +29,7 @@ namespace Controls {
             bool isHandleTransparent;               // 0x98
             bool snapToMouse;                       // 0x99
         public:
-            HorizontalSlider(RECT *pRect, callbackCallback callback, int parameterId, int minValue, int maxValue, Platform::Windows::Bitmap *handleBmp, Platform::Windows::Bitmap *backgroundBmp, POINT* offset, int flags);
+            HorizontalSlider(RECT *pRect, ControlListener* listener, int parameterId, int minValue, int maxValue, Platform::Windows::Bitmap *handleBmp, Platform::Windows::Bitmap *backgroundBmp, POINT* offset, int flags);
             ~HorizontalSlider();
             virtual void onDraw(Platform::Windows::GDIDrawingContext* drawingContext) override;
             virtual void onMouseDown(Platform::Windows::GDIDrawingContext* drawingContext, POINT* mousePos) override;

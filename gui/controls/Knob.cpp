@@ -7,7 +7,7 @@ namespace Gui {
 namespace Controls {
 
     // FUNCTION: DELAYLAMA 0x100097c0
-    Knob::Knob(RECT *pRect, callbackCallback callback, int parameterId, int totalFrames, int frameHeight, Platform::Windows::Bitmap *bmp, POINT *origin) : RotaryControl(pRect, callback, parameterId, bmp, nullptr, origin)
+    Knob::Knob(RECT *pRect, ControlListener* listener, int parameterId, int totalFrames, int frameHeight, Platform::Windows::Bitmap *bmp, POINT *origin) : RotaryControl(pRect, listener, parameterId, bmp, nullptr, origin)
     {
         this->frameHeight = frameHeight;
         this->totalFrames = totalFrames;

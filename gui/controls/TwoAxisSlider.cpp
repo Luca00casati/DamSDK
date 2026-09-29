@@ -8,7 +8,7 @@ namespace Gui {
 namespace Controls {
 
     // FUNCTION: DELAYLAMA 0x10004350
-    TwoAxisSlider::TwoAxisSlider(RECT *bounds, callbackCallback callback, int parameterId, int minValue, int maxValue, Platform::Windows::Bitmap *handle, Platform::Windows::Bitmap *background, POINT* offset, int flags) : HorizontalSlider(bounds,callback,parameterId,minValue,maxValue,handle,background,offset,flags)
+    TwoAxisSlider::TwoAxisSlider(RECT *bounds, ControlListener* listener, int parameterId, int minValue, int maxValue, Platform::Windows::Bitmap *handle, Platform::Windows::Bitmap *background, POINT* offset, int flags) : HorizontalSlider(bounds,listener,parameterId,minValue,maxValue,handle,background,offset,flags)
     {
         int handleHeight = this->handleHeight;
         
@@ -34,13 +34,13 @@ namespace Controls {
     // FUNCTION: DELAYLAMA 0x10004460
     void TwoAxisSlider::onMouseDown(DamSDK::Gui::Platform::Windows::GDIDrawingContext* drawContext, POINT* mousePos) {
         if (this->isEnabled != false) {
-            uint8_t inputMask = View::GetPressedModifiersAndMouseButtons();
+            uint8_t inputMask = drawContext->getMouseButtons();
             
             if ((inputMask & 1) != 0) {
 
                 if (inputMask != 0) {
                     this->value = 201.0f;
-                    this->callback(drawContext, this);
+                    this->listener->valueChanged(drawContext, this);
                 }
 
                 int handleWidth = this->handleWidth;
@@ -48,30 +48,30 @@ namespace Controls {
 
                 this->parent->beginEdit(this->parameterId);
 
-                inputMask = View::GetPressedModifiersAndMouseButtons();
+                inputMask = drawContext->getMouseButtons();
                 int isStillDown = (int)inputMask;
 
                 while (isStillDown != 0) {
                     // X-Axis Update (vibrato amount, normalized 0-1)
                     this->value = (float)(mousePos->x - (handleWidth / 2 + minX)) / this->xValueRange;
                     this->clampValue();
-                    this->callback(drawContext, this);
+                    this->listener->valueChanged(drawContext, this);
 
                     // Y-Axis Update (pitch, offset by 100 to distinguish in onControlChanged)
                     this->value = (float)(mousePos->y - this->yTop) / this->yValueRange;
                     this->clampValue();
                     this->value = this->value + 100.0f;
-                    this->callback(drawContext, this);
+                    this->listener->valueChanged(drawContext, this);
 
                     drawContext->getRelativeMousePos(mousePos);
                     this->onIdle();
 
-                    inputMask = View::GetPressedModifiersAndMouseButtons();
+                    inputMask = drawContext->getMouseButtons();
                     isStillDown = (int)inputMask;
                 }
 
                 this->value = 200.0f;
-                this->callback(drawContext, this);
+                this->listener->valueChanged(drawContext, this);
             }
         }
     }

@@ -26,7 +26,7 @@ namespace Controls {
             float fineTuneDivider;
 
         public:
-            RotaryControl(RECT* pRect, callbackCallback callback, int parameterId, Platform::Windows::Bitmap* bmp1, Platform::Windows::Bitmap* bmp2, POINT* srcPoint);
+            RotaryControl(RECT* pRect, ControlListener* listener, int parameterId, Platform::Windows::Bitmap* bmp1, Platform::Windows::Bitmap* bmp2, POINT* srcPoint);
             ~RotaryControl();
             virtual void onDraw(Platform::Windows::GDIDrawingContext* drawingContext) override;
             void drawIndicator(Platform::Windows::GDIDrawingContext* drawingContext);

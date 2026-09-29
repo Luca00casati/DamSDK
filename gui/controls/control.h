@@ -19,12 +19,20 @@ namespace DamSDK {
 namespace Gui {
 namespace Controls {
 
-    typedef void (*callbackCallback)(Platform::Windows::GDIDrawingContext*, Control*);
+    class Control;
+
+    // VTABLE: DELAYLAMA 0x1000b8f0
+    // Receives value changes from controls (VSTGUI CControlListener).
+    class ControlListener {
+        public:
+            virtual void valueChanged(Platform::Windows::GDIDrawingContext* context, Control* control) = 0;
+    };
+
 
     // VTABLE: DELAYLAMA 0x1000bcd4
     class Control : public Base::View {
         public:
-            void (*callback)(Platform::Windows::GDIDrawingContext*, Control*);
+            ControlListener* listener;
             int parameterId;
             float prevValue;
             float defaultValue;
@@ -34,7 +42,7 @@ namespace Controls {
             float wheelSensitivity;
             Platform::Windows::Bitmap *bitmap;
         public:
-            Control(RECT *pRect, callbackCallback callback, int parameterId, Platform::Windows::Bitmap *bmp);
+            Control(RECT *pRect, ControlListener* listener, int parameterId, Platform::Windows::Bitmap *bmp);
             virtual ~Control();
 
             virtual bool isDirty() override;

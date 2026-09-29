@@ -7,7 +7,7 @@ namespace Gui {
 namespace Controls {
 
     // FUNCTION: DELAYLAMA 0x1000a010
-    HorizontalSlider::HorizontalSlider(RECT *pRect, callbackCallback callback, int parameterId, int minValue, int maxValue, Platform::Windows::Bitmap *handleBmp, Platform::Windows::Bitmap *backgroundBmp, POINT* offset, int flags) : Control(pRect, callback, parameterId, backgroundBmp)
+    HorizontalSlider::HorizontalSlider(RECT *pRect, ControlListener* listener, int parameterId, int minValue, int maxValue, Platform::Windows::Bitmap *handleBmp, Platform::Windows::Bitmap *backgroundBmp, POINT* offset, int flags) : Control(pRect, listener, parameterId, backgroundBmp)
     {
         this->backgroundOffset.x = offset->x;
         this->backgroundOffset.y = offset->y;
@@ -145,13 +145,13 @@ namespace Controls {
     // FUNCTION: DELAYLAMA 0x1000a360
     void HorizontalSlider::onMouseDown(Platform::Windows::GDIDrawingContext* drawingContext, POINT* mousePos) {
         if (this->isEnabled != false) {
-            uint8_t modifiers = View::GetPressedModifiersAndMouseButtons();
+            uint8_t modifiers = drawingContext->getMouseButtons();
             // Ctrl + Left Click -> Reset to default value
             if (modifiers == 0x11) {  // 0x10 (Ctrl) | 0x01 (Left Button)
                 float defaultValue = this->getDefaultValue();
                 this->value = defaultValue;
                 if (this->isDirty()) {
-                    this->callback(drawingContext, this);
+                    this->listener->valueChanged(drawingContext, this);
                 }
                 return;
             }
@@ -188,7 +188,7 @@ namespace Controls {
                     float curValue = this->value;
                     this->parent->beginEdit(this->parameterId);
 
-                    modifiers = View::GetPressedModifiersAndMouseButtons();
+                    modifiers = drawingContext->getMouseButtons();
                     uint32_t previousModifiers = modifiers;
 
                     float previousValue = this->value;
@@ -217,11 +217,11 @@ namespace Controls {
                         this->clampValue();
                         bool isDirty = this->isDirty();
                         if (isDirty != false) {
-                            this->callback(drawingContext,this);
+                            this->listener->valueChanged(drawingContext, this);
                         }
                         drawingContext->getRelativeMousePos(mousePos);
                         this->onIdle();
-                        modifiers = View::GetPressedModifiersAndMouseButtons();
+                        modifiers = drawingContext->getMouseButtons();
                     }
                     this->parent->endEdit(this->parameterId);
                 }

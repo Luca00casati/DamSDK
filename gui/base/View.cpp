@@ -104,24 +104,6 @@ namespace Base {
         return this->referenceCount;
     }
 
-    // FUNCTION: DELAYLAMA 0x10006ec0
-    uint32_t View::GetPressedModifiersAndMouseButtons() {
-        uint32_t buttons = 0;
-        if (GetAsyncKeyState(VK_LBUTTON) < 0)
-            buttons |= 1;
-        if (GetAsyncKeyState(VK_MBUTTON) < 0)
-            buttons |= 2;
-        if (GetAsyncKeyState(VK_RBUTTON) < 0)
-            buttons |= 4;
-        if (GetAsyncKeyState(VK_SHIFT) < 0)
-            buttons |= 8;
-        if (GetAsyncKeyState(VK_CONTROL) < 0)
-            buttons |= 0x10;
-        if (GetAsyncKeyState(VK_MENU) < 0)
-            buttons |= 0x20;
-        return buttons;
-    }
-
     // FUNCTION: DELAYLAMA 0x10007200
     bool View::routeMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, POINT* mousePos) {
         return false;

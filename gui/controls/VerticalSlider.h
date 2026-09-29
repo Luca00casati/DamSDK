@@ -27,7 +27,7 @@ namespace Controls {
             bool snapToMouse; //0x99
             Platform::Windows::Bitmap *backgroundBitmap;
         public:
-            VerticalSlider(RECT *pRect, callbackCallback callback, int parameterId, int minValue, int maxValue, Platform::Windows::Bitmap *handleBmp, Platform::Windows::Bitmap *backgroundBmp, POINT* offset, int flags);
+            VerticalSlider(RECT *pRect, ControlListener* listener, int parameterId, int minValue, int maxValue, Platform::Windows::Bitmap *handleBmp, Platform::Windows::Bitmap *backgroundBmp, POINT* offset, int flags);
             ~VerticalSlider();
             virtual void onDraw(Platform::Windows::GDIDrawingContext* drawingContext) override;
             virtual void onMouseDown(Platform::Windows::GDIDrawingContext* drawingContext, POINT* relativeMousePos) override;

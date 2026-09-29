@@ -57,7 +57,6 @@ namespace Base {
             virtual void remember();
             virtual int getReferenceCount();
 
-            static uint32_t GetPressedModifiersAndMouseButtons();
 
     };
 }

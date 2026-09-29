@@ -10,8 +10,8 @@ namespace Gui {
 namespace Controls {
 
     // FUNCTION: DELAYLAMA 0x10008c80
-    Control::Control(RECT *pRect, callbackCallback callback, int parameterId, Platform::Windows::Bitmap *bmp) : Base::View(pRect) {
-        this->callback = callback;
+    Control::Control(RECT *pRect, ControlListener* listener, int parameterId, Platform::Windows::Bitmap *bmp) : Base::View(pRect) {
+        this->listener = listener;
         this->prevValue = 1.0f;
         this->max = 1.0f;
         this->parameterId = parameterId;
@@ -160,7 +160,7 @@ namespace Controls {
           return false;
         }
 
-        byte inputMask = View::GetPressedModifiersAndMouseButtons();
+        byte inputMask = drawingContext->getMouseButtons();
         float valueChange = wheelDelta * this->wheelSensitivity;
 
         if ((inputMask & 8) != 0) {
@@ -172,7 +172,7 @@ namespace Controls {
 
         bool isDirty = this->isDirty();
         if (isDirty != false) {
-            this->callback(drawingContext,this);
+            this->listener->valueChanged(drawingContext, this);
         }
         return true;
     }
