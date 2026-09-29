@@ -161,12 +161,12 @@ namespace Windows {
     // FUNCTION: DELAYLAMA 0x10007a10
     void Window::setBackgroundBitmap(Bitmap *background) {
         if (this->backgroundBitmap != nullptr) {
-            Bitmap::unregisterBitmap(this->backgroundBitmap);
+            this->backgroundBitmap->unregisterBitmap();
         }
         this->backgroundBitmap = background;
         
         if (background != nullptr) {
-            View::useBitmap(background);
+            background->remember();
         }
     }
 
@@ -398,7 +398,7 @@ namespace Windows {
 
         destroyChildren(&callExtraFlag);
         if (this->backgroundBitmap != nullptr) {
-          Bitmap::unregisterBitmap(this->backgroundBitmap);
+          this->backgroundBitmap->unregisterBitmap();
         }
         if (this->hWnd != nullptr) {
           SetWindowLongA(this->hWnd,-0x15,0);

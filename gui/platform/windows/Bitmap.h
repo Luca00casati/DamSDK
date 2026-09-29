@@ -31,7 +31,8 @@ namespace Windows {
             void blit(GDIDrawingContext *drawingContext, RECT *destRect,POINT *srcPoint);
             static HBITMAP createMaskBitmap(HDC hdcRef,HANDLE hBitmapSrc,COLORREF colorKey);
             void drawMasked(GDIDrawingContext *drawingContext, RECT *destRect,POINT *srcPoint);
-            static void unregisterBitmap(Bitmap* bitmap);
+            void remember();
+            void unregisterBitmap();
     };
 }
 }

@@ -32,7 +32,6 @@ namespace Windows {
         public:
             OffscreenGDIDrawingContext(Window* parentFramePtr, int width, int height, COLORREF color);
             ~OffscreenGDIDrawingContext();
-            void destroy();
     };
 }
 }

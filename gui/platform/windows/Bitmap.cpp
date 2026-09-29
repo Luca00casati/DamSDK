@@ -170,11 +170,16 @@ namespace Windows {
         DeleteDC(srcDC);
     }
 
+    // FUNCTION: DELAYLAMA 0x10007ec0
+    void Bitmap::remember() {
+        this->refCount = this->refCount + 1;
+    }
+
     // FUNCTION: DELAYLAMA 0x10007ed0
-    void Bitmap::unregisterBitmap(Bitmap* bitmap)
+    void Bitmap::unregisterBitmap()
     {
-        if (bitmap->refCount > 0 && --bitmap->refCount == 0)
-            delete bitmap;
+        if (this->refCount > 0 && --this->refCount == 0)
+            delete this;
     }
 }
 }

@@ -17,7 +17,7 @@ namespace Controls {
             this->knobRadius = 3;
         }
         else {
-            View::useBitmap(bmp2);
+            bmp2->remember();
             int result = static_cast<int>(bmp2->width * 0.5f + 2.5f);
             this->knobRadius = result;
         }
@@ -44,18 +44,12 @@ namespace Controls {
         this->fineTuneDivider = 1.5;
     }
 
-    // FUNCTION: DELAYLAMA 0x10008f60
-    RotaryControl::~RotaryControl() {
-        this->destroy();
-    }
-
     // FUNCTION: DELAYLAMA 0x10008f80
-    void RotaryControl::destroy() {
+    RotaryControl::~RotaryControl() {
         Platform::Windows::Bitmap* bmp = this->bmp;
         if (bmp != nullptr) {
-            Platform::Windows::Bitmap::unregisterBitmap(bmp);
+            bmp->unregisterBitmap();
         }
-        Control::destroy();
     }
 
     // FUNCTION: DELAYLAMA 0x10008fe0
@@ -410,12 +404,12 @@ namespace Controls {
     void RotaryControl::setBitmap(Platform::Windows::Bitmap* bmp) {
         Platform::Windows::Bitmap* oldBitmap = this->bmp;
         if (oldBitmap != nullptr) {
-            Platform::Windows::Bitmap::unregisterBitmap(oldBitmap);
+            oldBitmap->unregisterBitmap();
             this->bmp = nullptr;
         }
         if (bmp != nullptr) {
             this->bmp = bmp;
-            View::useBitmap(bmp);
+            bmp->remember();
             int bitmapWidth = bmp->width;
             int knobRadius = static_cast<int>(static_cast<float>(bitmapWidth) * 0.5f + 2.5f);
             this->knobRadius = knobRadius;

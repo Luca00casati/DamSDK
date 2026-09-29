@@ -15,7 +15,6 @@ namespace Controls {
             Knob(RECT *pRect, callbackCallback callback, int parameterId, int minValue, int maxValue, Platform::Windows::Bitmap *bmp, POINT *origin);
             ~Knob();
             Knob* destructor(bool deleteObject);
-            void destroy();
             virtual void onDraw(Platform::Windows::GDIDrawingContext* drawingContext) override;
     };
 }

@@ -24,7 +24,7 @@ namespace Controls {
             this->handleHeight = 1;
         }
         else {
-            View::useBitmap(handleBmp);
+            handleBmp->remember();
             handleImage = this->handleImage;
             this->handleWidth = handleImage->width;
             this->handleHeight = handleImage->height;
@@ -38,9 +38,11 @@ namespace Controls {
         this->fineTuneDivider = 10.0;
     }
     
-    // FUNCTION: DELAYLAMA 0x1000a120
+    // FUNCTION: DELAYLAMA 0x1000a140
     HorizontalSlider::~HorizontalSlider() {
-        this->destroy();
+        if (this->handleImage != nullptr) {
+            this->handleImage->unregisterBitmap();
+        }
     }
 
     // FUNCTION: DELAYLAMA 0x10009b50
@@ -82,20 +84,12 @@ namespace Controls {
     // FUNCTION: DELAYLAMA 0x10009fe0
     void HorizontalSlider::changeHandle(Platform::Windows::Bitmap* newHandle) {
         if (this->handleImage != nullptr) {
-            Platform::Windows::Bitmap::unregisterBitmap(this->handleImage);
+            this->handleImage->unregisterBitmap();
         }
         this->handleImage = newHandle;
         if (newHandle != nullptr) {
-            View::useBitmap(newHandle);
+            newHandle->remember();
         }
-    }
-
-    // FUNCTION: DELAYLAMA 0x1000a140
-    void HorizontalSlider::destroy() {
-        if (this->handleImage != nullptr) {
-            Platform::Windows::Bitmap::unregisterBitmap(this->handleImage);
-        }
-        Control::destroy();
     }
 
      // FUNCTION: DELAYLAMA 0x1000a1a0

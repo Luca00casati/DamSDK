@@ -24,13 +24,16 @@ namespace Controls {
         this->isEnabled = true;
 
         if (bmp != nullptr) {
-            View::useBitmap(bmp);
+            bmp->remember();
         }
     }
 
-    // FUNCTION: DELAYLAMA 0x10008d10
+    // FUNCTION: DELAYLAMA 0x10008d30
     Control::~Control() {
-        destroy();
+        Platform::Windows::Bitmap* bmp = this->bitmap;
+        if (bmp != nullptr) {
+          bmp->unregisterBitmap();
+        }
     }
 
     // FUNCTION: DELAYLAMA 0x10001960 FOLDED
@@ -107,14 +110,6 @@ namespace Controls {
         return this->wheelSensitivity;
     }
 
-    // FUNCTION: DELAYLAMA 0x10008d30
-    void Control::destroy() {
-        Platform::Windows::Bitmap* bmp = this->bitmap;
-        if (bmp != nullptr) {
-          Platform::Windows::Bitmap::unregisterBitmap(bmp);
-        }
-    }
-
     // FUNCTION: DELAYLAMA 0x10008d90
     bool Control::isDirty() {
         if ((this->prevValue == this->value) && (this->_isDirty == false)) {
@@ -145,11 +140,11 @@ namespace Controls {
     void Control::changeBitmap(Platform::Windows::Bitmap* newBitmap) {
         Platform::Windows::Bitmap* oldBitmap = this->bitmap;
         if (oldBitmap != nullptr) {
-          Platform::Windows::Bitmap::unregisterBitmap(oldBitmap);
+          oldBitmap->unregisterBitmap();
         }
         this->bitmap = newBitmap;
         if (newBitmap != nullptr) {
-          View::useBitmap(newBitmap);
+          newBitmap->remember();
         }
     }
 

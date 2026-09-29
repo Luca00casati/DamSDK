@@ -28,11 +28,6 @@ namespace Controls {
         this->yValueRange = (float)(handleMaxY - this->yTop);
     }
     
-    // FUNCTION: DELAYLAMA 0x10004420
-    TwoAxisSlider::~TwoAxisSlider() {
-        HorizontalSlider::destroy();
-    }
-
     // FUNCTION: DELAYLAMA 0x10004460
     void TwoAxisSlider::onMouseDown(DamSDK::Gui::Platform::Windows::GDIDrawingContext* drawContext, POINT* mousePos) {
         if (this->isEnabled != false) {

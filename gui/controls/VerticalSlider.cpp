@@ -26,7 +26,7 @@ namespace Controls {
             this->handleHeight = 1;
         }
         else {
-            View::useBitmap(handleBmp);
+            handleBmp->remember();
             this->handleWidth = this->handleImage->width;
             this->handleHeight = this->handleImage->height;
         }
@@ -40,17 +40,11 @@ namespace Controls {
         this->handleMaxPos = (this->handleHeight - this->rect.top) + maxValue;
     }
 
-    // FUNCTION: DELAYLAMA 0x10009bd0
-    VerticalSlider::~VerticalSlider() {
-        this->destroy();
-    }
-
     // FUNCTION: DELAYLAMA 0x10009bf0
-    void VerticalSlider::destroy() {
+    VerticalSlider::~VerticalSlider() {
         if (this->handleImage != nullptr) {
-          Platform::Windows::Bitmap::unregisterBitmap(this->handleImage);
+          this->handleImage->unregisterBitmap();
         }
-        Control::destroy();
     }
 
      // FUNCTION: DELAYLAMA 0x10009c50

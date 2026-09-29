@@ -14,14 +14,8 @@ namespace Controls {
         this->knobRadius = 0.0;
     }
 
-    // FUNCTION: DELAYLAMA 0x10009810
-    Knob::~Knob() {
-        destroy();
-    }
-
     // FUNCTION: DELAYLAMA 0x10009830
-    void Knob::destroy() {
-        RotaryControl::destroy();
+    Knob::~Knob() {
     }
 
     // FUNCTION: DELAYLAMA 0x10009840

@@ -37,15 +37,10 @@ namespace Windows {
         this->drawRectangleOutline(&rect);
     }
 
-    // FUNCTION: DELAYLAMA 0x10006f60
-    OffscreenGDIDrawingContext::~OffscreenGDIDrawingContext() {
-        this->destroy();
-    }
-
     // FUNCTION: DELAYLAMA 0x10007050
-    void OffscreenGDIDrawingContext::destroy() {
+    OffscreenGDIDrawingContext::~OffscreenGDIDrawingContext() {
         if (this->bmp != nullptr) {
-          Bitmap::unregisterBitmap(this->bmp);
+          this->bmp->unregisterBitmap();
         }
 
         HDC hdc = this->hDC;
@@ -63,6 +58,7 @@ namespace Windows {
 
         GDIDrawingContext::cleanResources();
     }
+
 }
 }
 }
