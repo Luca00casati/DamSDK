@@ -205,32 +205,44 @@ namespace Windows {
     }
 
     // FUNCTION: DELAYLAMA 0x10006c60
-    void GDIDrawingContext::drawRectangleOutline(RECT* param_1) {
-        int top = this->drawOffset.y;
-        int right = this->drawOffset.x;
-        int bottom = param_1->bottom + top;
-        int left = param_1->left + right;
-        top = param_1->top + top;
-        right = param_1->right + right;
-        MoveToEx(this->hDC,left,top, nullptr);
-        LineTo(this->hDC,right,top);
-        LineTo(this->hDC,right,bottom);
-        LineTo(this->hDC,left,bottom);
-        LineTo(this->hDC,left,top);
+    void GDIDrawingContext::drawRectangleOutline(RECT* inRect) {
+        // Copy the rect, then offset it (VSTGUI CRect copy + offset())
+        RECT rect;
+        rect.left = inRect->left;
+        rect.top = inRect->top;
+        rect.right = inRect->right;
+        rect.bottom = inRect->bottom;
+        rect.left += this->drawOffset.x;
+        rect.right += this->drawOffset.x;
+        rect.top += this->drawOffset.y;
+        rect.bottom += this->drawOffset.y;
+
+        MoveToEx(this->hDC, rect.left, rect.top, NULL);
+        LineTo(this->hDC, rect.right, rect.top);
+        LineTo(this->hDC, rect.right, rect.bottom);
+        LineTo(this->hDC, rect.left, rect.bottom);
+        LineTo(this->hDC, rect.left, rect.top);
     }
 
     // FUNCTION: DELAYLAMA 0x10006ce0
-    void GDIDrawingContext::fillRectangleInset(RECT* param_1) {
-        int xOffset = this->drawOffset.x;
-        int yOffset = this->drawOffset.y;
-        rect.right = param_1->right + xOffset;
-        rect.bottom = param_1->bottom + yOffset;
-        rect.left = param_1->left + xOffset + 1;
-        rect.top = param_1->top + yOffset + 1;
-        HGDIOBJ pvVar1 = GetStockObject(8);
-        pvVar1 = SelectObject(this->hDC,pvVar1);
-        FillRect(this->hDC,&rect,this->obj1);
-        SelectObject(this->hDC,pvVar1);
+    void GDIDrawingContext::fillRectangleInset(RECT* inRect) {
+        // Copy the rect, then offset it (VSTGUI CRect copy + offset())
+        RECT rect;
+        rect.left = inRect->left;
+        rect.top = inRect->top;
+        rect.right = inRect->right;
+        rect.bottom = inRect->bottom;
+        rect.left += this->drawOffset.x;
+        rect.right += this->drawOffset.x;
+        rect.top += this->drawOffset.y;
+        rect.bottom += this->drawOffset.y;
+
+        // Don't draw the boundary
+        RECT fillRect = {rect.left + 1, rect.top + 1, rect.right, rect.bottom};
+        HGDIOBJ nullPen = GetStockObject(NULL_PEN);
+        HGDIOBJ oldPen = SelectObject(this->hDC, nullPen);
+        FillRect(this->hDC, &fillRect, (HBRUSH)this->obj1);
+        SelectObject(this->hDC, oldPen);
     }
 
     // FUNCTION: DELAYLAMA 0x10006f20

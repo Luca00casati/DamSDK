@@ -106,29 +106,20 @@ namespace Base {
 
     // FUNCTION: DELAYLAMA 0x10006ec0
     uint32_t View::GetPressedModifiersAndMouseButtons() {
-        SHORT keyState = GetAsyncKeyState(VK_LBUTTON);
-        byte combinedMask = keyState < 0;
-        keyState = GetAsyncKeyState(VK_MBUTTON);
-        if (keyState < 0) {
-          combinedMask = combinedMask | 2;
-        }
-        keyState = GetAsyncKeyState(VK_RBUTTON);
-        if (keyState < 0) {
-          combinedMask = combinedMask | 4;
-        }
-        keyState = GetAsyncKeyState(VK_SHIFT);
-        if (keyState < 0) {
-          combinedMask = combinedMask | 8;
-        }
-        keyState = GetAsyncKeyState(VK_CONTROL);
-        if (keyState < 0) {
-          combinedMask = combinedMask | 0x10;
-        }
-        keyState = GetAsyncKeyState(VK_MENU);
-        if (keyState < 0) {
-          combinedMask = combinedMask | 0x20;
-        }
-        return combinedMask;
+        uint32_t buttons = 0;
+        if (GetAsyncKeyState(VK_LBUTTON) < 0)
+            buttons |= 1;
+        if (GetAsyncKeyState(VK_MBUTTON) < 0)
+            buttons |= 2;
+        if (GetAsyncKeyState(VK_RBUTTON) < 0)
+            buttons |= 4;
+        if (GetAsyncKeyState(VK_SHIFT) < 0)
+            buttons |= 8;
+        if (GetAsyncKeyState(VK_CONTROL) < 0)
+            buttons |= 0x10;
+        if (GetAsyncKeyState(VK_MENU) < 0)
+            buttons |= 0x20;
+        return buttons;
     }
 
     // FUNCTION: DELAYLAMA 0x10007200

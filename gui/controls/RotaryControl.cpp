@@ -287,10 +287,9 @@ namespace Controls {
 
     // FUNCTION: DELAYLAMA 0x10009490
     void RotaryControl::updateMathConstants() {
-        float valueWidth = (this->max - this->min) / this->totalRange;
-        this->angleRange = valueWidth;
-        this->angleOffset = this->min - valueWidth * this->startAngle;
-        this->deadZoneSize = (6.2831855f - abs((float)this->totalRange)) * 0.5f;
+        this->angleRange = (this->max - this->min) / this->totalRange;
+        this->angleOffset = this->min - this->angleRange * this->startAngle;
+        this->deadZoneSize = (6.2831855f - (float)fabs(this->totalRange)) * 0.5f;
         this->setDirty(true);
     }
 

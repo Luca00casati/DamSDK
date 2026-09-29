@@ -55,8 +55,6 @@ namespace Windows {
             void drawControlOrSelf(Controls::Control *target);
             void refresh();
             void setBackgroundBitmap(Bitmap *background);
-            void resetVtable(Window* frame);
-            void cleanup();
             bool closeWindow();
             bool setDragAndDropState(bool enable);
             virtual void onMouseDown(GDIDrawingContext* drawingContext, POINT* mousePos) override;

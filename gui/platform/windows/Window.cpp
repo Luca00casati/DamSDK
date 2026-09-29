@@ -42,13 +42,27 @@ namespace Windows {
         openPluginWindow(hParent);
     }
 
-    // FUNCTION: DELAYLAMA 0x10007330
+    // FUNCTION: DELAYLAMA 0x10007350
     Window::~Window() {
-        cleanup();
-    }
+        GDIDrawingContext::setCursor(0);
+        setDragAndDropState(false);
+        bool callExtraFlag = true;
 
-    // STUB: DELAYLAMA 0x100071e0
-    void Window::resetVtable(Window* frame) {
+        destroyChildren(&callExtraFlag);
+        if (this->backgroundBitmap != nullptr) {
+          this->backgroundBitmap->unregisterBitmap();
+        }
+        if (this->hWnd != nullptr) {
+          SetWindowLongA(this->hWnd,-0x15,0);
+          DestroyWindow(this->hWnd);
+          Window::unregisterWindowClass();
+        }
+        if (this->isActive != false) {
+          closeWindow();
+        }
+        if (this->closeParameter != (void *)0x0) {
+          free(this->closeParameter);
+        }
     }
 
     // FUNCTION: DELAYLAMA 0x10007520
@@ -390,30 +404,6 @@ namespace Windows {
         control->returnTrue(this);
 
         return true;
-    }
-
-    // FUNCTION: DELAYLAMA 0x10007350
-    void Window::cleanup() {
-        GDIDrawingContext::setCursor(0);
-        setDragAndDropState(false);
-        bool callExtraFlag = true;
-
-        destroyChildren(&callExtraFlag);
-        if (this->backgroundBitmap != nullptr) {
-          this->backgroundBitmap->unregisterBitmap();
-        }
-        if (this->hWnd != nullptr) {
-          SetWindowLongA(this->hWnd,-0x15,0);
-          DestroyWindow(this->hWnd);
-          Window::unregisterWindowClass();
-        }
-        if (this->isActive != false) {
-          closeWindow();
-        }
-        if (this->closeParameter != (void *)0x0) {
-          free(this->closeParameter);
-        }
-        resetVtable(this);
     }
 
     // FUNCTION: DELAYLAMA 0x10008340
