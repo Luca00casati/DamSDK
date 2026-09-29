@@ -30,7 +30,7 @@ namespace Api {
         virtual int32_t getHostAutomatableParameterCount();
         virtual int32_t getParameterStepSize();
         virtual bool canParameterBeAutomated(int32_t parameterId);
-        virtual int32_t getParameter();
+        virtual bool getParameter(int32_t index, char* text);
         virtual float returnZeroFloat();
         virtual int32_t getPresetCategories();
         virtual bool getPresetNameByIndex(int32_t category, int32_t index, char *outText);
@@ -48,8 +48,8 @@ namespace Api {
         virtual int32_t getNextPlugin();
 
         // -- Routing --
-        virtual void connectInputBus(int32_t index, int32_t value);
-        virtual void connectOutputBus(int32_t index, int32_t value);
+        virtual void connectInputBus(int32_t index, bool connected);
+        virtual void connectOutputBus(int32_t index, bool connected);
         virtual bool getInputBusProperties(int32_t index,char *properties);
         virtual bool getOutputBusProperties(int32_t index,char *properties);
         virtual int32_t getPluginCategory();
@@ -100,11 +100,11 @@ namespace Api {
         virtual bool getProductName(char* outText);
         virtual int32_t getCompanyVersion();
         virtual int32_t companySpecific(int32_t index, int32_t value, void *data, float optional);
-        virtual bool pluginSupports(char* target);
+        virtual int32_t pluginSupports(char* target);
         virtual intptr_t getIcon();
         virtual bool setViewPosition(int32_t x, int32_t y);
         virtual int32_t getTailLengthSamples();
-        virtual bool processIdle();
+        virtual int32_t processIdle();
         virtual bool getParameterProperties(int32_t parameterId, void * data);
         virtual bool editorRequiresKeystroke();
         virtual int32_t getDamVersion();

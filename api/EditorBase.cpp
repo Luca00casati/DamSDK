@@ -75,8 +75,9 @@ namespace Api {
     }
 
     // FUNCTION: DELAYLAMA 0x10006840
-    void EditorBase::setKnobMode(int32_t mode) {
+    int32_t EditorBase::setKnobMode(int32_t mode) {
         GLOBAL_KNOB_MODE = mode;
+        return 1;
     }
 
     // FUNCTION: DELAYLAMA 0x100015b0 FOLDED

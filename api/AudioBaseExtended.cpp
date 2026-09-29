@@ -11,123 +11,162 @@ namespace Api {
 
     // FUNCTION: DELAYLAMA 0x10001ab0
     int32_t AudioBaseExtended::dispatchPluginCallback(int32_t targetOperation, int32_t index, int32_t value, void *data, float optional) {
+        // Same shape as the VST 2.x AudioEffectX dispatcher: one result, cases in opcode order.
+        int32_t v = 0;
         switch (targetOperation) {
             case pluginProcessEvents:
-                this->processEvents(data);
+                v = this->processEvents(data);
                 break;
             case pluginParameterSupportsAutomation:
-                return this->canParameterBeAutomated(index);
+                v = this->canParameterBeAutomated(index) ? 1 : 0;
+                break;
             case pluginGetParameterNameByIndex:
-                this->getParameterName(index, (char*)data);
+                v = this->getParameter(index, (char*)data) ? 1 : 0;
                 break;
             case pluginGetPresetCategoryCount:
-                return this->getPresetCategories();
+                v = this->getPresetCategories();
+                break;
             case pluginGetPresetNameByIndex:
-                return this->getPresetNameByIndex(value, index, (char*)data);
+                v = this->getPresetNameByIndex(value, index, (char*)data) ? 1 : 0;
+                break;
             case pluginCopyPreset:
-                this->copyPreset(index);
+                v = this->copyPreset(index) ? 1 : 0;
                 break;
             case pluginConnectInputChannel:
-                this->connectInputBus(index, value != NULL);
-                return 1;
+                this->connectInputBus(index, value != 0);
+                v = 1;
+                break;
             case pluginConnectOutputChannel:
-                this->connectOutputBus(index, value != NULL);
-                return 1;
+                this->connectOutputBus(index, value != 0);
+                v = 1;
+                break;
             case pluginGetPluginInputSettings:
-                return this->getInputBusProperties(index, (char*)data);
+                v = this->getInputBusProperties(index, (char*)data) ? 1 : 0;
+                break;
             case pluginGetPluginOutputSettings:
-                return this->getOutputBusProperties(index, (char*)data);
+                v = this->getOutputBusProperties(index, (char*)data) ? 1 : 0;
+                break;
             case pluginGetPluginCategory:
-                return this->getPluginCategory();
+                v = this->getPluginCategory();
+                break;
             case pluginGetCurrentSamplePosition:
-                return this->getTransportInfo();
+                v = this->getTransportInfo();
+                break;
             case pluginGetOutputBuffer:
-                return this->getOutputBuffer();
+                v = this->getOutputBuffer();
+                break;
             case pluginNotifyOffline:
-                return this->onOfflineNotify(data, value, index != NULL);
+                v = this->onOfflineNotify(data, value, index != 0);
+                break;
             case pluginPrepareOfflineRun:
-                return this->prepareOffline(data, value);
+                v = this->prepareOffline(data, value);
+                break;
             case pluginRunOffline:
-                return this->runOffline(data, value);
-            case pluginProcessVarIo:
-                return this->processVarIo(data);
+                v = this->runOffline(data, value);
+                break;
             case pluginSetSpeakerArrangement:
-                return this->setOutputSpeakerArrangement(value, data);
+                v = this->setOutputSpeakerArrangement(value, data) ? 1 : 0;
+                break;
+            case pluginProcessVarIo:
+                v = this->processVarIo(data) ? 1 : 0;
+                break;
             case pluginSetAudioSettings:
                 this->setAudioSettings(value, optional);
-                return 1;
+                v = 1;
+                break;
             case pluginSetBypassState:
-                return this->setBypass(value != NULL);
+                v = this->setBypass(value != 0) ? 1 : 0;
+                break;
             case pluginGetPluginName:
-                return this->getPluginName((char*) data);
+                v = this->getPluginName((char*)data) ? 1 : 0;
+                break;
             case pluginGetErrorText:
-                return this->getErrorText((char*) data);
+                v = this->getErrorText((char*)data) ? 1 : 0;
+                break;
             case pluginGetCompanyName:
-                return this->getHostCompanyString((char*) data);
+                v = this->getCompanyName((char*)data) ? 1 : 0;
+                break;
             case pluginGetProductName:
-                return this->getHostProductString((char*) data);
+                v = this->getProductName((char*)data) ? 1 : 0;
+                break;
             case pluginGetCompanyVersion:
-                return this->getCompanyVersion();
+                v = this->getCompanyVersion();
+                break;
             case plugingSpecific:
-                return this->companySpecific(index, value, data, optional);
+                v = this->companySpecific(index, value, data, optional);
+                break;
             case pluginSupportsFeature:
-                return this->pluginSupports((char*) data);
-            case pluginGetTailLength:
-                return this->getTailLengthSamples();
-            case pluginIdling:
-                return this->processIdle();
+                v = this->pluginSupports((char*)data);
+                break;
             case pluginGetIcon:
-                return this->getIcon();
+                v = (int32_t)this->getIcon();
+                break;
             case pluginSetViewPosition:
-                return this->setViewPosition(index, value);
+                v = this->setViewPosition(index, value) ? 1 : 0;
+                break;
+            case pluginGetTailLength:
+                v = this->getTailLengthSamples();
+                break;
+            case pluginIdling:
+                v = this->processIdle();
+                break;
             case pluginGetParameterSettings:
-                return this->getParameterProperties(index, data);
+                v = this->getParameterProperties(index, data) ? 1 : 0;
+                break;
             case pluginRequiresKeys:
-                return !this->editorRequiresKeystroke();
+                v = this->editorRequiresKeystroke() ? 0 : 1;
+                break;
             case pluginGetDamVersion:
-                return this->getDamVersion();
+                v = this->getDamVersion();
+                break;
             case pluginEditorKeyDownEvent:
                 if (this->editor != nullptr) {
                     KeyCode keyCode;
                     keyCode.asciiCharacter = index;
                     keyCode.vkValue = (unsigned char)value;
                     keyCode.modifiers = (unsigned char)optional;
-                    return editor->keyDown(&keyCode);
+                    v = this->editor->keyDown(&keyCode);
                 }
                 break;
             case pluginEditorKeyUpEvent:
-                if (editor != nullptr) {
+                if (this->editor != nullptr) {
                     KeyCode keyCode;
                     keyCode.asciiCharacter = index;
                     keyCode.vkValue = (unsigned char)value;
                     keyCode.modifiers = (unsigned char)optional;
-                    return editor->keyUp(&keyCode);
+                    v = this->editor->keyUp(&keyCode);
                 }
                 break;
             case pluginSetKnobMode:
-                if (editor != nullptr) {
-                    editor->setKnobMode(value);
-                }
+                if (this->editor != nullptr)
+                    v = this->editor->setKnobMode(value);
                 break;
             case pluginGetMidiPresetName:
-                return this->getMidiProgramName(index, (char *) data);
+                v = this->getMidiProgramName(index, (char*)data);
+                break;
             case pluginGetMidiProgram:
-                return this->getMidiProgram(index, data);
+                v = this->getMidiProgram(index, data);
+                break;
             case pluginGetCategoryOfMidiProgram:
-                return this->getMidiProgramCategory(index, (char *) data);
+                v = this->getMidiProgramCategory(index, (char*)data);
+                break;
             case pluginHasMidiProgramChanged:
-                return this->hasMidiProgramChanged(index);
+                v = this->hasMidiProgramChanged(index) ? 1 : 0;
+                break;
             case pluginNameOfMidiKey:
-                return this->getMidiKeyName(index, (char *) data);
+                v = this->getMidiKeyName(index, (char*)data) ? 1 : 0;
+                break;
             case pluginStartSettigMidiProgram:
-                return this->beginSetMidiProgram();
+                v = this->beginSetMidiProgram() ? 1 : 0;
+                break;
             case pluginStopSettingMidiProgram:
-                return this->endSetMidiProgram();
+                v = this->endSetMidiProgram() ? 1 : 0;
+                break;
             default:
-                return AudioBase::dispatchPluginCallback(targetOperation, index, value, data, optional);
+                v = AudioBase::dispatchPluginCallback(targetOperation, index, value, data, optional);
+                break;
         }
-
-        return 0;
+        return v;
     }
 
     // --- Editor & UI ---
@@ -296,7 +335,7 @@ namespace Api {
     bool AudioBaseExtended::canParameterBeAutomated(int32_t parameterId) { return true; }
 
     // FUNCTION: DELAYLAMA 0x100022d0 FOLDED
-    int32_t AudioBaseExtended::getParameter() { return 0; }
+    bool AudioBaseExtended::getParameter(int32_t index, char* text) { return false; }
 
     // FUNCTION: DELAYLAMA 0x100022d0 FOLDED
     bool AudioBaseExtended::getParameterProperties(int32_t parameterId, void * data) { return false; }
@@ -364,10 +403,10 @@ namespace Api {
     }
 
     // FUNCTION: DELAYLAMA 0x10001540 FOLDED
-    void AudioBaseExtended::connectInputBus(int32_t index, int32_t value) {}
+    void AudioBaseExtended::connectInputBus(int32_t index, bool connected) {}
 
     // FUNCTION: DELAYLAMA 0x10001540 FOLDED
-    void AudioBaseExtended::connectOutputBus(int32_t index, int32_t value) {}
+    void AudioBaseExtended::connectOutputBus(int32_t index, bool connected) {}
 
     // FUNCTION: DELAYLAMA 0x100022d0 FOLDED
     bool AudioBaseExtended::getInputBusProperties(int32_t index,char *properties) { return false; }
@@ -495,7 +534,7 @@ namespace Api {
     int32_t AudioBaseExtended::getDamVersion() { return 2200; }
 
     // FUNCTION: DELAYLAMA 0x10006750 FOLDED
-    bool AudioBaseExtended::pluginSupports(char* target) { return false; }
+    int32_t AudioBaseExtended::pluginSupports(char* target) { return 0; }
 
     // FUNCTION: DELAYLAMA 0x10002140 FOLDED
     int32_t AudioBaseExtended::getOfflinePassCount() { return 0; }
@@ -563,7 +602,7 @@ namespace Api {
     }
 
     // FUNCTION: DELAYLAMA 0x10002140 FOLDED
-    bool AudioBaseExtended::processIdle() { return false; }
+    int32_t AudioBaseExtended::processIdle() { return 0; }
 
     // FUNCTION: DELAYLAMA 0x10002300 FOLDED
     bool AudioBaseExtended::editorRequiresKeystroke() { return false; }

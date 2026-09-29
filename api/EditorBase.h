@@ -41,7 +41,7 @@ namespace Api {
             virtual void invalidate();
             virtual int32_t keyDown(KeyCode* keycode);
             virtual int32_t keyUp(KeyCode* keycode);
-            virtual void setKnobMode(int32_t mode);
+            virtual int32_t setKnobMode(int32_t mode);
             virtual bool onMouseWheel(float wheelDelta);
             virtual void dispatcher(int parameterIndex, float value);
             virtual void draw();
