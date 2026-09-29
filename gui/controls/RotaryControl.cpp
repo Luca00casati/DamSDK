@@ -45,21 +45,12 @@ namespace Controls {
     }
 
     // FUNCTION: DELAYLAMA 0x10008fe0
-    void RotaryControl::onDraw(Platform::Windows::GDIDrawingContext *drawingContext)
-    {
-        Platform::Windows::Bitmap *bitmap = this->bitmap;
-        if (bitmap != nullptr)
-        {
-            RECT *destRect = &this->rect;
-            POINT *srcPoint = &this->srcPoint;
-            if (this->useAlphaBlending == false)
-            {
-                bitmap->blit(drawingContext, destRect, srcPoint);
-            }
+    void RotaryControl::onDraw(Platform::Windows::GDIDrawingContext *drawingContext) {
+        if (this->bitmap) {
+            if (this->useAlphaBlending)
+                this->bitmap->drawMasked(drawingContext, &this->rect, &this->srcPoint);
             else
-            {
-                bitmap->drawMasked(drawingContext, destRect, srcPoint);
-            }
+                this->bitmap->blit(drawingContext, &this->rect, &this->srcPoint);
         }
         this->drawIndicator(drawingContext);
         this->setDirty(false);
