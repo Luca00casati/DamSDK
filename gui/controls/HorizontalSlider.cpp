@@ -93,87 +93,53 @@ namespace Controls {
     }
 
      // FUNCTION: DELAYLAMA 0x1000a1a0
-     void HorizontalSlider::onDraw(Platform::Windows::GDIDrawingContext* drawingContext) {
-         // Early out if no bitmaps to draw - prevents black square from being rendered
-         if (this->bitmap == nullptr && this->handleImage == nullptr) {
-             return;
-         }
-         
-         float valueToUse = this->value;
-         
-         // Check for flags & 8 to determine if value should be inverted
-         if ((this->flags & 8) == 0) {
-             valueToUse = 1.0f - valueToUse;
-         }
-         
-         Platform::Windows::OffscreenGDIDrawingContext* offscreenContext = new Platform::Windows::OffscreenGDIDrawingContext(
-             this->parent,
-             this->trackWidth,
-             this->trackHeight,
-             Platform::Windows::DAT_BACK_COLOR
-         );
+    void HorizontalSlider::onDraw(Platform::Windows::GDIDrawingContext* drawingContext) {
+        // Same steps as VSTGUI's CSlider::draw, always through an offscreen context.
+        float value;
+        if (this->flags & 8)
+            value = this->value;
+        else
+            value = 1.0f - this->value;
 
-         RECT trackRect;
-         trackRect.left = 0;
-         trackRect.top = 0;
-         trackRect.right = this->trackWidth;
-         trackRect.bottom = this->trackHeight;
-         
-         // Draw the track background if a bitmap is provided.
-         Platform::Windows::Bitmap* trackBitmap = this->bitmap;
-         if (trackBitmap != nullptr) {
-             POINT srcOffset = this->backgroundOffset;
-             if (!this->useAlphaBlending) {
-                 trackBitmap->blit(offscreenContext, &trackRect, &srcOffset);
-             } else {
-                 trackBitmap->drawMasked(offscreenContext, &trackRect, &srcOffset);
-             }
-         }
-         RECT handleRect;
-         handleRect.top    = this->handlePos.y;
-         handleRect.bottom = this->handleHeight + handleRect.top;
-         
-         // Compute the handle's horizontal position based on the current normalized value.
-         int valueRange = this->trackMaxX - this->trackMinX;
-         int handleOffset = static_cast<int>(valueToUse * valueRange);
-         int handleMinPos = this->handleMinPos;
-         
-         handleRect.left = handleOffset + this->handlePos.x;
-        if (handleRect.left < handleMinPos) {
-            handleRect.left = handleMinPos;
+        Platform::Windows::OffscreenGDIDrawingContext* offscreen =
+            new Platform::Windows::OffscreenGDIDrawingContext(this->parent, this->trackWidth, this->trackHeight, Platform::Windows::DAT_BACK_COLOR);
+
+        // Background
+        RECT rect = {0, 0, this->trackWidth, this->trackHeight};
+        if (this->bitmap) {
+            if (this->useAlphaBlending)
+                this->bitmap->drawMasked(offscreen, &rect, &this->backgroundOffset);
+            else
+                this->bitmap->blit(offscreen, &rect, &this->backgroundOffset);
         }
 
-        handleRect.right = this->handleWidth + handleRect.left;
-        
-        handleMinPos = this->handleMaxPos;
-        if (handleMinPos < handleRect.right) {
-            handleRect.right = handleMinPos;
-        }
+        // Handle position
+        RECT handleRect;
+        handleRect.top = this->handlePos.y;
+        handleRect.bottom = handleRect.top + this->handleHeight;
+        handleRect.left = this->handlePos.x + (int)(value * (this->trackMaxX - this->trackMinX));
+        if (handleRect.left < this->handleMinPos)
+            handleRect.left = this->handleMinPos;
+        handleRect.right = handleRect.left + this->handleWidth;
+        if (handleRect.right > this->handleMaxPos)
+            handleRect.right = this->handleMaxPos;
 
-        // Draw the handle image.
-        Platform::Windows::Bitmap* handleImage = this->handleImage;
-        if (handleImage != nullptr) {
-            POINT srcPoint;  // drawn from top‑left of the handle bitmap
-            srcPoint.x = 0;
-            srcPoint.y = 0;
-
-            if (!this->isHandleTransparent) {
-                handleImage->blit(offscreenContext, &handleRect, &srcPoint);
-            } else {
-                handleImage->drawMasked(offscreenContext, &handleRect, &srcPoint);
+        if (this->handleImage) {
+            if (this->isHandleTransparent) {
+                POINT zero = {0, 0};
+                this->handleImage->drawMasked(offscreen, &handleRect, &zero);
+            }
+            else {
+                POINT zero = {0, 0};
+                this->handleImage->blit(offscreen, &handleRect, &zero);
             }
         }
 
-        // Copy the completed offscreen buffer to the actual screen.
-        RECT destRect = this->rect;
-        offscreenContext->copyToScreen(drawingContext, destRect.left, destRect.top, destRect.right, destRect.bottom, 0, 0);
+        offscreen->copyToScreen(drawingContext, this->rect.left, this->rect.top, this->rect.right, this->rect.bottom, 0, 0);
+        delete offscreen;
 
-        // Clean up offscreen context.
-        delete offscreenContext;
-
-        // Update the left coordinate of the track (used by parent for layout) and mark dirty.
-        this->trackLeftX = destRect.left + handleRect.left;
-        this->setDirty(true);
+        this->trackLeftX = this->rect.left + handleRect.left;
+        this->setDirty(false);
     }
 
     // FUNCTION: DELAYLAMA 0x1000a360
