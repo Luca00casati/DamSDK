@@ -35,7 +35,7 @@ namespace Windows {
             int maxChildren;
             Controls::Control **children;
             Base::View *modalView;
-            COLORREF* unknownClass;
+            Base::View* editView;  // view with keyboard focus (text edit)
             bool redrawPending;
             bool visible;
             char unused3[2];
@@ -66,7 +66,7 @@ namespace Windows {
             void beginEdit(int parameterId);
             void endEdit(int parameterId);
             Controls::Control* getChildAtMousePos();
-            void getLocalMousePos(POINT* mousePos);
+            bool getLocalMousePos(POINT* mousePos);
             static bool registerWindowClass();
             static void unregisterWindowClass();
     };
