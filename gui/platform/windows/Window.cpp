@@ -19,9 +19,9 @@ namespace Windows {
     static LRESULT CALLBACK pluginWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     // GLOBAL: DELAYLAMA 0x1000d80c
-    static char g_szWindowClassName[64];
+    char g_szWindowClassName[64];
     // GLOBAL: DELAYLAMA 0x1000d870
-    static int g_RegistrationCount = 0;
+    int g_RegistrationCount = 0;
 
     // FUNCTION: DELAYLAMA 0x100072a0
     Window::Window(RECT *pRect,HWND hParent, Api::EditorBase *editor) : View(pRect) {

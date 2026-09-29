@@ -192,10 +192,8 @@ namespace Api {
 
     // FUNCTION: DELAYLAMA 0x10002750
     bool AudioBaseExtended::requestHostEditorRefresh() {
-        if (this->hostCallback != nullptr) {
-            int32_t output = this->hostCallback(&this->plugin, hostRequestEditorRefresh, 0, NULL, nullptr, 0.0f);
-            return output != NULL;
-        }
+        if (this->hostCallback != nullptr)
+            return this->hostCallback(&this->plugin, hostRequestEditorRefresh, 0, 0, nullptr, 0.0f) ? true : false;
         return false;
     }
     
@@ -265,7 +263,7 @@ namespace Api {
     // FUNCTION: DELAYLAMA 0x100027e0
     bool AudioBaseExtended::openFileDialogOnHost(char* outText) {
         if (this->hostCallback != nullptr && outText != nullptr)
-            return this->hostCallback(&this->plugin, hostOpenFileDialog, 0, 0, outText, 0.0f) != 0;
+            return this->hostCallback(&this->plugin, hostOpenFileDialog, 0, 0, outText, 0.0f) ? true : false;
         return false;
     }
 
@@ -304,12 +302,10 @@ namespace Api {
     }
 
     // FUNCTION: DELAYLAMA 0x10002640
-    bool AudioBaseExtended::hostSupports(char* target) {
-        if (this->hostCallback != nullptr) {
-            int32_t result = this->hostCallback(&this->plugin, hostSupportsFeature, 0, NULL, target, 0.0f);
-            return result != NULL;
-        }
-        return false;
+    int32_t AudioBaseExtended::hostSupports(char* target) {
+        if (this->hostCallback != nullptr)
+            return this->hostCallback(&this->plugin, hostSupportsFeature, 0, 0, target, 0.0f) != 0;
+        return 0;
     }
 
     // -- Advanced Parameters --
@@ -341,14 +337,14 @@ namespace Api {
     // FUNCTION: DELAYLAMA 0x10002780
     bool AudioBaseExtended::notifyHostClientBeginningParameterEdit(int32_t parameterId) {
         if (this->hostCallback != nullptr)
-            return this->hostCallback(&this->plugin, hostBeginParameterEdit, parameterId, 0, nullptr, 0.0f) != 0;
+            return this->hostCallback(&this->plugin, hostBeginParameterEdit, parameterId, 0, nullptr, 0.0f) ? true : false;
         return false;
     }
 
     // FUNCTION: DELAYLAMA 0x100027b0
     bool AudioBaseExtended::notifyHostClientEndingParameterEdit(int32_t parameterId) {
         if (this->hostCallback != nullptr)
-            return this->hostCallback(&this->plugin, hostEndParameterEdit, parameterId, 0, nullptr, 0.0f) != 0;
+            return this->hostCallback(&this->plugin, hostEndParameterEdit, parameterId, 0, nullptr, 0.0f) ? true : false;
         return false;
     }
 
@@ -467,9 +463,9 @@ namespace Api {
     }
 
     // FUNCTION: DELAYLAMA 0x10002470
-    bool AudioBaseExtended::offlineWrite(float** audioBuffers, int32_t sampleFrames) {
+    bool AudioBaseExtended::offlineWrite(float** audioBuffers, int32_t option) {
         if (this->hostCallback != nullptr) {
-            int32_t result = this->hostCallback(&this->plugin, hostOfflineWriteAudio, 0, 0, audioBuffers, 0.0f);
+            int32_t result = this->hostCallback(&this->plugin, hostOfflineWriteAudio, 0, option, audioBuffers, 0.0f);
             return result != NULL;
         }
         return false;
@@ -580,7 +576,7 @@ namespace Api {
     // FUNCTION: DELAYLAMA 0x10002210
     bool AudioBaseExtended::sizeWindow(int32_t width, int32_t height) {
         if (this->hostCallback != nullptr)
-            return this->hostCallback(&this->plugin, hostResizeEditorWindow, width, height, nullptr, 0.0f) ? true : false;
+            return this->hostCallback(&this->plugin, hostResizeEditorWindow, width, height, nullptr, 0.0f) != 0;
         return false;
     }
 

@@ -63,7 +63,7 @@ namespace Api {
 
         // -- Offline Processing --
         virtual bool offlineRead(float** audioBuffers, int32_t sampleFrames, bool readSource);
-        virtual bool offlineWrite(float** audioBuffers, int32_t sampleFrames);
+        virtual bool offlineWrite(float** audioBuffers, int32_t option);
         virtual bool startOfflineProcessing(void* param_1, int32_t param_2, int32_t param_3);
         virtual int32_t getCurrentPass();
         virtual int32_t getCurrentMetaPass();
@@ -80,7 +80,7 @@ namespace Api {
         virtual bool getHostProductString(char* outText);
         virtual int32_t getHostCompanyVersion();
         virtual intptr_t callCompanySpecific(int32_t index, int32_t valueHigh, float valueLow, void* context);
-        virtual bool hostSupports(char* target);
+        virtual int32_t hostSupports(char* target);
         virtual void setIsSynthesizer(bool isSynthesizer);
         virtual void setNoTail(bool noTail);
         virtual int32_t getHostLanguage();
