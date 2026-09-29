@@ -29,7 +29,7 @@ namespace Windows {
             Bitmap(int resId);
             ~Bitmap();
             void blit(GDIDrawingContext *drawingContext, RECT *destRect,POINT *srcPoint);
-            HBITMAP createMaskBitmap(HDC hdcRef,HANDLE hBitmapSrc,COLORREF colorKey);
+            static HBITMAP createMaskBitmap(HDC hdcRef,HANDLE hBitmapSrc,COLORREF colorKey);
             void drawMasked(GDIDrawingContext *drawingContext, RECT *destRect,POINT *srcPoint);
             static void unregisterBitmap(Bitmap* bitmap);
     };

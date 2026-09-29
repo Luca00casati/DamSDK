@@ -184,9 +184,6 @@ namespace Api {
     // FUNCTION: DELAYLAMA 0x100015b0 FOLDED
     void AudioBase::shutdownPlugin() {}
 
-    // LIBRARY: DELAYLAMA 0x1000b090
-    void AudioBase::invokeAudioProcess(float* * inputs, float* * outputs, int32_t sampleFrames) { this->processAudio(inputs, outputs, sampleFrames); }
-
     // FUNCTION: DELAYLAMA 0x10001590
     void AudioBase::processAudio(float* * inputs, float* * outputs, int32_t sampleFrames) {}
 
@@ -259,7 +256,7 @@ namespace Api {
     void AudioBase::setOutputChannelCount(int32_t count) { this->plugin.outputChannelCount = count;}
     
     // FUNCTION: DELAYLAMA 0x10001490
-    bool AudioBase::isInputChannelConnected(int32_t channel) {
+    bool AudioBase::isOutputChannelConnected(int32_t channel) {
         if (this->hostCallback == nullptr)
             return false;
         int32_t resultInt = this->hostCallback(&this->plugin, hostIsInputConnected, channel, 1, nullptr, 0.0);
@@ -267,7 +264,7 @@ namespace Api {
     }
     
     // FUNCTION: DELAYLAMA 0x10001460
-    bool AudioBase::isOutputChannelConnected(int32_t channel) { 
+    bool AudioBase::isInputChannelConnected(int32_t channel) { 
         if (this->hostCallback == nullptr)
             return false;
         int32_t resultInt = this->hostCallback(&this->plugin, hostIsInputConnected, channel, 0, nullptr, 0.0);
