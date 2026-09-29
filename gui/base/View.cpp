@@ -24,7 +24,7 @@ namespace Base {
         this->useAlphaBlending = false;
     }
 
-    // FUNCTION: DELAYLAMA 0x100071c0
+    // FUNCTION: DELAYLAMA 0x100071e0
     View::~View() {
         // this->resetVtable(); This implies that view is a window, but nothing else implies that this is the case.
     }
@@ -83,11 +83,7 @@ namespace Base {
 
     // FUNCTION: DELAYLAMA 0x100045b0
     void View::getRect(RECT* outRect) {
-        outRect->left = this->absRect.left;
-        outRect->top = this->absRect.top;
-        outRect->right = this->absRect.right;
-        outRect->bottom = this->absRect.bottom;
-        return;
+        *outRect = this->absRect;
     }
 
     // FUNCTION: DELAYLAMA 0x100045e0

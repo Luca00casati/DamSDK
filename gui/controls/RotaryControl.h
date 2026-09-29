@@ -41,7 +41,7 @@ namespace Controls {
             void setBitmap(Platform::Windows::Bitmap* bmp);
             float getStartAngle();
             float getTotalRange();
-            void setKnobRadius(float radius);
+            void setKnobRadius(int radius);
             void setFineTuneDivider(float divider);
             float getFineTuneDivider();
     };

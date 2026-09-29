@@ -132,8 +132,8 @@ namespace Api {
     // FUNCTION: DELAYLAMA 0x10006860
     bool EditorBase::onMouseWheel(float wheelDelta) {
         if (this->window != nullptr) {
-            this->window->onMouseWheel(nullptr, nullptr, wheelDelta);
-            return true;
+            POINT mousePos = {0, 0};
+            return this->window->onMouseWheel(nullptr, &mousePos, wheelDelta);
         }
         return false;
     }

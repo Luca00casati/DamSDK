@@ -427,7 +427,7 @@ namespace Controls {
     }
 
     // FUNCTION: DELAYLAMA 0x10009790
-    void RotaryControl::setKnobRadius(float radius) {
+    void RotaryControl::setKnobRadius(int radius) {
         this->knobRadius = radius;
     }
 
