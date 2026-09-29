@@ -85,7 +85,7 @@ namespace Api {
         virtual void formatSamplesAsHzString(float sampleCount, char* outText);
         virtual void formatSamplesAsMsString(float sampleCount, char* outText);
         virtual void formatFloatToString(float value, char* outText);
-        virtual void formatIntToString(int32_t value, char* outSmall, int32_t unused1, int32_t unused2, char* outLarge);
+        virtual void formatIntToString(int32_t value, char* text);
 
         //unsorted
         void _process(DamPlugin* effect, float* * inputs, float* * outputs, int32_t sampleFrames);

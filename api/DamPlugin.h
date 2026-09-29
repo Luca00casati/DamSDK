@@ -184,10 +184,12 @@ namespace Api {
         unsigned char modifiers;
     };
 
+    // Event list passed to processEvents (VST VstEvents): the event
+    // pointers are stored inline after the header.
     struct DamEventList {
         int count;
-        int unknown;
-        struct DamEvent *events;
+        int reserved;
+        struct DamEvent *events[2];
     };
 
     /**

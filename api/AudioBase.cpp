@@ -338,13 +338,11 @@ namespace Api {
 
     // -- String Formatting --
     // FUNCTION: DELAYLAMA 0x100015d0
-    void AudioBase::formatFloatAsDecibelString(float linearValue, char* outText) {
-        if (linearValue <= DECIBEL_THRESHOLD) {
-            ::strcpy(outText, INF_STRING);
-            return;
-        }
-        float dbValue = static_cast<float>(DECIBEL_FACTOR * ::log10(linearValue));
-        this->formatFloatToString(dbValue, outText);
+    void AudioBase::formatFloatAsDecibelString(float value, char* text) {
+        if (value <= 0)
+            strcpy(text, "  -oo   ");
+        else
+            this->formatFloatToString((float)(20. * log10(value)), text);
     }
     
     // FUNCTION: DELAYLAMA 0x10001660
@@ -360,76 +358,85 @@ namespace Api {
     }
     
     // FUNCTION: DELAYLAMA 0x100016c0
-    void AudioBase::formatSamplesAsMsString(float sampleCount, char* outText) {
-        float sampleRate = getSampleRate();               // virtual call vtable+0x88
-
-        // milliseconds = (sampleCount * 1000) / sampleRate
-        float ms = static_cast<float>((sampleCount * MS_FACTOR) / sampleRate);
-        this->formatFloatToString(ms, outText);
+    void AudioBase::formatSamplesAsMsString(float samples, char* text) {
+        this->formatFloatToString((float)(samples * 1000. / this->getSampleRate()), text);
     }
     
+    // Same algorithm as the VST SDK's float2string, including its quirk of
+    // copying " Huge!  " into the local buffer instead of the output.
     // FUNCTION: DELAYLAMA 0x10001710
-    void AudioBase::formatFloatToString(float value, char* outText) {
-        double val = static_cast<double>(value);
-        if (val >= HUGE_THRESHOLD) {
-            ::strcpy(outText, HUGE_STRING);
+    void AudioBase::formatFloatToString(float value, char* text) {
+        long c = 0, neg = 0;
+        char string[32];
+        char* s;
+        double v, integ, i10, mantissa, m10, ten = 10.;
+
+        v = (double)value;
+        if (v < 0) {
+            neg = 1;
+            value = -value;
+            v = -v;
+            c++;
+            if (v > 9999999.) {
+                strcpy(string, " Huge!  ");
+                return;
+            }
+        }
+        else if (v > 99999999.) {
+            strcpy(string, " Huge!  ");
             return;
         }
 
-        bool negative = (val < 0.0);
-        if (negative)
-            val = -val;
+        s = string + 31;
+        *s-- = 0;
+        *s-- = '.';
+        c++;
 
-        double intPart = ::floor(val);
-        double fracPart = val - intPart;
+        integ = floor(v);
+        i10 = fmod(integ, ten);
+        *s-- = (char)((long)i10 + '0');
+        integ /= ten;
+        c++;
+        while (integ >= 1. && c < 8) {
+            i10 = fmod(integ, ten);
+            *s-- = (char)((long)i10 + '0');
+            integ /= ten;
+            c++;
+        }
+        if (neg)
+            *s-- = '-';
+        strcpy(text, s + 1);
+        if (c >= 8)
+            return;
 
-        char intBuffer[32];
-        char* p = intBuffer + sizeof(intBuffer) - 1;
-        *p = '\0';
-
-        if (intPart == 0.0) {
-            *--p = '0';
-        } else {
-            while (intPart >= 1.0) {
-                double digit = ::fmod(intPart, TEN);
-                int d = static_cast<int>(digit);
-                *--p = static_cast<char>('0' + d);
-                intPart = ::floor(intPart * ONE_TENTH);
+        s = string + 31;
+        *s-- = 0;
+        mantissa = fmod(v, 1.);
+        mantissa *= pow(ten, (double)(8 - c));
+        while (c < 8) {
+            if (mantissa <= 0)
+                *s-- = '0';
+            else {
+                m10 = fmod(mantissa, ten);
+                *s-- = (char)((long)m10 + '0');
+                mantissa /= 10.;
             }
+            c++;
         }
-
-        char* out = outText;
-        if (negative)
-            *out++ = '-';
-        ::strcpy(out, p);
-        out += ::strlen(p);
-
-        *out++ = '.';
-
-        fracPart *= TEN;
-        int digit = static_cast<int>(fracPart);
-        *out++ = static_cast<char>('0' + digit);
-        fracPart -= digit;
-        int digitCount = 1;
-
-        while (fracPart > 0.0 && digitCount < MAX_DIGITS) {
-            fracPart *= TEN;
-            digit = static_cast<int>(fracPart);
-            *out++ = static_cast<char>('0' + digit);
-            fracPart -= digit;
-            ++digitCount;
-        }
-
-        *out = '\0';
+        strcat(text, s + 1);
     }
     
     // FUNCTION: DELAYLAMA 0x10001990
-    void AudioBase::formatIntToString(int32_t value, char* outSmall, int32_t unused1, int32_t unused2, char* outLarge) {
-        if (value >= INT_HUGE_LIMIT) {
-            ::strcpy(outSmall, HUGE_STRING);
-        } else {
-            ::sprintf(outSmall, "%d", value);
+    void AudioBase::formatIntToString(int32_t value, char* text) {
+        char string[32];
+
+        if (value >= 100000000) {
+            strcpy(text, " Huge!  ");
+            return;
         }
+        sprintf(string, "%7d", value);
+        string[8] = 0;
+        strcpy(text, string);
     }
 
     // -- Unused --
