@@ -47,6 +47,17 @@ namespace Base {
     // FUNCTION: DELAYLAMA 0x10004450 FOLDED
     void View::onDraw(Platform::Windows::GDIDrawingContext* drawingContext) {}
 
+    // FUNCTION: DELAYLAMA 0x10004450 FOLDED
+    void View::onFocusLost(Platform::Windows::GDIDrawingContext* drawingContext) {}
+
+    // FUNCTION: DELAYLAMA 0x10004450 FOLDED
+    void View::onFocusGained(Platform::Windows::GDIDrawingContext* drawingContext) {}
+
+    // FUNCTION: DELAYLAMA 0x10007ec0 FOLDED
+    void View::remember() {
+        this->referenceCount = this->referenceCount + 1;
+    }
+
     // FUNCTION: DELAYLAMA 0x10007210
     bool View::onMouseWheel(Platform::Windows::GDIDrawingContext *drawingContext, POINT *relativeMousePoint, float scrollDelta) { return false; }
 
@@ -55,11 +66,6 @@ namespace Base {
 
     // FUNCTION: DELAYLAMA 0x10004570
     void View::setEnabled(bool enabled) { this->isEnabled = enabled; }
-
-    // FUNCTION: DELAYLAMA 0x10007ec0
-    void View::useBitmap(Platform::Windows::Bitmap *bmp) {
-        bmp->refCount = bmp->refCount + 1;
-    }
 
     // FUNCTION: DELAYLAMA 0x10004580
     bool View::getEnabled() {
@@ -148,10 +154,10 @@ namespace Base {
     }
 
     // FUNCTION: DELAYLAMA 0x10004670 FOLDED
-    void View::returnTrue1(Platform::Windows::Window *frame) {}
+    bool View::returnTrue1(Platform::Windows::Window *frame) { return true; }
 
     // FUNCTION: DELAYLAMA 0x10004670 FOLDED
-    void View::returnTrue2(Platform::Windows::Window *frame) {}
+    bool View::returnTrue2(Platform::Windows::Window *frame) { return true; }
 
     // FUNCTION: DELAYLAMA 0x10007280
     void View::release() {

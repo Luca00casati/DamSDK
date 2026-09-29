@@ -30,27 +30,29 @@ namespace Controls {
             Platform::Windows::Bitmap *bitmap;
         public:
             Control(RECT *pRect, callbackCallback callback, int parameterId, Platform::Windows::Bitmap *bmp);
-            ~Control();
-            void setDefaultValue(float defaultValue = 0);
-            void setValue(float newValue);
-            void onIdle();
-            float getValue();
-            void setMin(float min);
-            float getMin();
-            void setMax(float max);
-            float getMax();
-            float getPreviousValue();
-            float getDefaultValue();
-            void setParameterId(int parameterId);
-            Platform::Windows::Bitmap* getBitmap();
-            void setWheelSensitivity(float sensitivity);
-            float getWheelSensitivity();
-            void destroy();
+            virtual ~Control();
+
             virtual bool isDirty() override;
             virtual void setDirty(bool isDirty) override;
-            void changeBitmap(Platform::Windows::Bitmap* newBitmap);
-            void clampValue();
             virtual bool onMouseWheel(Platform::Windows::GDIDrawingContext* drawingContext, POINT* mousePos, float wheelDelta) override;
+
+            // New virtual functions in the original vtable order (VSTGUI 2.x CControl).
+            virtual void onIdle();
+            virtual void setValue(float newValue);
+            virtual float getValue();
+            virtual void setMin(float min);
+            virtual float getMin();
+            virtual void setMax(float max);
+            virtual float getMax();
+            virtual float getPreviousValue();
+            virtual void setDefaultValue(float defaultValue = 0);
+            virtual float getDefaultValue();
+            virtual void setParameterId(int parameterId);
+            virtual Platform::Windows::Bitmap* getBitmap();
+            virtual void setWheelSensitivity(float sensitivity);
+            virtual float getWheelSensitivity();
+            virtual void clampValue();
+            virtual void changeBitmap(Platform::Windows::Bitmap* newBitmap);
             bool returnTrue(Platform::Windows::Window* window);
     };
 }
