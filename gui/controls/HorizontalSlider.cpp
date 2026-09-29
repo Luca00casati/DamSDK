@@ -144,89 +144,73 @@ namespace Controls {
 
     // FUNCTION: DELAYLAMA 0x1000a360
     void HorizontalSlider::onMouseDown(Platform::Windows::GDIDrawingContext* drawingContext, POINT* mousePos) {
-        if (this->isEnabled != false) {
-            uint8_t modifiers = drawingContext->getMouseButtons();
-            // Ctrl + Left Click -> Reset to default value
-            if (modifiers == 0x11) {  // 0x10 (Ctrl) | 0x01 (Left Button)
-                float defaultValue = this->getDefaultValue();
-                this->value = defaultValue;
-                if (this->isDirty()) {
-                    this->listener->valueChanged(drawingContext, this);
-                }
-                return;
-            }
-            else {
+        // Same steps as VSTGUI's CSlider::mouse
+        if (!this->isEnabled)
+            return;
 
-                int horizontalAnchor;
+        uint32_t button = drawingContext->getMouseButtons();
 
-                //Check for Left Click (0x01)
-                if ((modifiers & 1) != 0) {
-                    int trackMinX = this->trackMinX;
-                    if (this->snapToMouse == false) {
-                        int trackLeft = this->trackLeftX;
-                        int trackTop = this->rect.top;
-                        int mouseX = mousePos->x;
-                        if (mouseX < trackLeft) {
-                        return;
-                        }
-                        if (this->handleWidth + trackLeft < mouseX) {
-                            return;
-                        }
-                        if (mousePos->y < trackTop) {
-                            return;
-                        }
-                        if (this->handleHeight + trackTop < mousePos->y) {
-                            return;
-                        }
-                        horizontalAnchor = trackMinX + (mouseX - trackLeft);
-                    }
-                    else {
-                        horizontalAnchor = trackMinX + -1 + this->handleWidth / 2;
-                    }
-
-                    trackMaxX = this->trackMaxX;
-                    float curValue = this->value;
-                    this->parent->beginEdit(this->parameterId);
-
-                    modifiers = drawingContext->getMouseButtons();
-                    uint32_t previousModifiers = modifiers;
-
-                    float previousValue = this->value;
-                    while ((modifiers & 1) != 0) {
-                        if (modifiers != previousModifiers) {
-                            if ((modifiers & 8) != 0) {
-                                previousValue = this->value;
-                            }
-                            previousModifiers = modifiers;
-                        }
-                        else {
-                            curValue = this->value;
-                        }
-                        flags = this->flags;
-                        float calculatedValue = (float)(mousePos->x - horizontalAnchor) / (float)(trackMaxX - trackMinX);
-                        this->value = calculatedValue;
-                        
-                        if ((flags & 0x10) != 0) {
-                            this->value = 1.0f - calculatedValue;
-                        }
-
-                        if ((modifiers  & 8) != 0) {
-                            this->value = (this->value - (float)curValue) / this->fineTuneDivider + (float)curValue;
-                        }
-
-                        this->clampValue();
-                        bool isDirty = this->isDirty();
-                        if (isDirty != false) {
-                            this->listener->valueChanged(drawingContext, this);
-                        }
-                        drawingContext->getRelativeMousePos(mousePos);
-                        this->onIdle();
-                        modifiers = drawingContext->getMouseButtons();
-                    }
-                    this->parent->endEdit(this->parameterId);
-                }
-            }
+        // Ctrl + click: reset to the default value
+        if (button == 0x11) {
+            this->value = this->getDefaultValue();
+            if (this->isDirty())
+                this->listener->valueChanged(drawingContext, this);
+            return;
         }
+
+        // Left button only
+        if (!(button & 1))
+            return;
+
+        int delta = this->trackMinX;
+        if (!this->snapToMouse) {
+            // The click must be on the handle
+            RECT handleRect;
+            handleRect.left = this->trackLeftX;
+            handleRect.top = this->rect.top;
+            handleRect.right = handleRect.left + this->handleWidth;
+            handleRect.bottom = handleRect.top + this->handleHeight;
+            if (mousePos->x < handleRect.left || mousePos->x > handleRect.right ||
+                mousePos->y < handleRect.top || mousePos->y > handleRect.bottom)
+                return;
+            delta += mousePos->x - handleRect.left;
+        }
+        else {
+            delta += this->handleWidth / 2 - 1;
+        }
+
+        float oldValue = this->value;
+        uint32_t oldButton = button;
+        float range = (float)(this->trackMaxX - this->trackMinX);
+
+        this->parent->beginEdit(this->parameterId);
+        while (1) {
+            button = drawingContext->getMouseButtons();
+            if (!(button & 1))
+                break;
+
+            if (oldButton != button && (button & 8)) {
+                oldValue = this->value;
+                oldButton = button;
+            }
+            else if (!(button & 8)) {
+                oldValue = this->value;
+            }
+
+            this->value = (float)(mousePos->x - delta) / range;
+            if (this->flags & 0x10)
+                this->value = 1.0f - this->value;
+            if (button & 8)
+                this->value = (this->value - oldValue) / this->fineTuneDivider + oldValue;
+
+            this->clampValue();
+            if (this->isDirty())
+                this->listener->valueChanged(drawingContext, this);
+
+            drawingContext->getRelativeMousePos(mousePos);
+            this->onIdle();
+        }
+        this->parent->endEdit(this->parameterId);
     }
 }
 }

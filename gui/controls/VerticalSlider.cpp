@@ -98,83 +98,74 @@ namespace Controls {
     }
 
     // FUNCTION: DELAYLAMA 0x10009e10
-    void VerticalSlider::onMouseDown(Platform::Windows::GDIDrawingContext* drawingContext, POINT* relativeMousePos) {
-        if (this->isEnabled != false) {
+    void VerticalSlider::onMouseDown(Platform::Windows::GDIDrawingContext* drawingContext, POINT* mousePos) {
+        // Same steps as VSTGUI's CSlider::mouse
+        if (!this->isEnabled)
+            return;
 
-            uint8_t modifiers = drawingContext->getMouseButtons();
+        uint32_t button = drawingContext->getMouseButtons();
 
-            // Ctrl + Left Click -> Reset
-            if (modifiers == 0x11) { 
-                this->value = this->getDefaultValue();
-                if (this->isDirty()) {
-                    this->listener->valueChanged(drawingContext, this);
-                }
-                return;
-            }
-
-            // Left Click dragging
-            if ((modifiers & 0x01) != 0) {
-                int verticalAnchor;
-                
-                int trackMinY = this->trackMinY;
-                int trackMaxY = this->trackMaxY;
-
-                if (!this->snapToMouse) {
-                    trackMaxY = this->rect.left;
-                    trackTopY = this->trackTopY;
-                    if (relativeMousePos->x < trackMaxY) {
-                        return;
-                    }
-                    if (this->handleWidth + trackMaxY < relativeMousePos->x) {
-                        return;
-                    }
-                    verticalAnchor = relativeMousePos->y;
-                    if (verticalAnchor < trackTopY) {
-                        return;
-                    }
-                    if (this->handleHeight + trackTopY < verticalAnchor) {
-                        return;
-                    }
-                    verticalAnchor -= trackTopY;
-                } else {
-                    verticalAnchor = (this->handleHeight / 2) - 1;
-                }
-
-                verticalAnchor += trackMinY;
-                
-                float previousValue = this->value;
-                this->parent->beginEdit(this->parameterId);
-
-                while ((modifiers & 0x01) != 0) {
-                    float calculatedValue = (float)(relativeMousePos->y - verticalAnchor) / (float)(trackMaxY - trackMinY);
-                    
-                    // Reverse if flag 0x40 is set (for vertical slider pitch control)
-                    if ((this->flags & 0x40) != 0) {
-                        calculatedValue = 1.0f - calculatedValue;
-                    }
-
-                    // Fine-tuning logic (usually Shift key = 0x08)
-                    if ((modifiers & 0x08) != 0) {
-                        this->value = ((calculatedValue - previousValue) / this->fineTuneDivider) + previousValue;
-                    } else {
-                        this->value = calculatedValue;
-                        previousValue = calculatedValue;
-                    }
-
-                    this->clampValue();
-
-                    if (this->isDirty()) {
-                        this->listener->valueChanged(drawingContext, this);
-                    }
-
-                    drawingContext->getRelativeMousePos(relativeMousePos);
-                    this->onIdle();
-                    modifiers = drawingContext->getMouseButtons();
-                }
-
-                this->parent->endEdit(this->parameterId);
-            }
+        // Ctrl + click: reset to the default value
+        if (button == 0x11) {
+            this->value = this->getDefaultValue();
+            if (this->isDirty())
+                this->listener->valueChanged(drawingContext, this);
+            return;
         }
+
+        // Left button only
+        if (!(button & 1))
+            return;
+
+        int delta = this->trackMinY;
+        if (!this->snapToMouse) {
+            // The click must be on the handle
+            RECT handleRect;
+            handleRect.left = this->rect.left;
+            handleRect.top = this->trackTopY;
+            handleRect.right = handleRect.left + this->handleWidth;
+            handleRect.bottom = handleRect.top + this->handleHeight;
+            if (mousePos->x < handleRect.left || mousePos->x > handleRect.right ||
+                mousePos->y < handleRect.top || mousePos->y > handleRect.bottom)
+                return;
+            delta += mousePos->y - handleRect.top;
+        }
+        else {
+            delta += this->handleHeight / 2 - 1;
+        }
+
+        float oldValue = this->value;
+        uint32_t oldButton = button;
+        float range = (float)(this->trackMaxY - this->trackMinY);
+
+        this->parent->beginEdit(this->parameterId);
+        while (1) {
+            button = drawingContext->getMouseButtons();
+            if (!(button & 1))
+                break;
+
+            if (oldButton != button && (button & 8)) {
+                oldValue = this->value;
+                oldButton = button;
+            }
+            else if (!(button & 8)) {
+                oldValue = this->value;
+            }
+
+            this->value = (float)(mousePos->y - delta) / range;
+            if (this->flags & 0x40)
+                this->value = 1.0f - this->value;
+            if (button & 8)
+                this->value = (this->value - oldValue) / this->fineTuneDivider + oldValue;
+
+            this->clampValue();
+            if (this->isDirty())
+                this->listener->valueChanged(drawingContext, this);
+
+            drawingContext->getRelativeMousePos(mousePos);
+            this->onIdle();
+        }
+        this->parent->endEdit(this->parameterId);
     }
 }
 }
