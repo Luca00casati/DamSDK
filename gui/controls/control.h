@@ -3,9 +3,14 @@
 
 namespace DamSDK {
     namespace Gui {
-        namespace Controls { class Control; }
+        namespace Controls {
+            class Control;
+        }
         namespace Platform {
-            namespace Windows { class Bitmap; class GDIDrawingContext; }
+            namespace Windows {
+                class Bitmap;
+                class GDIDrawingContext;
+            }
         }
     }
 }

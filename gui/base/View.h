@@ -6,7 +6,11 @@
 namespace DamSDK {
     namespace Gui {
         namespace Platform {
-            namespace Windows { class GDIDrawingContext; class Bitmap; class Window; }
+            namespace Windows {
+                class GDIDrawingContext;
+                class Bitmap;
+                class Window;
+            }
         }
     }
 }

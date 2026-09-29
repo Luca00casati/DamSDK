@@ -5,11 +5,17 @@
 #include "damsdk/utils/portable_stdint.h"
 
 namespace DamSDK {
-    namespace Api { class EditorBase; }
+    namespace Api {
+        class EditorBase;
+    }
     namespace Gui {
-        namespace Controls { class Control; }
+        namespace Controls {
+            class Control;
+        }
         namespace Platform {
-            namespace Windows { class DropTarget; }
+            namespace Windows {
+                class DropTarget;
+            }
         }
     }
 }

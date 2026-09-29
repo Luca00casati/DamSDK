@@ -7,7 +7,9 @@
 namespace DamSDK {
     namespace Gui {
         namespace Platform {
-            namespace Windows { class Window; }
+            namespace Windows {
+                class Window;
+            }
         }
     }
 }
