@@ -264,10 +264,8 @@ namespace Api {
 
     // FUNCTION: DELAYLAMA 0x100027e0
     bool AudioBaseExtended::openFileDialogOnHost(char* outText) {
-        if (this->hostCallback != nullptr) {
-            int32_t result = this->hostCallback(&this->plugin, hostGetHostWorkingDirectory, 0, NULL, outText, 0.0f);
-            return result != NULL;
-        }
+        if (this->hostCallback != nullptr && outText != nullptr)
+            return this->hostCallback(&this->plugin, hostOpenFileDialog, 0, 0, outText, 0.0f) != 0;
         return false;
     }
 
@@ -342,19 +340,15 @@ namespace Api {
 
     // FUNCTION: DELAYLAMA 0x10002780
     bool AudioBaseExtended::notifyHostClientBeginningParameterEdit(int32_t parameterId) {
-        if (this->hostCallback != nullptr) {
-            int32_t result = this->hostCallback(&this->plugin, hostBeginParameterEdit, parameterId, NULL, nullptr, 0.0f);
-            return result != NULL;
-        }
+        if (this->hostCallback != nullptr)
+            return this->hostCallback(&this->plugin, hostBeginParameterEdit, parameterId, 0, nullptr, 0.0f) != 0;
         return false;
     }
 
     // FUNCTION: DELAYLAMA 0x100027b0
     bool AudioBaseExtended::notifyHostClientEndingParameterEdit(int32_t parameterId) {
-        if (this->hostCallback != nullptr) {
-            int32_t result = this->hostCallback(&this->plugin, hostEndParameterEdit, parameterId, NULL, nullptr, 0.0f);
-            return result != NULL;
-        }
+        if (this->hostCallback != nullptr)
+            return this->hostCallback(&this->plugin, hostEndParameterEdit, parameterId, 0, nullptr, 0.0f) != 0;
         return false;
     }
 
@@ -440,11 +434,11 @@ namespace Api {
     }
 
     // FUNCTION: DELAYLAMA 0x10002240
-    double* AudioBaseExtended::getHostSampleRate() {
-        if (this->hostCallback != nullptr) {
-            return (double *) this->hostCallback(&this->plugin, hostGetSampleRate, 0, NULL, nullptr, 0.0f);
-        }
-        return 0;
+    double AudioBaseExtended::getHostSampleRate() {
+        // Ask the host to update our sample rate, then return it.
+        if (this->hostCallback != nullptr)
+            this->hostCallback(&this->plugin, hostGetSampleRate, 0, 0, nullptr, 0.0f);
+        return this->sampleRate;
     }
 
     // -- Offline Processing --
@@ -549,9 +543,9 @@ namespace Api {
     }
 
     // FUNCTION: DELAYLAMA 0x10002690
-    void AudioBaseExtended::setCanProcessReplacing(bool canProcessReplacing) {
-        if (canProcessReplacing) this->plugin.flags |= PluginFlags::IsNoRealTime;
-        else                     this->plugin.flags &= ~PluginFlags::IsNoRealTime;
+    void AudioBaseExtended::setNoTail(bool noTail) {
+        if (noTail) this->plugin.flags |= PluginFlags::NoSoundInStop;
+        else        this->plugin.flags &= ~PluginFlags::NoSoundInStop;
     }
 
     // FUNCTION: DELAYLAMA 0x100023f0
@@ -585,10 +579,8 @@ namespace Api {
     // -- Workflow --
     // FUNCTION: DELAYLAMA 0x10002210
     bool AudioBaseExtended::sizeWindow(int32_t width, int32_t height) {
-        if (this->hostCallback != nullptr) {
-            int32_t result = this->hostCallback(&this->plugin,hostResizeEditorWindow, 0, 0, nullptr, 0.0f);
-            return result != NULL;
-        }
+        if (this->hostCallback != nullptr)
+            return this->hostCallback(&this->plugin, hostResizeEditorWindow, width, height, nullptr, 0.0f) ? true : false;
         return false;
     }
 
@@ -608,18 +600,16 @@ namespace Api {
     bool AudioBaseExtended::editorRequiresKeystroke() { return false; }
 
     // FUNCTION: DELAYLAMA 0x10002310
-    int32_t AudioBaseExtended::getPreviousPlugin() {
-        if (this->hostCallback != nullptr) {
-            return this->hostCallback(&this->plugin, hostGetPreviousPluginInstance, 0, NULL, nullptr, 0.0f);
-        }
+    int32_t AudioBaseExtended::getPreviousPlugin(int32_t input) {
+        if (this->hostCallback != nullptr)
+            return this->hostCallback(&this->plugin, hostGetPreviousPluginInstance, 0, 0, nullptr, 0.0f);
         return 0;
     }
 
     // FUNCTION: DELAYLAMA 0x10002350
-    int32_t AudioBaseExtended::getNextPlugin() {
-        if (this->hostCallback != nullptr) {
-            return this->hostCallback(&this->plugin, hostGetNextPluginInstance, 0, NULL, nullptr, 0.0f);
-        }
+    int32_t AudioBaseExtended::getNextPlugin(int32_t output) {
+        if (this->hostCallback != nullptr)
+            return this->hostCallback(&this->plugin, hostGetNextPluginInstance, 0, 0, nullptr, 0.0f);
         return 0;
     }
 

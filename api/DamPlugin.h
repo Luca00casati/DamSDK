@@ -18,13 +18,15 @@ namespace Api {
     typedef void (*FuncPtr)();
 
     namespace PluginFlags {
+        // Values as in the original binary (VST 2.x effFlags*).
         static const uint32_t HasEditor                  = 1 << 0;  // 1
-        static const uint32_t SupportsInPlaceProcessing  = 1 << 1;  // 2
-        static const uint32_t HasClip                    = 1 << 2;  // 4
-        static const uint32_t ReportsLoudnessToHost      = 1 << 3;  // 8
+        static const uint32_t HasClip                    = 1 << 1;  // 2
+        static const uint32_t ReportsLoudnessToHost      = 1 << 2;  // 4
+        static const uint32_t CanMono                    = 1 << 3;  // 8
+        static const uint32_t SupportsInPlaceProcessing  = 1 << 4;  // 16
         static const uint32_t ProgramChunks              = 1 << 5;  // 32
         static const uint32_t IsSynthesizer              = 1 << 8;  // 256
-        static const uint32_t IsNoRealTime               = 1 << 9;  // 512
+        static const uint32_t NoSoundInStop              = 1 << 9;  // 512
         static const uint32_t CanOverwrite               = 1 << 10;  // 1024
         static const uint32_t SupportsOfflineProcessing  = 1 << 11;  // 2048
     }

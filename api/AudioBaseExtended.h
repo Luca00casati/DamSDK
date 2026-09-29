@@ -40,12 +40,12 @@ namespace Api {
         virtual bool notifyHostIoConfigurationChanged();
         virtual bool needIdle();
         virtual bool sizeWindow(int32_t width, int32_t height);
-        virtual double* getHostSampleRate();
+        virtual double getHostSampleRate();
         virtual uint32_t getBlockSize();
         virtual int32_t getHostInputLatencySamples();
         virtual int32_t getHostOutputLatencySamples();
-        virtual int32_t getPreviousPlugin();
-        virtual int32_t getNextPlugin();
+        virtual int32_t getPreviousPlugin(int32_t input);
+        virtual int32_t getNextPlugin(int32_t output);
 
         // -- Routing --
         virtual void connectInputBus(int32_t index, bool connected);
@@ -82,7 +82,7 @@ namespace Api {
         virtual intptr_t callCompanySpecific(int32_t index, int32_t valueHigh, float valueLow, void* context);
         virtual bool hostSupports(char* target);
         virtual void setIsSynthesizer(bool isSynthesizer);
-        virtual void setCanProcessReplacing(bool canProcessReplacing);
+        virtual void setNoTail(bool noTail);
         virtual int32_t getHostLanguage();
         virtual int32_t openWindow(HWND windowHandle);
         virtual bool closePluginEditorOnHost(void* windowHandle);

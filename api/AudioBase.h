@@ -26,7 +26,7 @@ namespace Api {
         // -- Parameters / Automation --
         virtual void setParameterValue(int32_t parameterId, float value);
         virtual float getParameterValue(int32_t parameterId);
-        virtual int32_t automateHostParameter(int32_t parameterId, float value);
+        virtual void automateHostParameter(int32_t parameterId, float value);
 
         // -- Core --
         virtual void invokeAudioProcess(float* * inputs, float* * outputs, int32_t sampleFrames) = 0;
@@ -65,7 +65,7 @@ namespace Api {
         virtual void setHasClip(bool hasClip);
         virtual void setHasSoundOutput(bool hasOutput);
         virtual void setSupportsInPlaceProcessing(bool supportsInPlace);
-        virtual void setHasEditor(bool hasEditor);
+        virtual void setProgramsAreChunks(bool programsAreChunks);
         virtual void setReservedValue(int32_t unusedValue);
         virtual void setAudioBase(AudioBase* base);
         virtual void setPluginProcessingTime(int32_t processingTime);

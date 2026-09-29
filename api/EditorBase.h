@@ -44,7 +44,7 @@ namespace Api {
             virtual int32_t setKnobMode(int32_t mode);
             virtual bool onMouseWheel(float wheelDelta);
             virtual void dispatcher(int parameterIndex, float value);
-            virtual void draw();
+            virtual void draw(Rect* rect);
             virtual void idleHandler();
             void sleep(DWORD milliseconds);
     };

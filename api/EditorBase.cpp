@@ -55,9 +55,8 @@ namespace Api {
         if (this->isInIdleUpdate == false) {
             if (this->needsRedraw != false) {
                 this->needsRedraw = false;
-                //this->unimplemented();
+                this->update();
             }
-
             if (this->window != nullptr) {
                 this->window->refresh();
             }
@@ -89,7 +88,7 @@ namespace Api {
     }
 
     // FUNCTION: DELAYLAMA 0x100067d0
-    void EditorBase::draw() {
+    void EditorBase::draw(Rect* rect) {
         if (this->window != nullptr) {
             this->window->drawControlOrSelf(NULL);
         }

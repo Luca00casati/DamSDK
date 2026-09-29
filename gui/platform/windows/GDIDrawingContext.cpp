@@ -229,12 +229,18 @@ namespace Windows {
 
     // FUNCTION: DELAYLAMA 0x10006b80
     void GDIDrawingContext::moveToEx(POINT* target) {
-        MoveToEx(this->hDC,target->x + this->drawOffset.x, target->y + this->drawOffset.y, nullptr);
+        POINT point = *target;
+        point.x += this->drawOffset.x;
+        point.y += this->drawOffset.y;
+        MoveToEx(this->hDC, point.x, point.y, nullptr);
     }
 
     // FUNCTION: DELAYLAMA 0x10006bb0
     void GDIDrawingContext::lineTo(POINT* target) {
-        LineTo(this->hDC,target->x + this->drawOffset.x, target->y + this->drawOffset.y);
+        POINT point = *target;
+        point.x += this->drawOffset.x;
+        point.y += this->drawOffset.y;
+        LineTo(this->hDC, point.x, point.y);
     }
 
     // FUNCTION: DELAYLAMA 0x10006c60

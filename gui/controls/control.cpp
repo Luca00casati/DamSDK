@@ -48,11 +48,8 @@ namespace Controls {
 
     // FUNCTION: DELAYLAMA 0x10004790
     void Control::onIdle() {
-        Platform::Windows::Window* parentFrame = this->parent;
-        Api::EditorBase* editor = parentFrame->editor;
-        if (parentFrame != nullptr && editor != nullptr) {
-            editor->idleHandler();
-        }
+        if (this->parent != nullptr && this->parent->editor != nullptr)
+            this->parent->editor->idleHandler();
     }
 
     // FUNCTION: DELAYLAMA 0x100047c0
@@ -125,20 +122,16 @@ namespace Controls {
 
     // FUNCTION: DELAYLAMA 0x10008db0
     void Control::setDirty(bool isDirty) {
-        float prevValue;
-        
         this->_isDirty = isDirty;
         if (isDirty) {
-          prevValue = -1.0;
-          if (this->value == -1.0) {
-            this->prevValue = 0.0;
-            return;
-          }
+            if (this->value != -1.0f)
+                this->prevValue = -1.0f;
+            else
+                this->prevValue = 0.0f;
         }
         else {
-          prevValue = this->value;
+            this->prevValue = this->value;
         }
-        this->prevValue = prevValue;
     }
 
     // FUNCTION: DELAYLAMA 0x10008de0

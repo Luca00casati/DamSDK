@@ -74,11 +74,7 @@ namespace Base {
 
     // FUNCTION: DELAYLAMA 0x10004590
     void View::setAbsRect(RECT* rect) {
-        this->absRect.left = rect->left;
-        this->absRect.top = rect->top;
-        this->absRect.right = rect->right;
-        this->absRect.bottom = rect->bottom;
-        return;
+        this->absRect = *rect;
     }
 
     // FUNCTION: DELAYLAMA 0x100045b0

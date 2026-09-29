@@ -197,11 +197,10 @@ namespace Api {
     float AudioBase::getParameterValue(int32_t parameterId) { return 0.f; }
 
     // FUNCTION: DELAYLAMA 0x10001a10
-    int32_t AudioBase::automateHostParameter(int32_t parameterId, float value) {
+    void AudioBase::automateHostParameter(int32_t parameterId, float value) {
         this->setParameterValue(parameterId, value);
-        if (this->hostCallback == nullptr)
-            return 0;
-        return this->hostCallback(&this->plugin, hostAutomateParameter, parameterId, NULL, nullptr, value);
+        if (this->hostCallback != nullptr)
+            this->hostCallback(&this->plugin, hostAutomateParameter, parameterId, 0, nullptr, value);
     }
 
     // FUNCTION: DELAYLAMA 0x100016b0 FOLDED
@@ -253,20 +252,18 @@ namespace Api {
     
     // FUNCTION: DELAYLAMA 0x10001490
     bool AudioBase::isOutputChannelConnected(int32_t channel) {
-        if (this->hostCallback != nullptr) {
-            int32_t resultInt = this->hostCallback(&this->plugin, hostIsInputConnected, channel, 1, nullptr, 0.0);
-            return resultInt == NULL;
-        }
-        return false;
+        int32_t result = 0;
+        if (this->hostCallback != nullptr)
+            result = this->hostCallback(&this->plugin, hostIsInputConnected, channel, 1, nullptr, 0.0f);
+        return result ? false : true;
     }
     
     // FUNCTION: DELAYLAMA 0x10001460
-    bool AudioBase::isInputChannelConnected(int32_t channel) { 
-        if (this->hostCallback != nullptr) {
-            int32_t resultInt = this->hostCallback(&this->plugin, hostIsInputConnected, channel, 0, nullptr, 0.0);
-            return resultInt == NULL;
-        }
-        return false;
+    bool AudioBase::isInputChannelConnected(int32_t channel) {
+        int32_t result = 0;
+        if (this->hostCallback != nullptr)
+            result = this->hostCallback(&this->plugin, hostIsInputConnected, channel, 0, nullptr, 0.0f);
+        return result ? false : true;
     }
     
     // -- Plugin Properties --
@@ -292,22 +289,15 @@ namespace Api {
     }
     
     // FUNCTION: DELAYLAMA 0x10001560
-    void AudioBase::setHasEditor(bool hasEditor) {
-        if (hasEditor) this->plugin.flags |= PluginFlags::HasEditor;
-        else           this->plugin.flags &= ~PluginFlags::HasEditor;
+    void AudioBase::setProgramsAreChunks(bool programsAreChunks) {
+        if (programsAreChunks) this->plugin.flags |= PluginFlags::ProgramChunks;
+        else                   this->plugin.flags &= ~PluginFlags::ProgramChunks;
     }
     
-    // STUB: DELAYLAMA 0x10001500
+    // FUNCTION: DELAYLAMA 0x10001500
     void AudioBase::setHasSoundOutput(bool hasOutput) {
-        // uint uVar1;
-        //
-        // uVar1 = this->plugin.flags;
-        // if (hasOutput) {
-        //   this->plugin.flags = uVar1 | 8;
-        //   return;
-        // }
-        // this->plugin.flags = uVar1 & 0xfffffff7;
-        // return;
+        if (hasOutput) this->plugin.flags |= PluginFlags::CanMono;
+        else           this->plugin.flags &= ~PluginFlags::CanMono;
     }
 
     // FUNCTION: DELAYLAMA 0x100015a0
