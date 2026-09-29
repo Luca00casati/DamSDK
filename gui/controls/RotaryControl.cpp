@@ -338,65 +338,54 @@ namespace Controls {
         rawAngle = rawAngle - this->startAngle;
         float normalizedAngle;
         float rangePlusDeadzone;
-        if (0.0f <= this->totalRange) {
-            if (0.0f <= rawAngle) {
+        if (this->totalRange < 0.0f) {
+            rawAngle = rawAngle - this->totalRange;
             normalizedAngle = rawAngle;
-            if (6.283185307179586f < rawAngle) {
-                normalizedAngle = rawAngle - 6.2831855f;
-            }
-            }
-            else {
+            if (rawAngle < 0.0f) {
                 normalizedAngle = rawAngle + 6.2831855f;
             }
-
-            rangePlusDeadzone = this->totalRange + this->deadZoneSize;
-            if (rangePlusDeadzone < normalizedAngle) {
-                return this->min;
-            }
-            if (this->totalRange < normalizedAngle) {
-                return this->max;
-            }
-            if (rangePlusDeadzone < rawAngle) {
-                return (rawAngle - 6.2831855f) * (float)this->angleRange + this->min;
-            }
-            if (rawAngle < -(float)this->deadZoneSize) {
-                rawAngle = rawAngle + 6.2831855f;
-            }
-
-            return rawAngle * (float)this->angleRange + this->min;
-        }
-
-        rawAngle = rawAngle - this->totalRange;
-        if (0.0f <= rawAngle) {
-            normalizedAngle = rawAngle;
-            if (6.283185307179586f < rawAngle) {
+            else if (rawAngle > 6.283185307179586) {
                 normalizedAngle = rawAngle - 6.2831855f;
             }
+
+            rangePlusDeadzone = this->deadZoneSize - this->totalRange;
+            if (normalizedAngle > rangePlusDeadzone) {
+                return this->max;
+            }
+            if (normalizedAngle > -this->totalRange) {
+                return this->min;
+            }
+            if (rawAngle > rangePlusDeadzone) {
+                return (rawAngle - 6.2831855f) * this->angleRange + this->max;
+            }
+            if (rawAngle < -this->deadZoneSize) {
+                rawAngle = rawAngle + 6.2831855f;
+            }
+            return rawAngle * this->angleRange + this->max;
         }
-        else {
+
+        normalizedAngle = rawAngle;
+        if (rawAngle < 0.0f) {
             normalizedAngle = rawAngle + 6.2831855f;
         }
-
-        rangePlusDeadzone = this->deadZoneSize - this->totalRange;
-
-        if (rangePlusDeadzone < normalizedAngle) {
-            return this->max;
+        else if (rawAngle > 6.283185307179586) {
+            normalizedAngle = rawAngle - 6.2831855f;
         }
 
-        if (-this->totalRange < normalizedAngle) {
+        rangePlusDeadzone = this->totalRange + this->deadZoneSize;
+        if (normalizedAngle > rangePlusDeadzone) {
             return this->min;
         }
-
-        if (rangePlusDeadzone < rawAngle) {
-            return (rawAngle - 6.2831855f) * (float)this->angleRange +
-                this->max;
+        if (normalizedAngle > this->totalRange) {
+            return this->max;
         }
-
+        if (rawAngle > rangePlusDeadzone) {
+            return (rawAngle - 6.2831855f) * this->angleRange + this->min;
+        }
         if (rawAngle < -this->deadZoneSize) {
             rawAngle = rawAngle + 6.2831855f;
         }
-
-        return rawAngle * this->angleRange + this->max;
+        return rawAngle * this->angleRange + this->min;
     }
 
     // FUNCTION: DELAYLAMA 0x100096c0
