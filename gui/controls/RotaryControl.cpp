@@ -56,213 +56,136 @@ namespace Controls {
         this->setDirty(false);
     }
 
-    // STUB: DELAYLAMA 0x10009030
+    // FUNCTION: DELAYLAMA 0x10009030
     void RotaryControl::drawIndicator(Platform::Windows::GDIDrawingContext* drawingContext) {
-        // int centerX;
-        // int centerY;
-        // POINT sourceOffset;
-        // RECT destRect;
-        // GDIDrawingContext *drawContext;
-        // Bitmap *knobBitmap;
-        //
-        // centerY = 0;
-        // sourceOffset.x = 0;
-        // (*this->vtable->calculateXYFromValue)(&centerY);
-        // knobBitmap = this->bmp;
-        //                   // BITMAP RENDERING
-        // if (knobBitmap != (Bitmap *)0x0) {
-        //   destRect.left =
-        //        centerX + (this->rect.left - (int)knobBitmap->width / 2);
-        //   centerY = centerY + (this->rect.top - (int)knobBitmap->height / 2)
-        //   ;
-        //   destRect.bottom = centerY + knobBitmap->height;
-        //   destRect.right = knobBitmap->width + destRect.left;
-        //   sourceOffset.x = 0;
-        //   sourceOffset.y = 0;
-        //   destRect.top = centerY;
-        //   Bitmap::drawMasked(knobBitmap,drawContext,&destRect,&sourceOffset);
-        //   return;
-        // }
-        //                   // VECTOR RENDERING (Fallback)
-        // sourceOffset.y = this->rect.top;
-        // sourceOffset.x =
-        //      (this->rect.right -
-        //      this->rect.left) / 2 + -1 +
-        //      this->rect.left;
-        // centerY = centerY + sourceOffset.y;
-        // sourceOffset.y =
-        //      (this->rect.bottom - sourceOffset.y) / 2 + sourceOffset.y;
-        // GDIDrawingContext::setPenColor(drawContext,this->indicatorShadowColor);
-        // GDIDrawingContext::moveToEx(drawContext,(POINT *)&stack0xffffffdc);
-        // GDIDrawingContext::lineTo(drawContext,&sourceOffset);
-        // centerY = centerY + -1;
-        // sourceOffset.x = sourceOffset.x + 1;
-        // sourceOffset.y = sourceOffset.y + -1;
-        // GDIDrawingContext::setPenColor(drawContext,this->indicatorHighlightColor);
-        // GDIDrawingContext::moveToEx(drawContext,(POINT *)&stack0xffffffdc);
-        // GDIDrawingContext::lineTo(drawContext,&sourceOffset);
-        // return;
+        // Same steps as VSTGUI's CKnob::drawHandle
+        POINT where = {0, 0};
+        this->calculateXYFromValue(&where);
+
+        if (this->bmp) {
+            // Draw the handle bitmap centred on the handle position
+            long width = this->bmp->width;
+            long height = this->bmp->height;
+            where.x += this->rect.left - width / 2;
+            where.y += this->rect.top - height / 2;
+            RECT handleRect = {where.x, where.y, where.x + width, where.y + height};
+            POINT zero = {0, 0};
+            this->bmp->drawMasked(drawingContext, &handleRect, &zero);
+        }
+        else {
+            // Draw the indicator line from the handle to the centre, with a shadow
+            POINT origin;
+            origin.x = (this->rect.right - this->rect.left) / 2;
+            origin.y = (this->rect.bottom - this->rect.top) / 2;
+            where.x += this->rect.left - 1;
+            where.y += this->rect.top;
+            origin.x += this->rect.left - 1;
+            origin.y += this->rect.top;
+            drawingContext->setPenColor(this->indicatorShadowColor);
+            drawingContext->moveToEx(&where);
+            drawingContext->lineTo(&origin);
+
+            where.x += 1;
+            where.y -= 1;
+            origin.x += 1;
+            origin.y -= 1;
+            drawingContext->setPenColor(this->indicatorHighlightColor);
+            drawingContext->moveToEx(&where);
+            drawingContext->lineTo(&origin);
+        }
     }
 
     // FUNCTION: DELAYLAMA 0x10009190
-    void RotaryControl::onMouseDown(Platform::Windows::GDIDrawingContext *drawingContext, POINT *mousePos)
-    {
-        float halfRange;
-        bool isDirty;
-        uint32_t currentModifiers;
-        int prevMouseX;
-        int prevMouseY;
-        float defaultParamValue;
-        float calculatedAngle;
-        float valuePerPixel;
-        float paramRange;
-        float previousAngle;
-        float baseParamValue;
-        uint32_t prevModifiers;
-        POINT dragStartMouse;
-        bool isLinearMode;
-        int currentMouseX;
-        int currentMouseY;
-        int linearDelta;
-        int boundsTop;
-        float sensitivityPixels;
-        POINT relativeMousePos;
+    void RotaryControl::onMouseDown(Platform::Windows::GDIDrawingContext *drawingContext, POINT *mousePos) {
+        // Same steps as VSTGUI's CKnob::mouse
+        if (!this->isEnabled)
+            return;
 
-        if (this->isEnabled == false)
-        {
+        uint32_t button = drawingContext->getMouseButtons();
+        if (!(button & 1))
+            return;
+
+        // Ctrl + click: reset to the default value
+        if (button == 0x11) {
+            this->value = this->getDefaultValue();
+            if (this->isDirty())
+                this->listener->valueChanged(drawingContext, this);
             return;
         }
 
-        prevModifiers = drawingContext->getMouseButtons();
+        float old = this->prevValue;
+        POINT firstPoint = {0, 0};
+        bool modeLinear = false;
+        float entryState = this->value;
+        float middle = (this->max - this->min) * 0.5f;
+        float range = 200.0f;
+        float coef = (this->max - this->min) / range;
+        uint32_t oldButton = button;
 
-        // Exit if Left Click is not down
-        if ((prevModifiers & 1) == 0)
-        {
-            return;
+        // Linear mode when the knob mode is linear, or when Alt is held (inverted)
+        int mode = 0;
+        int newMode = Api::GLOBAL_KNOB_MODE;
+        if (newMode == 2) {
+            if (!(button & 0x20))
+                mode = newMode;
+        }
+        else if (button & 0x20) {
+            mode = 2;
         }
 
-        // CTRL + Click: Reset to Default
-        if (prevModifiers == 0x11)
-        {
-            defaultParamValue = this->getDefaultValue();
-            this->value = (float)defaultParamValue;
-            isDirty = this->isDirty();
-            if (isDirty == false)
-            {
-                return;
-            }
-            this->listener->valueChanged(drawingContext, this);
-            return;
+        if (mode == 2 && (button & 1)) {
+            if (button & 8)
+                range *= this->fineTuneDivider;
+            firstPoint = *mousePos;
+            modeLinear = true;
+            coef = (this->max - this->min) / range;
+        }
+        else {
+            POINT where2 = *mousePos;
+            where2.x -= this->rect.left;
+            where2.y -= this->rect.top;
+            old = this->calculateAngleFromPoint(&where2);
         }
 
-        paramRange = (float)(this->max - this->min);
-        previousAngle = this->prevValue;
-        baseParamValue = this->value;
-        dragStartMouse.x = 0;
-        dragStartMouse.y = 0;
-        halfRange = paramRange * 0.5f;
-        isLinearMode = false;
-        valuePerPixel = paramRange * 0.005f;
-        sensitivityPixels = 200.0f;
-
-        if (Api::GLOBAL_KNOB_MODE == 2)
-        {
-            // If Alt is held, use Radial/Angular mode
-            if ((prevModifiers & 0x20) != 0)
-            {
-            LAB_RADIAL_MODE:
-                relativeMousePos.x = mousePos->x - this->rect.left;
-                relativeMousePos.y = mousePos->y - this->rect.top;
-                calculatedAngle = this->calculateAngleFromPoint(&relativeMousePos);
-                previousAngle = (float)calculatedAngle;
-                goto LAB_START_DRAG_LOOP;
-            }
-        }
-        else if ((prevModifiers & 0x20) == 0)
-            goto LAB_RADIAL_MODE;
-
-        // Linear Mode Setup
-        if ((prevModifiers & 8) != 0)
-        {
-            // Shift-key for fine-tuning
-            sensitivityPixels = this->fineTuneDivider * 200.0f;
-        }
-        valuePerPixel = paramRange / sensitivityPixels;
-        isLinearMode = true;
-        dragStartMouse.x = mousePos->x;
-        dragStartMouse.y = mousePos->y;
-
-    LAB_START_DRAG_LOOP:
-        prevMouseX = -1;
-        prevMouseY = -1;
+        POINT oldWhere = {-1, -1};
         this->parent->beginEdit(this->parameterId);
-        do
-        {
-            currentModifiers = drawingContext->getMouseButtons();
-            currentMouseX = mousePos->x;
-            currentMouseY = mousePos->y;
-
-            if ((currentMouseX != prevMouseX) || (currentMouseY != prevMouseY))
-            {
-                prevMouseY = currentMouseY;
-                prevMouseX = currentMouseX;
-
-                if (isLinearMode)
-                {
-                    linearDelta = ((currentMouseX - currentMouseY) - dragStartMouse.x) + dragStartMouse.y;
-                    if (currentModifiers != prevModifiers)
-                    {
-                        sensitivityPixels = 200.0f;
-                        if ((currentModifiers & 8) != 0)
-                        {
-                            sensitivityPixels = this->fineTuneDivider * 200.0f;
-                        }
-                        sensitivityPixels = (this->max - this->min) / sensitivityPixels;
-                        baseParamValue = (valuePerPixel - sensitivityPixels) * (float)linearDelta + baseParamValue;
-                        valuePerPixel = sensitivityPixels;
-                        prevModifiers = currentModifiers;
+        do {
+            button = drawingContext->getMouseButtons();
+            if (mousePos->x != oldWhere.x || mousePos->y != oldWhere.y) {
+                oldWhere = *mousePos;
+                if (modeLinear) {
+                    long diff = (firstPoint.y - mousePos->y) + (mousePos->x - firstPoint.x);
+                    if (oldButton != button) {
+                        range = 200.0f;
+                        if (button & 8)
+                            range *= this->fineTuneDivider;
+                        float coef2 = (this->max - this->min) / range;
+                        entryState += diff * (coef - coef2);
+                        coef = coef2;
+                        oldButton = button;
                     }
-                    this->value = (float)linearDelta * valuePerPixel + baseParamValue;
+                    this->value = entryState + diff * coef;
                     this->clampValue();
                 }
-                else
-                {
-                    boundsTop = this->rect.top;
-                    relativeMousePos.x = currentMouseX - this->rect.left;
-                    relativeMousePos.y = currentMouseY - boundsTop;
-                    calculatedAngle = this->calculateAngleFromPoint(&relativeMousePos);
-                    this->value = (float)calculatedAngle;
-
-                    // Wrap-around logic bounds checking
-                    if (previousAngle - calculatedAngle <= halfRange)
-                    {
-                        if (calculatedAngle - previousAngle <= halfRange)
-                        {
-                            previousAngle = (float)calculatedAngle;
-                        }
-                        else
-                        {
-                            this->value = this->min;
-                        }
-                    }
-                    else
-                    {
+                else {
+                    mousePos->x -= this->rect.left;
+                    mousePos->y -= this->rect.top;
+                    this->value = this->calculateAngleFromPoint(mousePos);
+                    if (old - this->value > middle)
                         this->value = this->max;
-                    }
+                    else if (this->value - old > middle)
+                        this->value = this->min;
+                    else
+                        old = this->value;
                 }
-
-                isDirty = this->isDirty();
-                if (isDirty != false)
-                {
+                if (this->isDirty())
                     this->listener->valueChanged(drawingContext, this);
-                }
             }
             drawingContext->getRelativeMousePos(mousePos);
             this->onIdle();
-        } while ((currentModifiers & 1) != 0);
+        } while (button & 1);
 
         this->parent->endEdit(this->parameterId);
-        return;
     }
 
     // FUNCTION: DELAYLAMA 0x10009470
