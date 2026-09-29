@@ -87,8 +87,6 @@ namespace Api {
         virtual void formatFloatToString(float value, char* outText);
         virtual void formatIntToString(int32_t value, char* text);
 
-        //unsorted
-        void _process(DamPlugin* effect, float* * inputs, float* * outputs, int32_t sampleFrames);
     };
 
     namespace {

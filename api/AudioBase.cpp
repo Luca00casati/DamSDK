@@ -34,53 +34,52 @@ namespace Api {
         audioBase->setParameterValue(parameterId, value);
     }
 
-    // FUNCTION: DELAYLAMA 0x100010c0
-    static void _processFloat(DamPlugin* plugin, float** inputBuffer, float** outputBuffer, int32_t bufferSize) {
+    // FUNCTION: DELAYLAMA 0x100010a0
+    static void _process(DamPlugin* plugin, float** inputs, float** outputs, int32_t sampleFrames) {
         AudioBase* audioBase = (AudioBase*) plugin->object;
-        audioBase->invokeAudioProcess(inputBuffer, outputBuffer, bufferSize);
+        audioBase->invokeAudioProcess(inputs, outputs, sampleFrames);
     }
 
-    // STUB: DELAYLAMA 0x100010a0
-    void AudioBase::_process(DamPlugin* effect, float* * inputs, float* * outputs, int32_t sampleFrames) {
-        // (*effect->object->vtable->invokeAudioProcess)(inputs,outputs,sampleFrames);
-        // return;
+    // FUNCTION: DELAYLAMA 0x100010c0
+    static void _processFloat(DamPlugin* plugin, float** inputs, float** outputs, int32_t sampleFrames) {
+        AudioBase* audioBase = (AudioBase*) plugin->object;
+        audioBase->processAudio(inputs, outputs, sampleFrames);
     }
 
+    // Same order as the VST SDK's AudioEffect constructor.
     // FUNCTION: DELAYLAMA 0x100010e0
     AudioBase::AudioBase(dispatchFunc hostCallback, uint32_t presetCount, uint32_t parameterCount) {
-        // Zero out the DamPlugin structure to ensure all reserved fields are 0
-        memset(&this->plugin, 0, sizeof(DamPlugin));
-
-        // Initialize Class Members
         this->hostCallback = hostCallback;
-        this->parameterCount = parameterCount;
-        this->presetCount = presetCount;
-        this->currentPreset = 0;
         this->editor = nullptr;
-        this->sampleRate = 44100.0f;
-        this->blockSize = 1024;
+        this->presetCount = presetCount;
+        this->parameterCount = parameterCount;
+        this->currentPreset = 0;
 
-        // Initialize the DamPlugin Interface
-        this->plugin.magicNumber = 'VstP';  // "VstP" Magic Number
-        this->plugin.id          = 'NoEf';  // "NoEf" Default ID
-        this->plugin.version     = 1;
-        this->plugin.object      = this;    // Link back to this class instance
-        this->plugin.user        = nullptr;
-        
-        // IO and Parameters
-        this->plugin.inputChannelCount  = 1;
-        this->plugin.outputChannelCount = 2;
-        this->plugin.parameterCount     = parameterCount;
-        this->plugin.presetCount        = presetCount;
-        this->plugin.floatVal           = 1.0f;
-
-        // Assign Global Dispatcher/Process Function Pointers
-        this->plugin.dispatcherFunc       = _dispatcher;
-        this->plugin.processingFunc       = _processFloat;
+        memset(&this->plugin, 0, sizeof(DamPlugin));
+        this->plugin.magicNumber = 'VstP';
+        this->plugin.dispatcherFunc = _dispatcher;
+        this->plugin.processingFunc = _process;
         this->plugin.settingParameterFunc = _setParameter;
         this->plugin.gettingParameterFunc = _getParameter;
+        this->plugin.presetCount = presetCount;
+        this->plugin.parameterCount = parameterCount;
+        this->plugin.inputChannelCount = 1;
+        this->plugin.outputChannelCount = 2;
+        this->plugin.flags = 0;
+        this->plugin.reserved1 = 0;
+        this->plugin.reserved2 = 0;
+        this->plugin.pluginProcessingTime = 0;  // initialDelay
+        this->plugin.zero = 0;                  // realQualities
+        this->plugin.audioBase = nullptr;       // offQualities
+        this->plugin.floatVal = 1.0f;
+        this->plugin.object = this;
+        this->plugin.user = nullptr;
+        this->plugin.id = 'NoEf';
+        this->plugin.version = 1;
+        this->plugin.processAudioFloat = _processFloat;
 
-        this->plugin.processAudioFloat    = _processFloat;
+        this->sampleRate = 44100.0f;
+        this->blockSize = 1024;
     }
 
     // FUNCTION: DELAYLAMA 0x100011c0

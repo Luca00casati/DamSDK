@@ -65,7 +65,8 @@ namespace Api {
         uint32_t flags;
 
         /// Reserved space for future use.
-        unsigned char reserved[8];
+        int32_t reserved1;
+        int32_t reserved2;
 
         /// Internal processing-time value or host-reported timing state.
         int32_t pluginProcessingTime;
