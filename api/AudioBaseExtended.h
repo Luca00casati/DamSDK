@@ -31,7 +31,7 @@ namespace Api {
         virtual int32_t getParameterStepSize();
         virtual bool canParameterBeAutomated(int32_t parameterId);
         virtual bool getParameter(int32_t index, char* text);
-        virtual float returnZeroFloat();
+        virtual float returnZeroFloat(int32_t channel, int32_t index);
         virtual int32_t getPresetCategories();
         virtual bool getPresetNameByIndex(int32_t category, int32_t index, char *outText);
         virtual bool copyPreset(int32_t presetIndex);

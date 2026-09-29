@@ -18,7 +18,9 @@ namespace Windows {
 
     static LRESULT CALLBACK pluginWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+    // GLOBAL: DELAYLAMA 0x1000d80c
     static char g_szWindowClassName[64];
+    // GLOBAL: DELAYLAMA 0x1000d870
     static int g_RegistrationCount = 0;
 
     // FUNCTION: DELAYLAMA 0x100072a0
@@ -416,10 +418,8 @@ namespace Windows {
 
     // FUNCTION: DELAYLAMA 0x10008340
     void Window::unregisterWindowClass() {
-        g_RegistrationCount = g_RegistrationCount + -1;
-        if (g_RegistrationCount == 0) {
-          UnregisterClassA((LPCSTR)&g_szWindowClassName,g_hInstance);
-        }
+        if (--g_RegistrationCount == 0)
+            UnregisterClassA(g_szWindowClassName, g_hInstance);
     }
 
     // FUNCTION: DELAYLAMA 0x10007410
@@ -587,20 +587,14 @@ namespace Windows {
 
     // FUNCTION: DELAYLAMA 0x10007bb0
     bool Window::containsChild(Controls::Control* target) {
-        bool output = false;
-        int i = 0;
-        if (0 < (int)this->numChildren) {
-          Controls::Control ** children = this->children;
-          while (*children != target) {
-            i = i + 1;
-            children = children + 1;
-            if ((int)this->numChildren <= i) {
-              return output;
+        bool found = false;
+        for (int i = 0; i < this->numChildren; i++) {
+            if (this->children[i] == target) {
+                found = true;
+                break;
             }
-          }
-          output = true;
         }
-        return output;
+        return found;
     }
 
     // FUNCTION: DELAYLAMA 0x10007be0

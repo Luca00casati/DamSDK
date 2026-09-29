@@ -642,6 +642,6 @@ namespace Api {
 
     // -- Empty/Unknown Functions --
     // FUNCTION: DELAYLAMA 0x10002050
-    float AudioBaseExtended::returnZeroFloat() { return 0.f; }
+    float AudioBaseExtended::returnZeroFloat(int32_t channel, int32_t index) { return 0.f; }
 }
 }

@@ -153,9 +153,10 @@ namespace Base {
 
     // FUNCTION: DELAYLAMA 0x10007280
     void View::release() {
-        int referenceCount = this->referenceCount;
-        if (((0 < referenceCount) && (referenceCount = referenceCount + -1, this->referenceCount = referenceCount, referenceCount == 0)) && (this != nullptr)) {
-            delete this;
+        if (this->referenceCount > 0) {
+            this->referenceCount--;
+            if (this->referenceCount == 0)
+                delete this;
         }
     }
 }

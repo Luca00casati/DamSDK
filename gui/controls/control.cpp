@@ -148,13 +148,10 @@ namespace Controls {
 
     // FUNCTION: DELAYLAMA 0x10008e10
     void Control::clampValue() {
-        if (this->max < this->value) {
-          this->value = this->max;
-          return;
-        }
-        if (this->value < this->min) {
-          this->value = this->min;
-        }
+        if (this->value > this->max)
+            this->value = this->max;
+        else if (this->value < this->min)
+            this->value = this->min;
     }
 
     // FUNCTION: DELAYLAMA 0x10009410
