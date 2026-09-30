@@ -18,13 +18,15 @@ namespace Api {
     typedef void (*FuncPtr)();
 
     namespace PluginFlags {
+        // Values as in the original binary (VST 2.x effFlags*).
         static const uint32_t HasEditor                  = 1 << 0;  // 1
-        static const uint32_t SupportsInPlaceProcessing  = 1 << 1;  // 2
-        static const uint32_t HasClip                    = 1 << 2;  // 4
-        static const uint32_t ReportsLoudnessToHost      = 1 << 3;  // 8
+        static const uint32_t HasClip                    = 1 << 1;  // 2
+        static const uint32_t ReportsLoudnessToHost      = 1 << 2;  // 4
+        static const uint32_t CanMono                    = 1 << 3;  // 8
+        static const uint32_t SupportsInPlaceProcessing  = 1 << 4;  // 16
         static const uint32_t ProgramChunks              = 1 << 5;  // 32
         static const uint32_t IsSynthesizer              = 1 << 8;  // 256
-        static const uint32_t IsNoRealTime               = 1 << 9;  // 512
+        static const uint32_t NoSoundInStop              = 1 << 9;  // 512
         static const uint32_t CanOverwrite               = 1 << 10;  // 1024
         static const uint32_t SupportsOfflineProcessing  = 1 << 11;  // 2048
     }
@@ -63,7 +65,8 @@ namespace Api {
         uint32_t flags;
 
         /// Reserved space for future use.
-        unsigned char reserved[8];
+        int32_t reserved1;
+        int32_t reserved2;
 
         /// Internal processing-time value or host-reported timing state.
         int32_t pluginProcessingTime;
@@ -107,6 +110,22 @@ namespace Api {
     struct Range {
         int32_t min;
         int32_t max;
+    };
+
+    // 4-byte colour (VSTGUI CColor). Copied byte by byte, unlike COLORREF.
+    struct Color {
+        uint8_t red;
+        uint8_t green;
+        uint8_t blue;
+        uint8_t unused;
+
+        Color& operator=(Color newColor) {
+            red = newColor.red;
+            green = newColor.green;
+            blue = newColor.blue;
+            unused = newColor.unused;
+            return *this;
+        }
     };
 
     union ColorRGBA {
@@ -166,10 +185,12 @@ namespace Api {
         unsigned char modifiers;
     };
 
+    // Event list passed to processEvents (VST VstEvents): the event
+    // pointers are stored inline after the header.
     struct DamEventList {
         int count;
-        int unknown;
-        struct DamEvent *events;
+        int reserved;
+        struct DamEvent *events[2];
     };
 
     /**

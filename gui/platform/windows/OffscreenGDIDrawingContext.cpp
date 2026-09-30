@@ -8,7 +8,7 @@ namespace Platform {
 namespace Windows {
 
     // FUNCTION: DELAYLAMA 0x10006f80
-    OffscreenGDIDrawingContext::OffscreenGDIDrawingContext(Window* parentFramePtr, int width, int height, COLORREF color) : GDIDrawingContext(parentFramePtr, nullptr, nullptr) {
+    OffscreenGDIDrawingContext::OffscreenGDIDrawingContext(Window* parentFramePtr, int width, int height, Api::Color color) : GDIDrawingContext(parentFramePtr, nullptr, nullptr) {
         this->bmp = nullptr;
         this->unknown = 0;
         this->width = width;
@@ -37,15 +37,10 @@ namespace Windows {
         this->drawRectangleOutline(&rect);
     }
 
-    // FUNCTION: DELAYLAMA 0x10006f60
-    OffscreenGDIDrawingContext::~OffscreenGDIDrawingContext() {
-        this->destroy();
-    }
-
     // FUNCTION: DELAYLAMA 0x10007050
-    void OffscreenGDIDrawingContext::destroy() {
+    OffscreenGDIDrawingContext::~OffscreenGDIDrawingContext() {
         if (this->bmp != nullptr) {
-          Bitmap::unregisterBitmap(this->bmp);
+          this->bmp->unregisterBitmap();
         }
 
         HDC hdc = this->hDC;
@@ -60,9 +55,8 @@ namespace Windows {
                 DeleteObject(ho);
             }    
         }
-
-        GDIDrawingContext::cleanResources();
     }
+
 }
 }
 }

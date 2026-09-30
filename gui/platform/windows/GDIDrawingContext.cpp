@@ -6,11 +6,12 @@ namespace Gui {
 namespace Platform {
 namespace Windows {
 
+    // GLOBAL: DELAYLAMA 0x1000d400
     HINSTANCE g_hInstance = NULL;
 
-    COLORREF DAT_FOREGROUND_COLOR = RGB(255, 255, 255);
-    COLORREF DAT_GRAY_COLOR = RGB(127, 127, 127);
-    COLORREF DAT_BACK_COLOR = RGB(0, 0, 0);
+    Api::Color DAT_FOREGROUND_COLOR = {255, 255, 255, 0};
+    Api::Color DAT_GRAY_COLOR = {127, 127, 127, 0};
+    Api::Color DAT_BACK_COLOR = {0, 0, 0, 0};
 
     // FUNCTION: DELAYLAMA 0x10006960
     GDIDrawingContext::GDIDrawingContext(Window *parentFramePtr,HDC hDC,HWND hWnd) {
@@ -24,7 +25,7 @@ namespace Windows {
 
         memset(this->unused2, 0, sizeof(this->unused2));
         this->penWidth = 1;
-        this->penDashEnabled = false;
+        this->lineStyle = 0;
         memset(this->unused3, 0, sizeof(this->unused3));
 
         this->rect.left = 0;
@@ -88,107 +89,62 @@ namespace Windows {
         if (hDC != NULL)
         {
             this->setPenColor(this->penColor);
-            this->setPenDashMode(this->penDashEnabled);
+            this->setPenDashMode(this->lineStyle);
             this->setBackgroundColorAndBrush(this->backgroundColor);
             this->setTextColor(this->textColor);
         }
     }
 
-    // FUNCTION: DELAYLAMA 0x10006af0
-    GDIDrawingContext::~GDIDrawingContext()
-    {
-        this->cleanResources();
-    }
-    
     // FUNCTION: DELAYLAMA 0x10006da0
-    void GDIDrawingContext::setPenColor(COLORREF color)
+    void GDIDrawingContext::setPenColor(Api::Color color)
     {
         this->penColor = color;
-
-        LOGPEN pen;
-        pen.lopnWidth.x = this->penWidth;
-        pen.lopnWidth.y = this->penWidth;
-        pen.lopnStyle   = this->penStyle;
-        pen.lopnColor   = this->penColor;
-
+        LOGPEN pen = {this->penStyle, {this->penWidth, this->penWidth}, RGB(this->penColor.red, this->penColor.green, this->penColor.blue)};
         HPEN newPen = CreatePenIndirect(&pen);
-        if (newPen == NULL)
-            return;
-
         SelectObject(this->hDC, newPen);
-
         if (this->obj2 != NULL)
-        {
             DeleteObject(this->obj2);
-        }
-
         this->obj2 = newPen;
     }
 
     // FUNCTION: DELAYLAMA 0x10006be0
-    void GDIDrawingContext::setPenDashMode(bool penDashEnabled)
+    void GDIDrawingContext::setPenDashMode(int32_t lineStyle)
     {
-        this->penDashEnabled = penDashEnabled;
-
-        if (penDashEnabled == true)
-            this->penStyle = PS_DASH;
+        this->lineStyle = lineStyle;
+        if (lineStyle == 1)
+            this->penStyle = PS_DOT;
         else
             this->penStyle = PS_SOLID;
-
-        LOGPEN pen;
-        pen.lopnWidth.x = this->penWidth;
-        pen.lopnWidth.y = this->penWidth;
-        pen.lopnStyle   = this->penStyle;
-        pen.lopnColor   = this->penColor;
-
+        LOGPEN pen = {this->penStyle, {this->penWidth, this->penWidth}, RGB(this->penColor.red, this->penColor.green, this->penColor.blue)};
         HPEN newPen = CreatePenIndirect(&pen);
-        if (newPen == NULL)
-            return;
-
         SelectObject(this->hDC, newPen);
-
         if (this->obj2 != NULL)
-        {
             DeleteObject(this->obj2);
-        }
-
         this->obj2 = newPen;
     }
 
     // FUNCTION: DELAYLAMA 0x10006e20
-    void GDIDrawingContext::setBackgroundColorAndBrush(COLORREF color)
+    void GDIDrawingContext::setBackgroundColorAndBrush(Api::Color color)
     {
         this->backgroundColor = color;
-
-        SetBkColor(this->hDC, this->backgroundColor);
-
-        LOGBRUSH brush;
-        brush.lbStyle = BS_SOLID;
-        brush.lbColor = this->backgroundColor;
-        brush.lbHatch = 0;
-
+        SetBkColor(this->hDC, RGB(color.red, color.green, color.blue));
+        LOGBRUSH brush = {BS_SOLID, RGB(color.red, color.green, color.blue), 0};
         HBRUSH newBrush = CreateBrushIndirect(&brush);
-        if (newBrush == NULL)
-        {
+        if (newBrush == NULL) {
             GetLastError();
             return;
         }
-
         SelectObject(this->hDC, newBrush);
-
         if (this->obj1 != NULL)
-        {
             DeleteObject(this->obj1);
-        }
-
         this->obj1 = newBrush;
     }
 
     // FUNCTION: DELAYLAMA 0x10006d60
-    void GDIDrawingContext::setTextColor(COLORREF color)
+    void GDIDrawingContext::setTextColor(Api::Color color)
     {
         this->textColor = color;
-        SetTextColor(this->hDC, this->textColor);
+        SetTextColor(this->hDC, RGB(this->textColor.red, this->textColor.green, this->textColor.blue));
     }
 
     // FUNCTION: DELAYLAMA 0x10003620
@@ -199,7 +155,7 @@ namespace Windows {
     }
 
     // FUNCTION: DELAYLAMA 0x10006b10
-    void GDIDrawingContext::cleanResources() {
+    GDIDrawingContext::~GDIDrawingContext() {
         HGDIOBJ pvVar1 = this->originalPen;
         
         if (pvVar1 != nullptr) {
@@ -234,41 +190,59 @@ namespace Windows {
 
     // FUNCTION: DELAYLAMA 0x10006b80
     void GDIDrawingContext::moveToEx(POINT* target) {
-        MoveToEx(this->hDC,target->x + this->drawOffset.x, target->y + this->drawOffset.y, nullptr);
+        POINT point = *target;
+        point.x += this->drawOffset.x;
+        point.y += this->drawOffset.y;
+        MoveToEx(this->hDC, point.x, point.y, nullptr);
     }
 
     // FUNCTION: DELAYLAMA 0x10006bb0
     void GDIDrawingContext::lineTo(POINT* target) {
-        LineTo(this->hDC,target->x + this->drawOffset.x, target->y + this->drawOffset.y);
+        POINT point = *target;
+        point.x += this->drawOffset.x;
+        point.y += this->drawOffset.y;
+        LineTo(this->hDC, point.x, point.y);
     }
 
     // FUNCTION: DELAYLAMA 0x10006c60
-    void GDIDrawingContext::drawRectangleOutline(RECT* param_1) {
-        int top = this->drawOffset.y;
-        int right = this->drawOffset.x;
-        int bottom = param_1->bottom + top;
-        int left = param_1->left + right;
-        top = param_1->top + top;
-        right = param_1->right + right;
-        MoveToEx(this->hDC,left,top, nullptr);
-        LineTo(this->hDC,right,top);
-        LineTo(this->hDC,right,bottom);
-        LineTo(this->hDC,left,bottom);
-        LineTo(this->hDC,left,top);
+    void GDIDrawingContext::drawRectangleOutline(RECT* inRect) {
+        // Copy the rect, then offset it (VSTGUI CRect copy + offset())
+        RECT rect;
+        rect.left = inRect->left;
+        rect.top = inRect->top;
+        rect.right = inRect->right;
+        rect.bottom = inRect->bottom;
+        rect.left += this->drawOffset.x;
+        rect.right += this->drawOffset.x;
+        rect.top += this->drawOffset.y;
+        rect.bottom += this->drawOffset.y;
+
+        MoveToEx(this->hDC, rect.left, rect.top, NULL);
+        LineTo(this->hDC, rect.right, rect.top);
+        LineTo(this->hDC, rect.right, rect.bottom);
+        LineTo(this->hDC, rect.left, rect.bottom);
+        LineTo(this->hDC, rect.left, rect.top);
     }
 
     // FUNCTION: DELAYLAMA 0x10006ce0
-    void GDIDrawingContext::fillRectangleInset(RECT* param_1) {
-        int xOffset = this->drawOffset.x;
-        int yOffset = this->drawOffset.y;
-        rect.right = param_1->right + xOffset;
-        rect.bottom = param_1->bottom + yOffset;
-        rect.left = param_1->left + xOffset + 1;
-        rect.top = param_1->top + yOffset + 1;
-        HGDIOBJ pvVar1 = GetStockObject(8);
-        pvVar1 = SelectObject(this->hDC,pvVar1);
-        FillRect(this->hDC,&rect,this->obj1);
-        SelectObject(this->hDC,pvVar1);
+    void GDIDrawingContext::fillRectangleInset(RECT* inRect) {
+        // Copy the rect, then offset it (VSTGUI CRect copy + offset())
+        RECT rect;
+        rect.left = inRect->left;
+        rect.top = inRect->top;
+        rect.right = inRect->right;
+        rect.bottom = inRect->bottom;
+        rect.left += this->drawOffset.x;
+        rect.right += this->drawOffset.x;
+        rect.top += this->drawOffset.y;
+        rect.bottom += this->drawOffset.y;
+
+        // Don't draw the boundary
+        RECT fillRect = {rect.left + 1, rect.top + 1, rect.right, rect.bottom};
+        HGDIOBJ nullPen = GetStockObject(NULL_PEN);
+        HGDIOBJ oldPen = SelectObject(this->hDC, nullPen);
+        FillRect(this->hDC, &fillRect, (HBRUSH)this->obj1);
+        SelectObject(this->hDC, oldPen);
     }
 
     // FUNCTION: DELAYLAMA 0x10006f20
@@ -282,6 +256,24 @@ namespace Windows {
         outRelMousePos->x = mousePos.x - this->screenPos.x;
         outRelMousePos->y = mousePos.y - yPos;
         return;
+    }
+
+    // FUNCTION: DELAYLAMA 0x10006ec0
+    uint32_t GDIDrawingContext::getMouseButtons() {
+        uint32_t buttons = 0;
+        if (GetAsyncKeyState(VK_LBUTTON) < 0)
+            buttons |= 1;
+        if (GetAsyncKeyState(VK_MBUTTON) < 0)
+            buttons |= 2;
+        if (GetAsyncKeyState(VK_RBUTTON) < 0)
+            buttons |= 4;
+        if (GetAsyncKeyState(VK_SHIFT) < 0)
+            buttons |= 8;
+        if (GetAsyncKeyState(VK_CONTROL) < 0)
+            buttons |= 0x10;
+        if (GetAsyncKeyState(VK_MENU) < 0)
+            buttons |= 0x20;
+        return buttons;
     }
 
     // FUNCTION: DELAYLAMA 0x100070f0

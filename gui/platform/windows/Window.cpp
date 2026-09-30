@@ -18,8 +18,10 @@ namespace Windows {
 
     static LRESULT CALLBACK pluginWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-    static char g_szWindowClassName[64];
-    static int g_RegistrationCount = 0;
+    // GLOBAL: DELAYLAMA 0x1000d80c
+    char g_szWindowClassName[64];
+    // GLOBAL: DELAYLAMA 0x1000d870
+    int g_RegistrationCount = 0;
 
     // FUNCTION: DELAYLAMA 0x100072a0
     Window::Window(RECT *pRect,HWND hParent, Api::EditorBase *editor) : View(pRect) {
@@ -30,7 +32,7 @@ namespace Windows {
         this->maxChildren = 0;
         this->children = NULL;
         this->modalView = NULL;
-        this->unknownClass = nullptr;
+        this->editView = nullptr;
         this->redrawPending = true;
         this->unused3[1] = 0;
         this->isActive = false;
@@ -40,13 +42,27 @@ namespace Windows {
         openPluginWindow(hParent);
     }
 
-    // FUNCTION: DELAYLAMA 0x10007330
+    // FUNCTION: DELAYLAMA 0x10007350
     Window::~Window() {
-        cleanup();
-    }
+        GDIDrawingContext::setCursor(0);
+        setDragAndDropState(false);
+        bool callExtraFlag = true;
 
-    // STUB: DELAYLAMA 0x100071e0
-    void Window::resetVtable(Window* frame) {
+        destroyChildren(&callExtraFlag);
+        if (this->backgroundBitmap != nullptr) {
+          this->backgroundBitmap->unregisterBitmap();
+        }
+        if (this->hWnd != nullptr) {
+          SetWindowLongA(this->hWnd,-0x15,0);
+          DestroyWindow(this->hWnd);
+          Window::unregisterWindowClass();
+        }
+        if (this->isActive != false) {
+          closeWindow();
+        }
+        if (this->closeParameter != (void *)0x0) {
+          free(this->closeParameter);
+        }
     }
 
     // FUNCTION: DELAYLAMA 0x10007520
@@ -161,12 +177,12 @@ namespace Windows {
     // FUNCTION: DELAYLAMA 0x10007a10
     void Window::setBackgroundBitmap(Bitmap *background) {
         if (this->backgroundBitmap != nullptr) {
-            Bitmap::unregisterBitmap(this->backgroundBitmap);
+            this->backgroundBitmap->unregisterBitmap();
         }
         this->backgroundBitmap = background;
         
         if (background != nullptr) {
-            View::useBitmap(background);
+            background->remember();
         }
     }
 
@@ -236,23 +252,23 @@ namespace Windows {
 
             case WM_CTLCOLOREDIT:
             {
-                if (parentFramePtr != nullptr && parentFramePtr->unknownClass != nullptr) {
+                if (parentFramePtr != nullptr && parentFramePtr->editView != nullptr) {
                     HDC hdc = (HDC)wParam; 
 
-                    uint32_t rawTextColor = parentFramePtr->unknownClass[30];
+                    uint32_t rawTextColor = ((uint32_t*)parentFramePtr->editView)[30];
                     COLORREF textColor = RGB(rawTextColor & 0xFF, (rawTextColor >> 8) & 0xFF, (rawTextColor >> 16) & 0xFF);
                     SetTextColor(hdc, textColor);
 
-                    uint32_t rawBgColor = parentFramePtr->unknownClass[31];
+                    uint32_t rawBgColor = ((uint32_t*)parentFramePtr->editView)[31];
                     COLORREF bgColor = RGB(rawBgColor & 0xFF, (rawBgColor >> 8) & 0xFF, (rawBgColor >> 16) & 0xFF);
                     SetBkColor(hdc, bgColor);
 
-                    if (parentFramePtr->unknownClass[37] != 0) {
-                        DeleteObject((HGDIOBJ)parentFramePtr->unknownClass[37]);
+                    if (((uint32_t*)parentFramePtr->editView)[37] != 0) {
+                        DeleteObject((HGDIOBJ)((uint32_t*)parentFramePtr->editView)[37]);
                     }
 
                     HBRUSH hBrush = CreateSolidBrush(bgColor);
-                    parentFramePtr->unknownClass[37] = (uint32_t)hBrush;
+                    ((uint32_t*)parentFramePtr->editView)[37] = (uint32_t)hBrush;
 
                     return (LRESULT)hBrush;
                 }
@@ -288,138 +304,81 @@ namespace Windows {
 
     // FUNCTION: DELAYLAMA 0x100077e0
     bool Window::onMouseWheel(GDIDrawingContext *drawingContext, POINT *relativeMousePoint, float scrollDelta) {
-        Controls::Control* child = this->getChildAtMousePos();
-        GDIDrawingContext* newDrawingContext = nullptr;
-        if (child != nullptr) {
-            HDC hDC = GetDC(this->hWnd);
-            newDrawingContext = new GDIDrawingContext(this,hDC,this->hWnd);
-
-            if (newDrawingContext != nullptr) {
-                POINT mousePos;
-                this->getLocalMousePos(&mousePos);
-                child->onMouseWheel(newDrawingContext,&mousePos,scrollDelta);
-                delete newDrawingContext;
+        bool result = false;
+        Controls::Control* view = this->getChildAtMousePos();
+        if (view) {
+            HDC hdc = GetDC(this->hWnd);
+            GDIDrawingContext* context = new GDIDrawingContext(this, hdc, this->hWnd);
+            if (context) {
+                POINT where = {0, 0};
+                this->getLocalMousePos(&where);
+                result = view->onMouseWheel(context, &where, scrollDelta);
+                delete context;
             }
-            ReleaseDC(this->hWnd,hDC);
+            ReleaseDC(this->hWnd, hdc);
         }
-        return false;
+        return result;
     }
 
     // FUNCTION: DELAYLAMA 0x100075c0
-    void Window::drawControlOrSelf(Controls::Control *target) {        
-        Controls::Control* targetControl = NULL;
-        if (target != NULL) {
-            int i = 0;
-            if (0 < (int)this->numChildren) {
-            Controls::Control ** currentChild = this->children;
-            do {
-                if (*currentChild == target) {
-                targetControl = this->children[i];
-                break;
+    void Window::drawControlOrSelf(Controls::Control *target) {
+        Controls::Control* viewToDraw = nullptr;
+        if (target) {
+            for (int i = 0; i < this->numChildren; i++) {
+                if (this->children[i] == target) {
+                    viewToDraw = this->children[i];
+                    break;
                 }
-                i += 1;
-                currentChild = currentChild + 1;
-            } while (i < (int)this->numChildren);
             }
         }
-        HDC hDC = GetDC(this->hWnd);
 
-        GDIDrawingContext* drawingContext = new GDIDrawingContext(this,hDC,this->hWnd);
-        if (drawingContext != nullptr) {
-            if (targetControl == nullptr) {
-                this->onDraw(drawingContext);
-            }
-            else {
-                targetControl->onDraw(drawingContext);
-            }
-            delete drawingContext;
+        HDC hdc = GetDC(this->hWnd);
+        GDIDrawingContext* context = new GDIDrawingContext(this, hdc, this->hWnd);
+        if (context) {
+            if (viewToDraw)
+                viewToDraw->onDraw(context);
+            else
+                this->onDraw(context);
+            delete context;
         }
-        ReleaseDC(this->hWnd,hDC);
-        return;
+        ReleaseDC(this->hWnd, hdc);
     }
 
     // FUNCTION: DELAYLAMA 0x10007920
     bool Window::needsRedraw() {
-        bool isWindowDirty = this->isDirty();
-        if (this->modalView == nullptr && isWindowDirty == false) {
-            if (0 < this->numChildren) {
-                int i = 0;
-                do {
-                    bool childIsDirty = this->children[i]->isDirty();
-                    if (childIsDirty != false) {
-                        return true;
-                    }
-                    i++;
-                } while (i < this->numChildren);
-            }
-            return false;
+        if (this->modalView || this->isDirty())
+            return true;
+        for (int i = 0; i < this->numChildren; i++) {
+            if (this->children[i]->isDirty())
+                return true;
         }
-        return true;
+        return false;
     }
 
     // FUNCTION: DELAYLAMA 0x10007a40
-    bool Window::registerControl(Controls::Control *control)
-    {
-        if (numChildren == maxChildren) {
-            int newCapacity = maxChildren + 10;
-            maxChildren = newCapacity;
-
-            Controls::Control** newChildren;
-            if (children == nullptr) {
-                newChildren = static_cast<Controls::Control**>(malloc(newCapacity * sizeof(Controls::Control*)));
-            } else {
-                newChildren = static_cast<Controls::Control**>(realloc(children, newCapacity * sizeof(Controls::Control*)));
-            }
-
-            if (newChildren == nullptr) {
-                maxChildren = 0;
+    bool Window::registerControl(Controls::Control *control) {
+        if (this->numChildren == this->maxChildren) {
+            this->maxChildren += 10;
+            if (this->children)
+                this->children = (Controls::Control**)realloc(this->children, this->maxChildren * sizeof(Controls::Control*));
+            else
+                this->children = (Controls::Control**)malloc(this->maxChildren * sizeof(Controls::Control*));
+            if (this->children == nullptr) {
+                this->maxChildren = 0;
                 return false;
             }
-
-            children = newChildren;
         }
-
-        children[numChildren++] = control;
-
-        // Set parent
+        this->children[this->numChildren] = control;
+        this->numChildren++;
         control->parent = this;
-
-        // Call virtual function
-        control->returnTrue(this);
-
+        control->returnTrue2(this);   // attached()
         return true;
-    }
-
-    // FUNCTION: DELAYLAMA 0x10007350
-    void Window::cleanup() {
-        GDIDrawingContext::setCursor(0);
-        setDragAndDropState(false);
-        bool callExtraFlag = true;
-
-        destroyChildren(&callExtraFlag);
-        if (this->backgroundBitmap != nullptr) {
-          Bitmap::unregisterBitmap(this->backgroundBitmap);
-        }
-        if (this->hWnd != nullptr) {
-          SetWindowLongA(this->hWnd,-0x15,0);
-          DestroyWindow(this->hWnd);
-          Window::unregisterWindowClass();
-        }
-        if (this->isActive != false) {
-          closeWindow();
-        }
-        if (this->closeParameter != (void *)0x0) {
-          free(this->closeParameter);
-        }
-        resetVtable(this);
     }
 
     // FUNCTION: DELAYLAMA 0x10008340
     void Window::unregisterWindowClass() {
-        g_RegistrationCount = g_RegistrationCount + -1;
-        if (g_RegistrationCount == 0) {
-          UnregisterClassA((LPCSTR)&g_szWindowClassName,g_hInstance);
-        }
+        if (--g_RegistrationCount == 0)
+            UnregisterClassA(g_szWindowClassName, g_hInstance);
     }
 
     // FUNCTION: DELAYLAMA 0x10007410
@@ -454,75 +413,49 @@ namespace Windows {
     }
 
     // FUNCTION: DELAYLAMA 0x10007690
-    void Window::onMouseDown(GDIDrawingContext *drawingContext, POINT *mousePos)
-    {
-        if (this->unknownClass != nullptr)
-        {
-            //this->unknownClass->invalidate(0);
-            this->unknownClass = nullptr;
+    void Window::onMouseDown(GDIDrawingContext *drawingContext, POINT *mousePos) {
+        if (this->editView) {
+            this->editView->onFocusLost(nullptr);
+            this->editView = nullptr;
         }
 
-        Base::View* modal = this->modalView;
-        if (modal == nullptr)
-        {
-            Controls::Control* currentChild;
-            int i = this->numChildren;
-            do
-            {
-                bool childEnabled = false;
-                do
-                {
-                    i += -1;
-                    if (i < 0)
-                    {
-                        return;
-                    }
-                    childEnabled = this->children[i]->getEnabled();
-
-                } while (childEnabled == false);
-                
-                currentChild = this->children[i];
-            } while ((((mousePos->x < currentChild->rect.left) || (currentChild->rect.right < mousePos->x)) || (mousePos->y < currentChild->rect.top)) || (currentChild->rect.bottom < mousePos->y));
-            
-            this->children[i]->onMouseDown(drawingContext, mousePos);
+        if (this->modalView) {
+            Base::View* modal = this->modalView;
+            if (mousePos->x >= modal->rect.left && mousePos->x <= modal->rect.right &&
+                mousePos->y >= modal->rect.top && mousePos->y <= modal->rect.bottom)
+                modal->onMouseDown(drawingContext, mousePos);
         }
-        else if (((modal->rect.left <= mousePos->x) && (mousePos->x <= modal->rect.right)) && ((modal->rect.top <= mousePos->y && (mousePos->y <= modal->rect.bottom))))
-        {
-            modal->onMouseDown(drawingContext, mousePos);
-            return;
+        else {
+            for (int i = this->numChildren - 1; i >= 0; i--) {
+                if (this->children[i]->getEnabled() &&
+                    mousePos->x >= this->children[i]->rect.left && mousePos->x <= this->children[i]->rect.right &&
+                    mousePos->y >= this->children[i]->rect.top && mousePos->y <= this->children[i]->rect.bottom) {
+                    this->children[i]->onMouseDown(drawingContext, mousePos);
+                    return;
+                }
+            }
         }
-        return;
     }
 
     // FUNCTION: DELAYLAMA 0x10007740
     bool Window::routeMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, POINT* mousePos) {
-        if ((this->modalView != nullptr) || (this->unknownClass != nullptr)) {
-          return false;
-        }
-        
-        int i = this->numChildren + -1;
+        if (this->modalView || this->editView)
+            return false;
 
-        if (i < 0) {
-          return false;
-        }
-
-        do {
-            bool childEnabled = this->children[i]->getEnabled();
-            if (childEnabled != false) {
-                Controls::Control *control = this->children[i];
-                if (control->rect.left <= mousePos->x && mousePos->x <= control->rect.right && control->rect.top <= mousePos->y && mousePos->y <= control->rect.bottom) {
-                    bool cVar2 = control->routeMessage(uMsg,wParam,lParam,mousePos);
-                    if (cVar2 != false) {
-                        return true;
+        bool result = false;
+        for (int i = this->numChildren - 1; i >= 0; i--) {
+            if (this->children[i]->getEnabled()) {
+                Controls::Control* control = this->children[i];
+                if (mousePos->x >= control->rect.left && mousePos->x <= control->rect.right &&
+                    mousePos->y >= control->rect.top && mousePos->y <= control->rect.bottom) {
+                    if (control->routeMessage(uMsg, wParam, lParam, mousePos)) {
+                        result = true;
+                        break;
                     }
                 }
             }
-            i++;
-            if (i < 0) {
-                return false;
-            }
-        } while( true );
-        return false;
+        }
+        return result;
     }
 
     // STUB: DELAYLAMA 0x10007ac0
@@ -559,9 +492,9 @@ namespace Windows {
         // int i;
         // int curChild;
         //
-        // if (this->unknownClass != (Color *)0x0) {
-        //   (**(code **)(this->unknownClass->rgba + 0x18))(0);
-        //   this->unknownClass = (Color *)0x0;
+        // if (this->editView != (Color *)0x0) {
+        //   (**(code **)(this->editView->rgba + 0x18))(0);
+        //   this->editView = (Color *)0x0;
         // }
         // if (this->children == (Control **)0x0) {
         //   return true;
@@ -587,20 +520,14 @@ namespace Windows {
 
     // FUNCTION: DELAYLAMA 0x10007bb0
     bool Window::containsChild(Controls::Control* target) {
-        bool output = false;
-        int i = 0;
-        if (0 < (int)this->numChildren) {
-          Controls::Control ** children = this->children;
-          while (*children != target) {
-            i = i + 1;
-            children = children + 1;
-            if ((int)this->numChildren <= i) {
-              return output;
+        bool found = false;
+        for (int i = 0; i < this->numChildren; i++) {
+            if (this->children[i] == target) {
+                found = true;
+                break;
             }
-          }
-          output = true;
         }
-        return output;
+        return found;
     }
 
     // FUNCTION: DELAYLAMA 0x10007be0
@@ -634,51 +561,31 @@ namespace Windows {
 
     // FUNCTION: DELAYLAMA 0x10007c60
     Controls::Control* Window::getChildAtMousePos() {
-        POINT mousePos;
-        mousePos.x = 0;
-        mousePos.y = 0;
-
-        this->getLocalMousePos(&mousePos);
-        
-        int i = this->numChildren + -1;
-        if (-1 < i) {
-            Controls::Control ** childIter = this->children + i;
-            do {
-                Controls::Control* child = *childIter;
-                if (((child != nullptr) && (child->rect.left <= mousePos.x)) && (mousePos.x <= child->rect.right) && ((child->rect.top <= mousePos.y && (mousePos.y <= child->rect.bottom))))
-                {
-                    return this->children[i];
-                }
-                i = i + -1;
-                childIter = childIter + -1;
-            } while (-1 < i);
+        POINT where = {0, 0};
+        this->getLocalMousePos(&where);
+        for (int i = this->numChildren - 1; i >= 0; i--) {
+            Controls::Control* view = this->children[i];
+            if (view && where.x >= view->rect.left && where.x <= view->rect.right &&
+                where.y >= view->rect.top && where.y <= view->rect.bottom)
+                return this->children[i];
         }
         return nullptr;
     }
 
     // FUNCTION: DELAYLAMA 0x10007cd0
-    void Window::getLocalMousePos(POINT* mousePos) {
+    bool Window::getLocalMousePos(POINT* mousePos) {
         HWND hWnd = this->hWnd;
-        tagPOINT mousePosTarget;
-        GetCursorPos(&mousePosTarget);
-        mousePos->x = mousePosTarget.x;
-        mousePos->y = mousePosTarget.y;
-        
-        if (hWnd != nullptr) {
-          GetWindowRect(hWnd,&rect);
-          mousePos->x = mousePos->x - rect.left;
-          mousePos->y = mousePos->y - rect.top;
+        POINT cursor;
+        GetCursorPos(&cursor);
+        mousePos->x = cursor.x;
+        mousePos->y = cursor.y;
+        if (hWnd) {
+            RECT windowRect;
+            GetWindowRect(hWnd, &windowRect);
+            mousePos->x -= windowRect.left;
+            mousePos->y -= windowRect.top;
         }
-    }
-
-    // FUNCTION: DELAYLAMA 0x10008690
-    DropTarget* Window::createDropTarget() {
-
-        DropTarget* target = new DropTarget(this);
-        if (target != nullptr) {;
-          return target;
-        }
-        return nullptr;
+        return true;
     }
 
 }

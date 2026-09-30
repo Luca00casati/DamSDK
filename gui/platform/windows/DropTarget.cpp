@@ -4,122 +4,83 @@ namespace DamSDK {
 namespace Gui {
 namespace Platform {
 namespace Windows {
-    // STUB: DELAYLAMA 0x100086f0
-    DropTarget::DropTarget(Window* frame) {
-        // this->refCount = 0;
-        // this->parentFrame = frame;
-        // this->vtable = &DropTargetVTable_1000bcb4;
-        // return this;
+    // FUNCTION: DELAYLAMA 0x10008690
+    DropTarget* createDropTarget(Window* frame) {
+        return new DropTarget(frame);
     }
 
-    // STUB: DELAYLAMA 0x10008740
-    HRESULT DropTarget::queryInterface(IID* riid, void* * ppvObject) {
-        // int iVar1;
-        // IID *pIVar2;
-        // ulong *puVar3;
-        // bool bVar4;
-        //
-        // iVar1 = 4;
-        // bVar4 = true;
-        // pIVar2 = riid;
-        // puVar3 = &DAT_1000c258;
-        // do {
-        //   if (iVar1 == 0) break;
-        //   iVar1 = iVar1 + -1;
-        //   bVar4 = pIVar2->Data1 == *puVar3;
-        //   pIVar2 = (IID *)&pIVar2->Data2;
-        //   puVar3 = puVar3 + 1;
-        // } while (bVar4);
-        // if (!bVar4) {
-        //   iVar1 = 4;
-        //   bVar4 = true;
-        //   puVar3 = &DAT_1000c248;
-        //   do {
-        //     if (iVar1 == 0) break;
-        //     iVar1 = iVar1 + -1;
-        //     bVar4 = riid->Data1 == *puVar3;
-        //     riid = (IID *)&riid->Data2;
-        //     puVar3 = puVar3 + 1;
-        //   } while (bVar4);
-        //   if (!bVar4) {
-        //     *ppvObject = (void *)0x0;
-        //     return -0x7fffbffe;
-        //   }
-        // }
-        // *ppvObject = this;
-        // (*this->vtable->addRef)(this);
-        return 0;
+    // FUNCTION: DELAYLAMA 0x100086f0
+    DropTarget::DropTarget(Window* frame) {
+        this->refCount = 0;
+        this->parentFrame = frame;
+    }
+
+    // FUNCTION: DELAYLAMA 0x10008730
+    DropTarget::~DropTarget() {}
+
+    // FUNCTION: DELAYLAMA 0x10008740
+    STDMETHODIMP DropTarget::QueryInterface(REFIID riid, void** object) {
+        if (riid == IID_IDropTarget || riid == IID_IUnknown) {
+            *object = this;
+            AddRef();
+            return NOERROR;
+        }
+        *object = 0;
+        return E_NOINTERFACE;
     }
 
     // FUNCTION: DELAYLAMA 0x100087a0
-    int DropTarget::addRef() {
-        int iVar1 = this->refCount + 1;
-        this->refCount = iVar1;
-        return iVar1;
+    STDMETHODIMP_(ULONG) DropTarget::AddRef(void) {
+        return ++this->refCount;
     }
 
     // FUNCTION: DELAYLAMA 0x100087b0
-    int DropTarget::release() {
-        int newRefCount;
-        
-        newRefCount = this->refCount + -1;
-        this->refCount = newRefCount;
-        if ((newRefCount < 1) && (this != nullptr)) {
-          delete this;
-        }
+    STDMETHODIMP_(ULONG) DropTarget::Release(void) {
+        this->refCount--;
+        if (this->refCount <= 0)
+            delete this;
         return this->refCount;
     }
 
-    // STUB: DELAYLAMA 0x100087e0
-    HRESULT DropTarget::dragEnter(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) {
-        // HRESULT getData;
-        // HRESULT dragOver;
-        // HRESULT dragOver2;
-        // FORMATETC fe;
-        
+    // FUNCTION: DELAYLAMA 0x100087e0
+    STDMETHODIMP DropTarget::DragEnter(IDataObject* dataObject, DWORD keyState, POINTL pt, DWORD* effect) {
         this->canAcceptDrop = false;
-        if (pDataObj != nullptr) {
-        //   fe.cfFormat = 1;
-        //   fe.ptd = (DVTARGETDEVICE *)0x0;
-        //   fe.dwAspect = 1;
-        //   fe.lindex = -1;
-        //   fe.tymed = 1;
-        //   getData = pDataObj->QueryGetData(pDataObj,&fe);
-        //   if (getData == 0) {
-        //     this->canAcceptDrop = true;
-        //     dragOver = this->dragOver(this,pDataObj,grfKeyState,pt.x);
-        //     return dragOver;
-        //   }
-        //   fe.lindex = CONCAT22(fe.lindex._2_2_,0xf);
-        //   fe.tymed = 0;
-        //   getData = pDataObj->QueryGetData(pDataObj,(FORMATETC *)&fe.lindex);
-        //   if (getData == 0) {
-        //     this->canAcceptDrop = true;
-        //     dragOver2 = this->dragOver(grfKeyState,pt.x,pt.y,pdwEffect);
-        //     return dragOver2;
-        //   }
+        if (dataObject) {
+            FORMATETC formatTextDrop = {CF_TEXT, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
+            if (S_OK == dataObject->QueryGetData(&formatTextDrop)) {
+                this->canAcceptDrop = true;
+                return DragOver(keyState, pt, effect);
+            }
+            FORMATETC formatHDrop = {CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL};
+            if (S_OK == dataObject->QueryGetData(&formatHDrop)) {
+                this->canAcceptDrop = true;
+                return DragOver(keyState, pt, effect);
+            }
         }
-        *pdwEffect = 0;
-        return 0;
+        *effect = DROPEFFECT_NONE;
+        return S_OK;
     }
 
     // FUNCTION: DELAYLAMA 0x100088c0
-    HRESULT DropTarget::dragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) {
-        if (this->canAcceptDrop != false) {
-          *pdwEffect = 2 - ((grfKeyState & 8) != 0);
-          return 0;
+    STDMETHODIMP DropTarget::DragOver(DWORD keyState, POINTL pt, DWORD* effect) {
+        if (this->canAcceptDrop) {
+            if (keyState & MK_CONTROL)
+                *effect = DROPEFFECT_COPY;
+            else
+                *effect = DROPEFFECT_MOVE;
         }
-        *pdwEffect = 0;
-        return 0;
+        else
+            *effect = DROPEFFECT_NONE;
+        return S_OK;
     }
 
     // FUNCTION: DELAYLAMA 0x10008900
-    HRESULT DropTarget::returnZero() {
-        return 0;
+    STDMETHODIMP DropTarget::DragLeave(void) {
+        return S_OK;
     }
 
     // STUB: DELAYLAMA 0x10008910
-    void DropTarget::drop(IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect) {
+    STDMETHODIMP DropTarget::Drop(IDataObject* dataObject, DWORD keyState, POINTL pt, DWORD* effect) {
         // char cVar1;
         // bool bVar2;
         // HRESULT HVar3;
@@ -253,6 +214,7 @@ namespace Windows {
         // LAB_10008b42:
         // (*this->vtable->returnZero)(this);
         // return;
+        return S_OK;
     }
 
     // STUB: DELAYLAMA 0x10008b60

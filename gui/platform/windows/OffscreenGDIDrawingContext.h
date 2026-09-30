@@ -7,7 +7,10 @@
 namespace DamSDK {
     namespace Gui {
         namespace Platform {
-            namespace Windows { class Window; class Bitmap; }
+            namespace Windows {
+                class Window;
+                class Bitmap;
+            }
         }
     }
 }
@@ -19,7 +22,7 @@ namespace Windows {
 
     extern HINSTANCE g_hInstance;
 
-    // VTABLE: DELAYLAMA 0x1000bbe4
+    // VTABLE: DELAYLAMA 0x1000bbe8
     class OffscreenGDIDrawingContext : public GDIDrawingContext {
         public:
             bool flag; // 0x74
@@ -28,11 +31,10 @@ namespace Windows {
             int unknown; // 0x7c
             int height; // 0x80
             int width; // 0x84
-            COLORREF color; // 0x88
+            Api::Color color; // 0x88
         public:
-            OffscreenGDIDrawingContext(Window* parentFramePtr, int width, int height, COLORREF color);
+            OffscreenGDIDrawingContext(Window* parentFramePtr, int width, int height, Api::Color color);
             ~OffscreenGDIDrawingContext();
-            void destroy();
     };
 }
 }
