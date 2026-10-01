@@ -284,47 +284,6 @@ namespace Windows {
     void GDIDrawingContext::copyToScreen(GDIDrawingContext* dest, int dstLeft, int dstTop, int dstRight, int dstBottom, int srcX, int srcY) {
         BitBlt(dest->hDC,dest->drawOffset.x + dstLeft, dest->drawOffset.y + dstTop,dstRight - dstLeft,dstBottom - dstTop, this->hDC,srcX,srcY,SRCCOPY);
     }
-
-    // STUB: DELAYLAMA 0x10007d30
-    void GDIDrawingContext::setCursor(int cursorType) {
-        // HCURSOR cursor1;
-        // HCURSOR cursor2;
-        //
-        // if (this->originalPen == (HGDIOBJ)0x0) {
-        //   cursor1 = GetCursor();
-        //   this->originalPen = cursor1;
-        // }
-        // switch(cursorType) {
-        // case 0:
-        //   SetCursor(this->originalPen);
-        //   return;
-        // case 1:
-        //   cursor2 = LoadCursorA((HINSTANCE)0x0,&lpCursorName_00007f02);
-        //   SetCursor(cursor2);
-        //   return;
-        // case 2:
-        //   cursor2 = LoadCursorA((HINSTANCE)0x0,&lpCursorName_00007f84);
-        //   SetCursor(cursor2);
-        //   return;
-        // case 3:
-        //   cursor2 = LoadCursorA((HINSTANCE)0x0,&lpCursorName_00007f85);
-        //   SetCursor(cursor2);
-        //   return;
-        // case 4:
-        //   cursor2 = LoadCursorA((HINSTANCE)0x0,&lpCursorName_00007f86);
-        //   SetCursor(cursor2);
-        //   break;
-        // case 5:
-        //   cursor2 = LoadCursorA((HINSTANCE)0x0,&lpCursorName_00007f83);
-        //   SetCursor(cursor2);
-        //   return;
-        // case 6:
-        //   cursor2 = LoadCursorA((HINSTANCE)0x0,&lpCursorName_00007f82);
-        //   SetCursor(cursor2);
-        //   return;
-        // }
-        // return;
-    }
 }
 }
 }

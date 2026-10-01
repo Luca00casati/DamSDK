@@ -43,6 +43,7 @@ namespace Windows {
             bool isActive;
             char unused4[3];
             void *closeParameter;
+            HCURSOR defaultCursor;  // the cursor before the plugin changed it
         public:
             Window(RECT *pRect, HWND hParent, Api::EditorBase *editor);
             virtual ~Window();
@@ -55,6 +56,7 @@ namespace Windows {
             void drawControlOrSelf(Controls::Control *target);
             void refresh();
             void setBackgroundBitmap(Bitmap *background);
+            void setCursor(int cursorType);
             bool closeWindow();
             bool setDragAndDropState(bool enable);
             virtual void onMouseDown(GDIDrawingContext* drawingContext, POINT* mousePos) override;

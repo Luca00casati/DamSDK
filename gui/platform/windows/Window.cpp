@@ -44,7 +44,7 @@ namespace Windows {
 
     // FUNCTION: DELAYLAMA 0x10007350
     Window::~Window() {
-        GDIDrawingContext::setCursor(0);
+        setCursor(0);  // back to the default cursor
         setDragAndDropState(false);
         bool callExtraFlag = true;
 
@@ -588,6 +588,37 @@ namespace Windows {
         return true;
     }
 
+
+    // FUNCTION: DELAYLAMA 0x10007d30
+    void Window::setCursor(int cursorType) {
+        // 0 default, 1 wait, 2 horizontal resize, 3 vertical resize, 4 move,
+        // 5 and 6 diagonal resize (VSTGUI's CFrame::setCursor)
+        if (!this->defaultCursor)
+            this->defaultCursor = GetCursor();
+        switch (cursorType) {
+            case 0:
+                SetCursor(this->defaultCursor);
+                break;
+            case 1:
+                SetCursor(LoadCursorA(NULL, IDC_WAIT));
+                break;
+            case 2:
+                SetCursor(LoadCursorA(NULL, IDC_SIZEWE));
+                break;
+            case 3:
+                SetCursor(LoadCursorA(NULL, IDC_SIZENS));
+                break;
+            case 5:
+                SetCursor(LoadCursorA(NULL, IDC_SIZENWSE));
+                break;
+            case 6:
+                SetCursor(LoadCursorA(NULL, IDC_SIZENESW));
+                break;
+            case 4:
+                SetCursor(LoadCursorA(NULL, IDC_SIZEALL));
+                break;
+        }
+    }
 }
 }
 }

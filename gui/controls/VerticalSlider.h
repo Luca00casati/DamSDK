@@ -25,7 +25,6 @@ namespace Controls {
             float fineTuneDivider; //0x94
             bool isHandleTransparent; //0x98
             bool snapToMouse; //0x99
-            Platform::Windows::Bitmap *backgroundBitmap;
         public:
             VerticalSlider(RECT *pRect, ControlListener* listener, int parameterId, int minValue, int maxValue, Platform::Windows::Bitmap *handleBmp, Platform::Windows::Bitmap *backgroundBmp, POINT* offset, int flags);
             ~VerticalSlider();
