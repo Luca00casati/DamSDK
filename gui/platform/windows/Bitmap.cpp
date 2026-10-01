@@ -2,6 +2,7 @@
 #include <windef.h>
 #include <wingdi.h>
 
+#include "damsdk/utils/portable_stdint.h"
 #include "Bitmap.h"
 #include "GDIDrawingContext.h"
 
@@ -18,11 +19,11 @@ namespace Windows {
         this->height = 0;
         this->maskBitmap = 0;
         
-        HBITMAP hBitmap = LoadBitmapA(g_hInstance,(LPCSTR)(resId & 0xffff));
+        HBITMAP hBitmap = LoadBitmapA(g_hInstance,(LPCSTR)(uintptr_t)(resId & 0xffff));
         this->bitmap = hBitmap;
         if (hBitmap != NULL) {
             tagBITMAP bitmapInfo;
-            int bytesWritten = GetObjectA(hBitmap,0x18,&bitmapInfo);
+            int bytesWritten = GetObjectA(hBitmap, sizeof(tagBITMAP), &bitmapInfo);
             if (bytesWritten != 0) {
                 this->width = bitmapInfo.bmWidth;
                 this->height = bitmapInfo.bmHeight;

@@ -53,7 +53,11 @@ namespace Windows {
           this->backgroundBitmap->unregisterBitmap();
         }
         if (this->hWnd != nullptr) {
-          SetWindowLongA(this->hWnd,-0x15,0);
+          #if defined(_WIN64) || defined(SetWindowLongPtrA)
+            SetWindowLongPtrA(this->hWnd, GWLP_USERDATA, 0);
+          #else
+            SetWindowLongA(this->hWnd,-0x15,0);
+          #endif
           DestroyWindow(this->hWnd);
           Window::unregisterWindowClass();
         }
@@ -168,7 +172,11 @@ namespace Windows {
         );
         this->hWnd = hChild;
 
-        SetWindowLongA(hChild,GWL_USERDATA,(LONG)this);
+        #if defined(_WIN64) || defined(SetWindowLongPtrA)
+            SetWindowLongPtrA(hChild, GWLP_USERDATA, (LONG_PTR)this);
+        #else
+            SetWindowLongA(hChild, GWL_USERDATA, (LONG)this);
+        #endif
         setDragAndDropState(true);
         
         return true;
@@ -193,7 +201,7 @@ namespace Windows {
         if (g_RegistrationCount == 1)
         {
             // Generate unique class name: "Plugin" + hex instance handle
-            sprintf(g_szWindowClassName, "Plugin%08x", (unsigned int)Windows::g_hInstance);
+            sprintf(g_szWindowClassName, "Plugin%08x", (unsigned int)(uintptr_t)Windows::g_hInstance);
 
             WNDCLASSA windowClass;
             windowClass.style         = CS_GLOBALCLASS;
@@ -263,12 +271,14 @@ namespace Windows {
                     COLORREF bgColor = RGB(rawBgColor & 0xFF, (rawBgColor >> 8) & 0xFF, (rawBgColor >> 16) & 0xFF);
                     SetBkColor(hdc, bgColor);
 
+                    // (Text-edit views use 32-bit field offsets here; Delay Lama has none,
+                    // so this is never reached.)
                     if (((uint32_t*)parentFramePtr->editView)[37] != 0) {
-                        DeleteObject((HGDIOBJ)((uint32_t*)parentFramePtr->editView)[37]);
+                        DeleteObject((HGDIOBJ)(uintptr_t)((uint32_t*)parentFramePtr->editView)[37]);
                     }
 
                     HBRUSH hBrush = CreateSolidBrush(bgColor);
-                    ((uint32_t*)parentFramePtr->editView)[37] = (uint32_t)hBrush;
+                    ((uint32_t*)parentFramePtr->editView)[37] = (uint32_t)(uintptr_t)hBrush;
 
                     return (LRESULT)hBrush;
                 }

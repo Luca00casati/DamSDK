@@ -67,7 +67,7 @@ namespace Api {
         virtual void setSupportsInPlaceProcessing(bool supportsInPlace);
         virtual void setProgramsAreChunks(bool programsAreChunks);
         virtual void setReservedValue(int32_t unusedValue);
-        virtual void setAudioBase(AudioBase* base);
+        virtual void setOfflineQualities(int32_t qualities);
         virtual void setPluginProcessingTime(int32_t processingTime);
 
         virtual float getSampleRate();
