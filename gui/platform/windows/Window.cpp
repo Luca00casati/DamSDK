@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <windowsx.h>
 #include "Window.h"
-#include "damsdk/gui/controls/Control.h"
+#include "damsdk/gui/controls/control.h"
 #include "damsdk/api/AudioBaseExtended.h"
 #include "damsdk/api/EditorBase.h"
 #include "GDIDrawingContext.h"
