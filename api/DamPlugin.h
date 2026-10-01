@@ -166,7 +166,7 @@ namespace Api {
     struct DamMidiEventList {
         int32_t listSize;
         int32_t unused;
-        DamEvent* events[1];
+        DamEvent* events[2];
     };
 
     /**
