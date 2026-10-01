@@ -51,12 +51,12 @@ namespace Controls {
 
         this->parent->beginEdit(this->parameterId);
         while (drawContext->getMouseButtons()) {
-            // X axis: vibrato (0..1)
+            // X axis: pitch (0..1)
             this->value = (float)(mousePos->x - xAnchor) / this->xValueRange;
             this->clampValue();
             this->listener->valueChanged(drawContext, this);
 
-            // Y axis: pitch, sent as 100..101 so the editor can tell the axes apart
+            // Y axis: vowel, sent as 100..101 so the editor can tell the axes apart
             this->value = (float)(mousePos->y - yAnchor) / this->yValueRange;
             this->clampValue();
             this->value = this->value + 100.0f;
