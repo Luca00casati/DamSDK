@@ -102,7 +102,7 @@ namespace Controls {
             value = 1.0f - this->value;
 
         Platform::Windows::OffscreenGDIDrawingContext* offscreen =
-            new Platform::Windows::OffscreenGDIDrawingContext(this->parent, this->trackWidth, this->trackHeight, Platform::Windows::DAT_BACK_COLOR);
+            new Platform::Windows::OffscreenGDIDrawingContext(this->parent, this->trackWidth, this->trackHeight, Platform::Windows::kBlackColor);
 
         // Background
         RECT rect = {0, 0, this->trackWidth, this->trackHeight};
@@ -151,7 +151,7 @@ namespace Controls {
         uint32_t button = drawingContext->getMouseButtons();
 
         // Ctrl + click: reset to the default value
-        if (button == 0x11) {
+        if (button == (kLButton | kControl)) {
             this->value = this->getDefaultValue();
             if (this->isDirty())
                 this->listener->valueChanged(drawingContext, this);
@@ -159,7 +159,7 @@ namespace Controls {
         }
 
         // Left button only
-        if (!(button & 1))
+        if (!(button & kLButton))
             return;
 
         int delta = this->trackMinX;
@@ -186,21 +186,21 @@ namespace Controls {
         this->parent->beginEdit(this->parameterId);
         while (1) {
             button = drawingContext->getMouseButtons();
-            if (!(button & 1))
+            if (!(button & kLButton))
                 break;
 
-            if (oldButton != button && (button & 8)) {
+            if (oldButton != button && (button & kShift)) {
                 oldValue = this->value;
                 oldButton = button;
             }
-            else if (!(button & 8)) {
+            else if (!(button & kShift)) {
                 oldValue = this->value;
             }
 
             this->value = (float)(mousePos->x - delta) / range;
             if (this->flags & 0x10)
                 this->value = 1.0f - this->value;
-            if (button & 8)
+            if (button & kShift)
                 this->value = (this->value - oldValue) / this->fineTuneDivider + oldValue;
 
             this->clampValue();

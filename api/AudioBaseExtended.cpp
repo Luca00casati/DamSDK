@@ -405,16 +405,16 @@ namespace Api {
     bool AudioBaseExtended::getOutputBusProperties(int32_t index,char *properties) { return false; }
 
     // FUNCTION: DELAYLAMA 0x10002560
-    bool AudioBaseExtended::getOutputSpeakerArrangement(int32_t arrangement, void* param_2) {
+    bool AudioBaseExtended::getOutputSpeakerArrangement(int32_t arrangement, void* speakers) {
         if (this->hostCallback != nullptr) {
-            int32_t result = this->hostCallback(&this->plugin, hostGetOutputChannelLayout, 0, arrangement, param_2, 0.0f);
+            int32_t result = this->hostCallback(&this->plugin, hostGetOutputChannelLayout, 0, arrangement, speakers, 0.0f);
             return result != NULL;
         }
         return false;
     }
 
     // FUNCTION: DELAYLAMA 0x100022d0 FOLDED
-    bool AudioBaseExtended::setOutputSpeakerArrangement(int32_t arrangement, void* param_2) { return false; }
+    bool AudioBaseExtended::setOutputSpeakerArrangement(int32_t arrangement, void* speakers) { return false; }
 
     // FUNCTION: DELAYLAMA 0x100021c0
     void AudioBaseExtended::setAudioSettings(int32_t hostBlockSize, float sampleRate) {
@@ -445,9 +445,9 @@ namespace Api {
     }
 
     // FUNCTION: DELAYLAMA 0x100024a0
-    bool AudioBaseExtended::startOfflineProcessing(void* param_1, int32_t param_2, int32_t param_3) {
+    bool AudioBaseExtended::startOfflineProcessing(void* audioFiles, int32_t numAudioFiles, int32_t numNewAudioFiles) {
         if (this->hostCallback != nullptr) {
-            int32_t result = this->hostCallback(&this->plugin, hostBeginOfflineProcessing, param_3, param_2, param_1, 0.0f);
+            int32_t result = this->hostCallback(&this->plugin, hostBeginOfflineProcessing, numNewAudioFiles, numAudioFiles, audioFiles, 0.0f);
             return result != NULL;
         }
         return false;
@@ -636,8 +636,8 @@ namespace Api {
         return this->blockSize;
     }
 
-    // -- Empty/Unknown Functions --
+    // AudioEffectX::getChannelParameter (not used by Delay Lama)
     // FUNCTION: DELAYLAMA 0x10002050
-    float AudioBaseExtended::returnZeroFloat(int32_t channel, int32_t index) { return 0.f; }
+    float AudioBaseExtended::getChannelParameter(int32_t channel, int32_t index) { return 0.f; }
 }
 }

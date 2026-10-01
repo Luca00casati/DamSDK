@@ -114,7 +114,7 @@ namespace Controls {
 
     // FUNCTION: DELAYLAMA 0x10008d90
     bool Control::isDirty() {
-        if ((this->prevValue == this->value) && (this->_isDirty == false)) {
+        if ((this->prevValue == this->value) && (!this->_isDirty)) {
           return false;
         }
         return true;
@@ -156,14 +156,14 @@ namespace Controls {
 
     // FUNCTION: DELAYLAMA 0x10009410
     bool Control::onMouseWheel(Platform::Windows::GDIDrawingContext* drawingContext, POINT* mousePos, float wheelDelta) {
-        if (this->isEnabled == false) {
+        if (!this->isEnabled) {
           return false;
         }
 
         byte inputMask = drawingContext->getMouseButtons();
         float valueChange = wheelDelta * this->wheelSensitivity;
 
-        if ((inputMask & 8) != 0) {
+        if ((inputMask & kShift) != 0) {
           valueChange = valueChange * 1.0f;
         }
 
@@ -171,7 +171,7 @@ namespace Controls {
         this->clampValue();
 
         bool isDirty = this->isDirty();
-        if (isDirty != false) {
+        if (isDirty) {
             this->listener->valueChanged(drawingContext, this);
         }
         return true;

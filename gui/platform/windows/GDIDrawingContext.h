@@ -3,6 +3,7 @@
 #include <windef.h>
 #include <damsdk/utils/portable_stdint.h>
 #include <damsdk/api/DamPlugin.h>
+#include <damsdk/gui/MouseButtons.h>
 
 namespace DamSDK {
     namespace Gui {
@@ -31,10 +32,10 @@ namespace Windows {
         Point(long x, long y) { this->x = x; this->y = y; }
     };
 
-    extern Api::Color DAT_FOREGROUND_COLOR;
-    extern Api::Color DAT_GRAY_COLOR;
-    extern Api::Color DAT_BACK_COLOR;
-    extern Api::Color DAT_TRANSPARENT_COLOR;
+    extern Api::Color kWhiteColor;
+    extern Api::Color kGreyColor;
+    extern Api::Color kBlackColor;
+    extern Api::Color kTransparentColor;
 
     // VTABLE: DELAYLAMA 0x1000bbe4
     class GDIDrawingContext {
@@ -71,8 +72,8 @@ namespace Windows {
             void setTextColor(Api::Color color);
             void moveToEx(POINT* target);
             void lineTo(POINT* tageet);
-            void drawRectangleOutline(RECT* param_1);
-            void fillRectangleInset(RECT* param_1);
+            void drawRectangleOutline(RECT* rect);
+            void fillRectangleInset(RECT* rect);
             void getRelativeMousePos(POINT* outRelMousePos);
             void copyToScreen(GDIDrawingContext* dest, Rect destRect, Point srcOffset);
             uint32_t getMouseButtons();

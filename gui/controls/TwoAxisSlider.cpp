@@ -37,7 +37,7 @@ namespace Controls {
             return;
 
         uint32_t button = drawContext->getMouseButtons();
-        if (!(button & 1))
+        if (!(button & kLButton))
             return;
 
         // 201 tells the editor that singing starts

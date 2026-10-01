@@ -101,7 +101,7 @@ namespace Windows {
         // in an off-screen copy and the result is copied to the screen.
         if (this->maskBitmap == nullptr)
             this->maskBitmap = createMaskBitmap(drawingContext->hDC, this->bitmap,
-                RGB(DAT_TRANSPARENT_COLOR.red, DAT_TRANSPARENT_COLOR.green, DAT_TRANSPARENT_COLOR.blue));
+                RGB(kTransparentColor.red, kTransparentColor.green, kTransparentColor.blue));
 
         HDC hdcBitmap = CreateCompatibleDC(drawingContext->hDC);
         SelectObject(hdcBitmap, this->bitmap);

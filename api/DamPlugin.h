@@ -77,8 +77,8 @@ namespace Api {
         /// Unused (VST's offQualities).
         int32_t offQualities;
 
-        /// Some kind of float value, I am unsure as to what it does. 
-        float floatVal;
+        /// Output/input sample-rate ratio (VST's ioRatio), always 1.
+        float ioRatio;
 
         /// Pointer to the plugin implementation object.
         void *object;
@@ -325,14 +325,14 @@ namespace Api {
         pluginStartSettigMidiProgram = 67,
         pluginStopSettingMidiProgram = 68,
         pluginGetSpeakerArrangement = 69,
-        pluginUnknown3 = 70,
+        pluginShellGetNextPlugin = 70,
         pluginStartProcessing = 71,
         pluginStopProcessing = 72,
         pluginSetTotalLatencySamples = 73,
         pluginSetPanLaw = 74,
         pluginLoadBank = 75,
         pluginLoadPreset = 76,
-        pluginUnknown4 = 77,
+        pluginSetProcessPrecision = 77,
         pluginGetMidiInputChannelCount = 78,
         pluginGetMidiOutputChannelCount = 79,
         pluginGetNumberOfOpcodes = 80,

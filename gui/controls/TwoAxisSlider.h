@@ -11,7 +11,7 @@ namespace Controls {
         public:
             int yTop;
             int yBottom;
-            int field6_0xa4;
+            int unusedA4;
             int xMinOffset;
             int xMaxOffset;
             int yTrackBottom;

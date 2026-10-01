@@ -23,14 +23,14 @@ namespace Controls {
             this->knobRadius = result;
         }
 
-        this->indicatorShadowColor = Platform::Windows::DAT_GRAY_COLOR;
-        this->indicatorHighlightColor = Platform::Windows::DAT_FOREGROUND_COLOR;
+        this->indicatorShadowColor = Platform::Windows::kGreyColor;
+        this->indicatorHighlightColor = Platform::Windows::kWhiteColor;
 
-        int iVar1 = pRect->right;
-        int iVar2 = pRect->left;
+        int right = pRect->right;
+        int left = pRect->left;
 
         this->totalRange = 1.0f;
-        this->center = (float)(iVar1 - iVar2) * 0.5f;
+        this->center = (float)(right - left) * 0.5f;
         setStartAngle(3.9269907f);
         setTotalRange(-4.712389f);
         this->fineTuneDivider = 1.5;
@@ -102,11 +102,11 @@ namespace Controls {
             return;
 
         uint32_t button = drawingContext->getMouseButtons();
-        if (!(button & 1))
+        if (!(button & kLButton))
             return;
 
         // Ctrl + click: reset to the default value
-        if (button == 0x11) {
+        if (button == (kLButton | kControl)) {
             this->value = this->getDefaultValue();
             if (this->isDirty())
                 this->listener->valueChanged(drawingContext, this);
@@ -126,15 +126,15 @@ namespace Controls {
         int mode = 0;
         int newMode = Api::GLOBAL_KNOB_MODE;
         if (newMode == 2) {
-            if (!(button & 0x20))
+            if (!(button & kAlt))
                 mode = newMode;
         }
-        else if (button & 0x20) {
+        else if (button & kAlt) {
             mode = 2;
         }
 
-        if (mode == 2 && (button & 1)) {
-            if (button & 8)
+        if (mode == 2 && (button & kLButton)) {
+            if (button & kShift)
                 range *= this->fineTuneDivider;
             firstPoint = *mousePos;
             modeLinear = true;
@@ -157,7 +157,7 @@ namespace Controls {
                     long diff = (firstPoint.y - mousePos->y) + (mousePos->x - firstPoint.x);
                     if (oldButton != button) {
                         range = 200.0f;
-                        if (button & 8)
+                        if (button & kShift)
                             range *= this->fineTuneDivider;
                         float coef2 = (this->max - this->min) / range;
                         entryState += diff * (coef - coef2);
@@ -183,7 +183,7 @@ namespace Controls {
             }
             drawingContext->getRelativeMousePos(mousePos);
             this->onIdle();
-        } while (button & 1);
+        } while (button & kLButton);
 
         this->parent->endEdit(this->parameterId);
     }

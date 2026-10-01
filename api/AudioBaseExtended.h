@@ -31,7 +31,7 @@ namespace Api {
         virtual int32_t getParameterStepSize();
         virtual bool canParameterBeAutomated(int32_t parameterId);
         virtual bool getParameter(int32_t index, char* text);
-        virtual float returnZeroFloat(int32_t channel, int32_t index);
+        virtual float getChannelParameter(int32_t channel, int32_t index);
         virtual int32_t getPresetCategories();
         virtual bool getPresetNameByIndex(int32_t category, int32_t index, char *outText);
         virtual bool copyPreset(int32_t presetIndex);
@@ -64,7 +64,7 @@ namespace Api {
         // -- Offline Processing --
         virtual bool offlineRead(float** audioBuffers, int32_t sampleFrames, bool readSource);
         virtual bool offlineWrite(float** audioBuffers, int32_t option);
-        virtual bool startOfflineProcessing(void* param_1, int32_t param_2, int32_t param_3);
+        virtual bool startOfflineProcessing(void* audioFiles, int32_t numAudioFiles, int32_t numNewAudioFiles);
         virtual int32_t getCurrentPass();
         virtual int32_t getCurrentMetaPass();
         virtual bool onOfflineNotify(void *data, int32_t value, bool isStarting);
@@ -73,7 +73,7 @@ namespace Api {
         virtual int32_t getOfflinePassCount();
         virtual int32_t getOfflineMetaPassCount();
         virtual void setHostOutputSampleRate(float sampleRate);
-        virtual bool getOutputSpeakerArrangement(int32_t arrangement, void* param_2);
+        virtual bool getOutputSpeakerArrangement(int32_t arrangement, void* speakers);
 
         // -- Host Information --
         virtual bool getHostCompanyString(char* outText);
@@ -91,7 +91,7 @@ namespace Api {
 
         // -- Plugin Information --
         virtual bool processVarIo(void *);
-        virtual bool setOutputSpeakerArrangement(int32_t arrangement, void* param_2);
+        virtual bool setOutputSpeakerArrangement(int32_t arrangement, void* speakers);
         virtual void setAudioSettings(int32_t hostBlockSize, float sampleRate);
         virtual bool setBypass(bool bypass);
         virtual bool getPluginName(char* outText);

@@ -71,7 +71,7 @@ namespace Api {
         this->plugin.pluginProcessingTime = 0;  // initialDelay
         this->plugin.zero = 0;                  // realQualities
         this->plugin.offQualities = 0;
-        this->plugin.floatVal = 1.0f;
+        this->plugin.ioRatio = 1.0f;
         this->plugin.object = this;
         this->plugin.user = nullptr;
         this->plugin.id = 'NoEf';

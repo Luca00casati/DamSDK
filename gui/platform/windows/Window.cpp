@@ -56,22 +56,22 @@ namespace Windows {
           #if defined(_WIN64) || defined(SetWindowLongPtrA)
             SetWindowLongPtrA(this->hWnd, GWLP_USERDATA, 0);
           #else
-            SetWindowLongA(this->hWnd,-0x15,0);
+            SetWindowLongA(this->hWnd, GWL_USERDATA, 0);
           #endif
           DestroyWindow(this->hWnd);
           Window::unregisterWindowClass();
         }
-        if (this->isActive != false) {
+        if (this->isActive) {
           closeWindow();
         }
-        if (this->closeParameter != (void *)0x0) {
+        if (this->closeParameter != nullptr) {
           free(this->closeParameter);
         }
     }
 
     // FUNCTION: DELAYLAMA 0x10007520
     void Window::onDraw(GDIDrawingContext *drawingContext) {
-        if (this->redrawPending != false) {
+        if (this->redrawPending) {
             this->redrawPending = false;
         }
 
@@ -91,13 +91,13 @@ namespace Windows {
             background->blit(drawingContext,&destRect,&srcPoint);
         }
         int i = 0;
-        if (0 < (int)this->numChildren) {
+        if (0 < this->numChildren) {
             do {
                 this->children[i]->isDirty();
                 this->children[i]->onDraw(drawingContext);
                 this->children[i]->setDirty(false);
             i += 1;
-            } while (i < (int)this->numChildren);
+            } while (i < this->numChildren);
         }
         if (this->modalView != NULL) {
             this->modalView->onDraw(drawingContext);
@@ -106,7 +106,7 @@ namespace Windows {
 
     // FUNCTION: DELAYLAMA 0x10007960
     void Window::refresh() {
-        if ((this->visible != false) && (this->redrawPending == false)) {
+        if ((this->visible) && (!this->redrawPending)) {
             if (needsRedraw()) {
                 HDC hDC = GetDC(this->hWnd);
                 GDIDrawingContext* drawingContext = new GDIDrawingContext(this, hDC, this->hWnd);
@@ -122,25 +122,25 @@ namespace Windows {
     // FUNCTION: DELAYLAMA 0x100078b0
     void Window::update(GDIDrawingContext *drawingContext)
     {
-        if (this->visible != false) {
+        if (this->visible) {
             if (this->modalView != nullptr) {
                 this->modalView->update(drawingContext);
                 return;
             }
 
             bool windowIsDirty = this->isDirty();
-            if (windowIsDirty != false) {
+            if (windowIsDirty) {
                 this->onDraw(drawingContext);
                 this->setDirty(false);
                 return;
             }
 
             int i = 0;
-            if (0 < (int)this->numChildren) {
+            if (0 < this->numChildren) {
             do {
                 this->children[i]->update(drawingContext);
                 i += 1;
-            } while (i < (int)this->numChildren);
+            } while (i < this->numChildren);
             }
         }
     }
@@ -293,7 +293,7 @@ namespace Windows {
                     HDC hdcPaint = GetDC(hWnd);
                     GDIDrawingContext* drawingContext = new GDIDrawingContext(parentFramePtr, hdcPaint, hWnd);
 
-                    // The decompiler was manually constructing a Point struct from lParam bytes
+                    // Mouse position from lParam
                     POINT pt;
                     pt.x = GET_X_LPARAM(lParam);
                     pt.y = GET_Y_LPARAM(lParam);
@@ -308,7 +308,7 @@ namespace Windows {
             }
         }
 
-        // LAB_100084e8: Default window procedure
+        // Default window procedure
         return DefWindowProcA(hWnd, uMsg, wParam, lParam);
     }
 
@@ -393,7 +393,7 @@ namespace Windows {
 
     // FUNCTION: DELAYLAMA 0x10007410
     bool Window::closeWindow() {
-        if (((this->isActive != false) && (this->visible != false)) && (this->handle != nullptr))
+        if (((this->isActive) && (this->visible)) && (this->handle != nullptr))
         {
           this->editor->mainPlugin->closePluginEditorOnHost(this->closeParameter);
           this->handle = nullptr;

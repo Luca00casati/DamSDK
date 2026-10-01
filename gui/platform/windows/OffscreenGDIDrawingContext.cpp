@@ -9,16 +9,16 @@ namespace Windows {
 
     // FUNCTION: DELAYLAMA 0x10006f80
     OffscreenGDIDrawingContext::OffscreenGDIDrawingContext(Window* parentFramePtr, int width, int height, Api::Color color) : GDIDrawingContext(parentFramePtr, nullptr, nullptr) {
-        this->bmp = nullptr;
-        this->unknown = 0;
+        this->bitmap = nullptr;
+        this->backgroundBitmap = nullptr;
         this->width = width;
         this->height = height;
-        this->color = color;
-        this->flag = true;
+        this->backgroundColor = color;
+        this->destroyPixmap = true;
         HWND hWnd = parentFramePtr->hWnd;
         HDC hdc = GetDC(hWnd);
-        HDC pHVar1 = CreateCompatibleDC(hdc);
-        this->hDC = pHVar1;
+        this->hDC = CreateCompatibleDC(hdc);
+        // As in VSTGUI, the offscreen bitmap is kept in the window handle slot
         HBITMAP h = CreateCompatibleBitmap(hdc,width,height);
         this->hWnd = (HWND)h;
         
@@ -39,17 +39,17 @@ namespace Windows {
 
     // FUNCTION: DELAYLAMA 0x10007050
     OffscreenGDIDrawingContext::~OffscreenGDIDrawingContext() {
-        if (this->bmp != nullptr) {
-          this->bmp->unregisterBitmap();
+        if (this->bitmap != nullptr) {
+          this->bitmap->unregisterBitmap();
         }
 
         HDC hdc = this->hDC;
-        if (hdc != (HDC)0x0) {
+        if (hdc != nullptr) {
           DeleteDC(hdc);
         }
 
         
-        if (this->flag != false) {
+        if (this->destroyPixmap) {
             HWND ho = this->hWnd;
             if (ho != nullptr) {
                 DeleteObject(ho);

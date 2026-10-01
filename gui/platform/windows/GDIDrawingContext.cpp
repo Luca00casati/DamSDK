@@ -9,13 +9,13 @@ namespace Windows {
     // GLOBAL: DELAYLAMA 0x1000d400
     HINSTANCE g_hInstance = NULL;
 
-    Api::Color DAT_FOREGROUND_COLOR = {255, 255, 255, 0};
-    Api::Color DAT_GRAY_COLOR = {127, 127, 127, 0};
-    Api::Color DAT_BACK_COLOR = {0, 0, 0, 0};
+    Api::Color kWhiteColor = {255, 255, 255, 0};
+    Api::Color kGreyColor = {127, 127, 127, 0};
+    Api::Color kBlackColor = {0, 0, 0, 0};
 
     // Colour treated as transparent by Bitmap::drawMasked (white)
     // GLOBAL: DELAYLAMA 0x1000d86c
-    Api::Color DAT_TRANSPARENT_COLOR = {255, 255, 255, 0};
+    Api::Color kTransparentColor = {255, 255, 255, 0};
 
     // FUNCTION: DELAYLAMA 0x10006960
     GDIDrawingContext::GDIDrawingContext(Window *parentFramePtr,HDC hDC,HWND hWnd) {
@@ -61,9 +61,9 @@ namespace Windows {
         }
 
         // Colors
-        this->penColor = DAT_FOREGROUND_COLOR;
-        this->backgroundColor = DAT_BACK_COLOR;
-        this->textColor = DAT_FOREGROUND_COLOR;
+        this->penColor = kWhiteColor;
+        this->backgroundColor = kBlackColor;
+        this->textColor = kWhiteColor;
 
         this->screenPos.x = 0;
         this->screenPos.y = 0;
@@ -266,17 +266,17 @@ namespace Windows {
     uint32_t GDIDrawingContext::getMouseButtons() {
         uint32_t buttons = 0;
         if (GetAsyncKeyState(VK_LBUTTON) < 0)
-            buttons |= 1;
+            buttons |= kLButton;
         if (GetAsyncKeyState(VK_MBUTTON) < 0)
-            buttons |= 2;
+            buttons |= kMButton;
         if (GetAsyncKeyState(VK_RBUTTON) < 0)
-            buttons |= 4;
+            buttons |= kRButton;
         if (GetAsyncKeyState(VK_SHIFT) < 0)
-            buttons |= 8;
+            buttons |= kShift;
         if (GetAsyncKeyState(VK_CONTROL) < 0)
-            buttons |= 0x10;
+            buttons |= kControl;
         if (GetAsyncKeyState(VK_MENU) < 0)
-            buttons |= 0x20;
+            buttons |= kAlt;
         return buttons;
     }
 

@@ -38,7 +38,7 @@ namespace Base {
     // FUNCTION: DELAYLAMA 0x10007220
     void View::update(Platform::Windows::GDIDrawingContext *drawingContext) {
         bool isActive = this->isDirty();
-        if (isActive != false) {
+        if (isActive) {
             this->onDraw(drawingContext);
             this->setDirty(false);
         }
