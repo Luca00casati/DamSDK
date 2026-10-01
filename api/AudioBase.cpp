@@ -10,7 +10,7 @@ namespace DamSDK {
 namespace Api {
 
     // FUNCTION: DELAYLAMA 0x10001000
-    static intptr_t _dispatcher(DamPlugin * plugin, int32_t targetOperation, int32_t index, int32_t value, void * data, float optional) {
+    static intptr_t _dispatcher(DamPlugin * plugin, int32_t targetOperation, int32_t index, intptr_t value, void * data, float optional) {
         AudioBase* audioBase = (AudioBase*) plugin->object;
         if (targetOperation == 1) {
             audioBase->dispatchPluginCallback(1,index,value,data,optional);
@@ -70,8 +70,8 @@ namespace Api {
         this->plugin.reserved2 = 0;
         this->plugin.pluginProcessingTime = 0;  // initialDelay
         this->plugin.zero = 0;                  // realQualities
-        this->plugin.audioBase = nullptr;       // offQualities
-        this->plugin.floatVal = 1.0f;
+        this->plugin.offQualities = 0;
+        this->plugin.ioRatio = 1.0f;
         this->plugin.object = this;
         this->plugin.user = nullptr;
         this->plugin.id = 'NoEf';
@@ -300,7 +300,7 @@ namespace Api {
     }
 
     // FUNCTION: DELAYLAMA 0x100015a0
-    void AudioBase::setAudioBase(AudioBase* base) { this->plugin.audioBase = base; }
+    void AudioBase::setOfflineQualities(int32_t qualities) { this->plugin.offQualities = qualities; }
     
     // FUNCTION: DELAYLAMA 0x100015c0
     void AudioBase::setPluginProcessingTime(int32_t processingTime) { this->plugin.pluginProcessingTime = processingTime; }

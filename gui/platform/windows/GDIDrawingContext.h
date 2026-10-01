@@ -3,6 +3,7 @@
 #include <windef.h>
 #include <damsdk/utils/portable_stdint.h>
 #include <damsdk/api/DamPlugin.h>
+#include <damsdk/gui/MouseButtons.h>
 
 namespace DamSDK {
     namespace Gui {
@@ -21,9 +22,20 @@ namespace Windows {
 
     extern HINSTANCE g_hInstance;
 
-    extern Api::Color DAT_FOREGROUND_COLOR;
-    extern Api::Color DAT_GRAY_COLOR;
-    extern Api::Color DAT_BACK_COLOR;
+    // VSTGUI's CRect and CPoint, used where the original passes them by value.
+    // The copy constructor is a real function in the original (not inlined).
+    struct Rect : RECT {
+        Rect(const RECT& rect);
+    };
+
+    struct Point : POINT {
+        Point(long x, long y) { this->x = x; this->y = y; }
+    };
+
+    extern Api::Color kWhiteColor;
+    extern Api::Color kGreyColor;
+    extern Api::Color kBlackColor;
+    extern Api::Color kTransparentColor;
 
     // VTABLE: DELAYLAMA 0x1000bbe4
     class GDIDrawingContext {
@@ -60,11 +72,10 @@ namespace Windows {
             void setTextColor(Api::Color color);
             void moveToEx(POINT* target);
             void lineTo(POINT* tageet);
-            void drawRectangleOutline(RECT* param_1);
-            void fillRectangleInset(RECT* param_1);
+            void drawRectangleOutline(RECT* rect);
+            void fillRectangleInset(RECT* rect);
             void getRelativeMousePos(POINT* outRelMousePos);
-            void copyToScreen(GDIDrawingContext* dest, int dstLeft, int dstTop, int dstRight, int dstBottom, int srcX, int srcY);
-            static void setCursor(int cursorType);
+            void copyToScreen(GDIDrawingContext* dest, Rect destRect, Point srcOffset);
             uint32_t getMouseButtons();
     };
 }

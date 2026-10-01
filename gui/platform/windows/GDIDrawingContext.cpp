@@ -9,9 +9,13 @@ namespace Windows {
     // GLOBAL: DELAYLAMA 0x1000d400
     HINSTANCE g_hInstance = NULL;
 
-    Api::Color DAT_FOREGROUND_COLOR = {255, 255, 255, 0};
-    Api::Color DAT_GRAY_COLOR = {127, 127, 127, 0};
-    Api::Color DAT_BACK_COLOR = {0, 0, 0, 0};
+    Api::Color kWhiteColor = {255, 255, 255, 0};
+    Api::Color kGreyColor = {127, 127, 127, 0};
+    Api::Color kBlackColor = {0, 0, 0, 0};
+
+    // Colour treated as transparent by Bitmap::drawMasked (white)
+    // GLOBAL: DELAYLAMA 0x1000d86c
+    Api::Color kTransparentColor = {255, 255, 255, 0};
 
     // FUNCTION: DELAYLAMA 0x10006960
     GDIDrawingContext::GDIDrawingContext(Window *parentFramePtr,HDC hDC,HWND hWnd) {
@@ -57,9 +61,9 @@ namespace Windows {
         }
 
         // Colors
-        this->penColor = DAT_FOREGROUND_COLOR;
-        this->backgroundColor = DAT_BACK_COLOR;
-        this->textColor = DAT_FOREGROUND_COLOR;
+        this->penColor = kWhiteColor;
+        this->backgroundColor = kBlackColor;
+        this->textColor = kWhiteColor;
 
         this->screenPos.x = 0;
         this->screenPos.y = 0;
@@ -262,64 +266,33 @@ namespace Windows {
     uint32_t GDIDrawingContext::getMouseButtons() {
         uint32_t buttons = 0;
         if (GetAsyncKeyState(VK_LBUTTON) < 0)
-            buttons |= 1;
+            buttons |= kLButton;
         if (GetAsyncKeyState(VK_MBUTTON) < 0)
-            buttons |= 2;
+            buttons |= kMButton;
         if (GetAsyncKeyState(VK_RBUTTON) < 0)
-            buttons |= 4;
+            buttons |= kRButton;
         if (GetAsyncKeyState(VK_SHIFT) < 0)
-            buttons |= 8;
+            buttons |= kShift;
         if (GetAsyncKeyState(VK_CONTROL) < 0)
-            buttons |= 0x10;
+            buttons |= kControl;
         if (GetAsyncKeyState(VK_MENU) < 0)
-            buttons |= 0x20;
+            buttons |= kAlt;
         return buttons;
     }
 
-    // FUNCTION: DELAYLAMA 0x100070f0
-    void GDIDrawingContext::copyToScreen(GDIDrawingContext* dest, int dstLeft, int dstTop, int dstRight, int dstBottom, int srcX, int srcY) {
-        BitBlt(dest->hDC,dest->drawOffset.x + dstLeft, dest->drawOffset.y + dstTop,dstRight - dstLeft,dstBottom - dstTop, this->hDC,srcX,srcY,SRCCOPY);
+    // FUNCTION: DELAYLAMA 0x100070d0
+    Rect::Rect(const RECT& rect) {
+        this->left = rect.left;
+        this->top = rect.top;
+        this->right = rect.right;
+        this->bottom = rect.bottom;
     }
 
-    // STUB: DELAYLAMA 0x10007d30
-    void GDIDrawingContext::setCursor(int cursorType) {
-        // HCURSOR cursor1;
-        // HCURSOR cursor2;
-        //
-        // if (this->originalPen == (HGDIOBJ)0x0) {
-        //   cursor1 = GetCursor();
-        //   this->originalPen = cursor1;
-        // }
-        // switch(cursorType) {
-        // case 0:
-        //   SetCursor(this->originalPen);
-        //   return;
-        // case 1:
-        //   cursor2 = LoadCursorA((HINSTANCE)0x0,&lpCursorName_00007f02);
-        //   SetCursor(cursor2);
-        //   return;
-        // case 2:
-        //   cursor2 = LoadCursorA((HINSTANCE)0x0,&lpCursorName_00007f84);
-        //   SetCursor(cursor2);
-        //   return;
-        // case 3:
-        //   cursor2 = LoadCursorA((HINSTANCE)0x0,&lpCursorName_00007f85);
-        //   SetCursor(cursor2);
-        //   return;
-        // case 4:
-        //   cursor2 = LoadCursorA((HINSTANCE)0x0,&lpCursorName_00007f86);
-        //   SetCursor(cursor2);
-        //   break;
-        // case 5:
-        //   cursor2 = LoadCursorA((HINSTANCE)0x0,&lpCursorName_00007f83);
-        //   SetCursor(cursor2);
-        //   return;
-        // case 6:
-        //   cursor2 = LoadCursorA((HINSTANCE)0x0,&lpCursorName_00007f82);
-        //   SetCursor(cursor2);
-        //   return;
-        // }
-        // return;
+    // FUNCTION: DELAYLAMA 0x100070f0
+    void GDIDrawingContext::copyToScreen(GDIDrawingContext* dest, Rect destRect, Point srcOffset) {
+        BitBlt(dest->hDC, dest->drawOffset.x + destRect.left, dest->drawOffset.y + destRect.top,
+            destRect.right - destRect.left, destRect.bottom - destRect.top,
+            this->hDC, srcOffset.x, srcOffset.y, SRCCOPY);
     }
 }
 }

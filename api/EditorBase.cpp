@@ -100,8 +100,8 @@ namespace Api {
 
     // FUNCTION: DELAYLAMA 0x10006810
     void EditorBase::onIdle() {
-        if (this->isInIdleUpdate == false) {
-            if (this->needsRedraw != false) {
+        if (!this->isInIdleUpdate) {
+            if (this->needsRedraw) {
                 this->needsRedraw = false;
                 this->update();
             }

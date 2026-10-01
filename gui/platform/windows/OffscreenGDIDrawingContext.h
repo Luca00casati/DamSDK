@@ -25,13 +25,13 @@ namespace Windows {
     // VTABLE: DELAYLAMA 0x1000bbe8
     class OffscreenGDIDrawingContext : public GDIDrawingContext {
         public:
-            bool flag; // 0x74
+            bool destroyPixmap; // 0x74: delete the offscreen bitmap in the destructor
             char unused[3]; // 0x75
-            Bitmap* bmp; // 0x78
-            int unknown; // 0x7c
+            Bitmap* bitmap; // 0x78
+            Bitmap* backgroundBitmap; // 0x7c
             int height; // 0x80
             int width; // 0x84
-            Api::Color color; // 0x88
+            Api::Color backgroundColor; // 0x88
         public:
             OffscreenGDIDrawingContext(Window* parentFramePtr, int width, int height, Api::Color color);
             ~OffscreenGDIDrawingContext();

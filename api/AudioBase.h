@@ -67,7 +67,7 @@ namespace Api {
         virtual void setSupportsInPlaceProcessing(bool supportsInPlace);
         virtual void setProgramsAreChunks(bool programsAreChunks);
         virtual void setReservedValue(int32_t unusedValue);
-        virtual void setAudioBase(AudioBase* base);
+        virtual void setOfflineQualities(int32_t qualities);
         virtual void setPluginProcessingTime(int32_t processingTime);
 
         virtual float getSampleRate();
@@ -89,28 +89,7 @@ namespace Api {
 
     };
 
-    namespace {
-        // formatFloatAsDecibelString
-#define DECIBEL_THRESHOLD ((float)(0.0f))          // value <= 0 -> "-inf"
-        const char   INF_STRING[]        = "-inf";        // original was " -oo   "
-#define DECIBEL_FACTOR ((double)(20.0))          // 20 * log10(linear)
-
-        // formatSamplesAsHzString
+    // formatSamplesAsHzString
 #define HZ_THRESHOLD ((float)(0.0f))
-
-        // formatSamplesAsMsString
-#define MS_FACTOR ((double)(1000.0))
-
-        // formatFloatToString
-#define HUGE_THRESHOLD ((double)(1e9))           // value >= 1e9 -> "Huge!"
-        const char   HUGE_STRING[]       = "Huge!";
-#define ONE_TENTH ((double)(0.1))
-#define TEN ((double)(10.0))
-#define ONE ((double)(1.0))
-        const int    MAX_DIGITS          = 8;
-
-        // formatIntToString
-        const int    INT_HUGE_LIMIT      = 100000000;     // 0x5F5E100
-    }
 }
 }

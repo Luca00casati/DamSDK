@@ -57,7 +57,7 @@ namespace Controls {
             value = 1.0f - this->value;
 
         Platform::Windows::OffscreenGDIDrawingContext* offscreen =
-            new Platform::Windows::OffscreenGDIDrawingContext(this->parent, this->trackWidth, this->trackHeight, Platform::Windows::DAT_BACK_COLOR);
+            new Platform::Windows::OffscreenGDIDrawingContext(this->parent, this->trackWidth, this->trackHeight, Platform::Windows::kBlackColor);
 
         // Background
         RECT rect = {0, 0, this->trackWidth, this->trackHeight};
@@ -90,7 +90,7 @@ namespace Controls {
             }
         }
 
-        offscreen->copyToScreen(drawingContext, this->rect.left, this->rect.top, this->rect.right, this->rect.bottom, 0, 0);
+        offscreen->copyToScreen(drawingContext, this->rect, Platform::Windows::Point(0, 0));
         delete offscreen;
 
         this->trackTopY = this->rect.top + handleRect.top;
@@ -106,7 +106,7 @@ namespace Controls {
         uint32_t button = drawingContext->getMouseButtons();
 
         // Ctrl + click: reset to the default value
-        if (button == 0x11) {
+        if (button == (kLButton | kControl)) {
             this->value = this->getDefaultValue();
             if (this->isDirty())
                 this->listener->valueChanged(drawingContext, this);
@@ -114,7 +114,7 @@ namespace Controls {
         }
 
         // Left button only
-        if (!(button & 1))
+        if (!(button & kLButton))
             return;
 
         int delta = this->trackMinY;
@@ -134,28 +134,28 @@ namespace Controls {
             delta += this->handleHeight / 2 - 1;
         }
 
+        float range = (float)(this->trackMaxY - this->trackMinY);
         float oldValue = this->value;
         uint32_t oldButton = button;
-        float range = (float)(this->trackMaxY - this->trackMinY);
 
         this->parent->beginEdit(this->parameterId);
         while (1) {
             button = drawingContext->getMouseButtons();
-            if (!(button & 1))
+            if (!(button & kLButton))
                 break;
 
-            if (oldButton != button && (button & 8)) {
+            if (oldButton != button && (button & kShift)) {
                 oldValue = this->value;
                 oldButton = button;
             }
-            else if (!(button & 8)) {
+            else if (!(button & kShift)) {
                 oldValue = this->value;
             }
 
             this->value = (float)(mousePos->y - delta) / range;
             if (this->flags & 0x40)
                 this->value = 1.0f - this->value;
-            if (button & 8)
+            if (button & kShift)
                 this->value = (this->value - oldValue) / this->fineTuneDivider + oldValue;
 
             this->clampValue();

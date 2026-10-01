@@ -6,7 +6,7 @@ namespace Api {
     /**
      * @brief Used for dispatching requests between the plugin and the host.
      */
-    typedef intptr_t (*dispatchFunc)(struct DamPlugin* plugin, int32_t targetOperation, int32_t index, int32_t value, void * data, float optional);
+    typedef intptr_t (*dispatchFunc)(struct DamPlugin* plugin, int32_t targetOperation, int32_t index, intptr_t value, void * data, float optional);
     typedef void (*floatProcessingFunc) (struct DamPlugin* plugin, float** inputBuffer, float** outputBuffer, int32_t bufferSize);
     typedef void (*doubleProcessingFunc) (struct DamPlugin* plugin, double** inputBuffer, double** outputBuffer, int32_t bufferSize);
     typedef void (*setParameterFunc) (struct DamPlugin* plugin, int32_t parameterId, float value);
@@ -65,8 +65,8 @@ namespace Api {
         uint32_t flags;
 
         /// Reserved space for future use.
-        int32_t reserved1;
-        int32_t reserved2;
+        intptr_t reserved1;
+        intptr_t reserved2;
 
         /// Internal processing-time value or host-reported timing state.
         int32_t pluginProcessingTime;
@@ -74,11 +74,11 @@ namespace Api {
         /// Unused field.
         int32_t zero;
 
-        /// Pointer to Audio base class.
-        class AudioBase *audioBase;
+        /// Unused (VST's offQualities).
+        int32_t offQualities;
 
-        /// Some kind of float value, I am unsure as to what it does. 
-        float floatVal;
+        /// Output/input sample-rate ratio (VST's ioRatio), always 1.
+        float ioRatio;
 
         /// Pointer to the plugin implementation object.
         void *object;
@@ -165,8 +165,8 @@ namespace Api {
 
     struct DamMidiEventList {
         int32_t listSize;
-        int32_t unused;
-        DamEvent* events[1];
+        intptr_t unused;
+        DamEvent* events[2];
     };
 
     /**
@@ -189,7 +189,7 @@ namespace Api {
     // pointers are stored inline after the header.
     struct DamEventList {
         int count;
-        int reserved;
+        intptr_t reserved;
         struct DamEvent *events[2];
     };
 
@@ -305,7 +305,7 @@ namespace Api {
         pluginGetCompanyName = 47,
         pluginGetProductName = 48,
         pluginGetCompanyVersion = 49,
-        plugingSpecific = 50,
+        pluginSpecific = 50,
         pluginSupportsFeature = 51,
         pluginGetTailLength = 52,
         pluginIdling = 53,
@@ -322,17 +322,17 @@ namespace Api {
         pluginGetCategoryOfMidiProgram = 64,
         pluginHasMidiProgramChanged = 65,
         pluginNameOfMidiKey = 66,
-        pluginStartSettigMidiProgram = 67,
+        pluginStartSettingMidiProgram = 67,
         pluginStopSettingMidiProgram = 68,
         pluginGetSpeakerArrangement = 69,
-        pluginUnknown3 = 70,
+        pluginShellGetNextPlugin = 70,
         pluginStartProcessing = 71,
         pluginStopProcessing = 72,
         pluginSetTotalLatencySamples = 73,
         pluginSetPanLaw = 74,
         pluginLoadBank = 75,
         pluginLoadPreset = 76,
-        pluginUnknown4 = 77,
+        pluginSetProcessPrecision = 77,
         pluginGetMidiInputChannelCount = 78,
         pluginGetMidiOutputChannelCount = 79,
         pluginGetNumberOfOpcodes = 80,
