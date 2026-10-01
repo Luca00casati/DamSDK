@@ -35,11 +35,10 @@ namespace Windows {
         STDMETHOD (DragLeave) (void);
         STDMETHOD (Drop) (IDataObject* dataObject, DWORD keyState, POINTL pt, DWORD* effect);
 
-        HRESULT resolveShortcutTarget();
-        void __chkstk();
     };
 
     DropTarget* createDropTarget(Window* frame);
+    bool checkResolveLink(const char* nativePath, char* resolved);
 }
 }
 }

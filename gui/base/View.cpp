@@ -105,24 +105,21 @@ namespace Base {
     }
 
     // FUNCTION: DELAYLAMA 0x10007200
-    bool View::routeMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, POINT* mousePos) {
+    bool View::onDrop(void** items, long count, long type, POINT* where) {
         return false;
     }
 
-    // STUB: DELAYLAMA 0x10007250
+    // FUNCTION: DELAYLAMA 0x10007250
     void View::setRect(RECT* rect) {
-        this->rect.left = rect->left;
-        this->rect.top = rect->top;
-        this->rect.right = rect->right;
-        this->rect.bottom = rect->bottom;
+        this->rect = *rect;
         this->setDirty(true);
     }
 
     // FUNCTION: DELAYLAMA 0x10004670 FOLDED
-    bool View::returnTrue1(Platform::Windows::Window *frame) { return true; }
+    bool View::removed(Platform::Windows::Window *frame) { return true; }
 
     // FUNCTION: DELAYLAMA 0x10004670 FOLDED
-    bool View::returnTrue2(Platform::Windows::Window *frame) { return true; }
+    bool View::attached(Platform::Windows::Window *frame) { return true; }
 
     // FUNCTION: DELAYLAMA 0x10007280
     void View::release() {

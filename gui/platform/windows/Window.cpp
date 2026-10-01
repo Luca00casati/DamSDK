@@ -34,7 +34,7 @@ namespace Windows {
         this->modalView = NULL;
         this->editView = nullptr;
         this->redrawPending = true;
-        this->unused3[1] = 0;
+        this->unused3[0] = 0;
         this->isActive = false;
         this->visible = true;
         this->closeParameter = nullptr;
@@ -48,7 +48,7 @@ namespace Windows {
         setDragAndDropState(false);
         bool callExtraFlag = true;
 
-        destroyChildren(&callExtraFlag);
+        destroyChildren(callExtraFlag);
         if (this->backgroundBitmap != nullptr) {
           this->backgroundBitmap->unregisterBitmap();
         }
@@ -371,7 +371,7 @@ namespace Windows {
         this->children[this->numChildren] = control;
         this->numChildren++;
         control->parent = this;
-        control->returnTrue2(this);   // attached()
+        control->attached(this);   // attached()
         return true;
     }
 
@@ -392,23 +392,18 @@ namespace Windows {
         return false;
     }
 
-    // STUB: DELAYLAMA 0x100074c0
+    // FUNCTION: DELAYLAMA 0x100074c0
     bool Window::setDragAndDropState(bool enable) {
-        // DropTarget *pDropTarget;
-        //
-        // if ((this->field13_0x56 != '\0') || (enable)) {
-        //   if (this->hWnd == (HWND)0x0) {
-        //     return false;
-        //   }
-        //   if (enable) {
-        //     pDropTarget = createDropTarget(this);
-        //     RegisterDragDrop(this->hWnd,(LPDROPTARGET)pDropTarget);
-        //     this->field13_0x56 = 1;
-        //     return true;
-        //   }
-        //   RevokeDragDrop(this->hWnd);
-        //   this->field13_0x56 = 0;
-        // }
+        // Accept files dragged onto the editor (VSTGUI's CFrame::setDropActive)
+        if (!this->dropActive && !enable)
+            return true;
+        if (!this->hWnd)
+            return false;
+        if (enable)
+            RegisterDragDrop(this->hWnd, (IDropTarget*)createDropTarget(this));
+        else
+            RevokeDragDrop(this->hWnd);
+        this->dropActive = enable;
         return true;
     }
 
@@ -438,7 +433,7 @@ namespace Windows {
     }
 
     // FUNCTION: DELAYLAMA 0x10007740
-    bool Window::routeMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, POINT* mousePos) {
+    bool Window::onDrop(void** items, long count, long type, POINT* mousePos) {
         if (this->modalView || this->editView)
             return false;
 
@@ -448,7 +443,7 @@ namespace Windows {
                 Controls::Control* control = this->children[i];
                 if (mousePos->x >= control->rect.left && mousePos->x <= control->rect.right &&
                     mousePos->y >= control->rect.top && mousePos->y <= control->rect.bottom) {
-                    if (control->routeMessage(uMsg, wParam, lParam, mousePos)) {
+                    if (control->onDrop(items, count, type, mousePos)) {
                         result = true;
                         break;
                     }
@@ -458,63 +453,42 @@ namespace Windows {
         return result;
     }
 
-    // STUB: DELAYLAMA 0x10007ac0
-    bool Window::removeChild(Controls::Control* child, bool shouldRelease) {
-        // bool bVar1;
-        // int iVar2;
-        // undefined3 in_stack_00000009;
-        //
-        // int iVar2 = 0;
-        // bool bVar1 = false;
-        // if (0 < (int)this->numChildren) {
-        //     do {
-        //         if (bVar1) {
-        //             this->children[iVar2 + -1] = this->children[iVar2];
-        //         }
-        //         if (this->children[iVar2] == child) {
-        //             child->attached(this);
-        //             if (*_shouldRelease != '\0') {
-        //                 (*(child->vtable->view).release)();
-        //             }
-        //             bVar1 = true;
-        //         }
-        //         iVar2 = iVar2 + 1;
-        //     } while (iVar2 < (int)this->numChildren);
-        //     if (bVar1) {
-        //         this->numChildren = this->numChildren + -1;
-        //     }
-        // }
+    // FUNCTION: DELAYLAMA 0x10007ac0
+    bool Window::removeChild(Controls::Control* child, const bool& withForget) {
+        bool found = false;
+        for (int i = 0; i < this->numChildren; i++) {
+            if (found)
+                this->children[i - 1] = this->children[i];
+            if (this->children[i] == child) {
+                child->removed(this);
+                if (withForget)
+                    child->release();
+                found = true;
+            }
+        }
+        if (found)
+            this->numChildren--;
         return true;
     }
 
-    // STUB: DELAYLAMA 0x10007b30
-    bool Window::destroyChildren(bool* callExtraFlag) {
-        // int i;
-        // int curChild;
-        //
-        // if (this->editView != (Color *)0x0) {
-        //   (**(code **)(this->editView->rgba + 0x18))(0);
-        //   this->editView = (Color *)0x0;
-        // }
-        // if (this->children == (Control **)0x0) {
-        //   return true;
-        // }
-        // i = 0;
-        // if (0 < (int)this->numChildren) {
-        //   do {
-        //     (*(this->children[i]->vtable->view).attached)(this);
-        //     if (*callExtraFlag != false) {
-        //       (*(this->children[i]->vtable->view).release)();
-        //     }
-        //     curChild = i + 1;
-        //     this->children[i] = (Control *)0x0;
-        //     i = curChild;
-        //   } while (curChild < (int)this->numChildren);
-        // }
-        // free(this->children);
-        // this->children = (Control **)0x0;
-        // this->numChildren = 0;
-        // this->maxChildren = 0;
+    // FUNCTION: DELAYLAMA 0x10007b30
+    bool Window::destroyChildren(const bool& withForget) {
+        if (this->editView) {
+            this->editView->onFocusLost(nullptr);
+            this->editView = nullptr;
+        }
+        if (this->children) {
+            for (int i = 0; i < this->numChildren; i++) {
+                this->children[i]->removed(this);
+                if (withForget)
+                    this->children[i]->release();
+                this->children[i] = nullptr;
+            }
+            free(this->children);
+            this->children = nullptr;
+            this->numChildren = 0;
+            this->maxChildren = 0;
+        }
         return true;
     }
 
@@ -536,11 +510,11 @@ namespace Windows {
           return 0;
         }
         if (this->modalView != nullptr) {
-          this->modalView->returnTrue1(this);
+          this->modalView->removed(this);
         }
         this->modalView = view;
         if (view != nullptr) {
-          view->returnTrue2(this);
+          view->attached(this);
         }
         return 1;
     }

@@ -38,7 +38,8 @@ namespace Windows {
             Base::View* editView;  // view with keyboard focus (text edit)
             bool redrawPending;
             bool visible;
-            char unused3[2];
+            bool dropActive;  // registered as an OLE drop target
+            char unused3[1];
             HWND hWnd;
             bool isActive;
             char unused4[3];
@@ -60,9 +61,9 @@ namespace Windows {
             bool closeWindow();
             bool setDragAndDropState(bool enable);
             virtual void onMouseDown(GDIDrawingContext* drawingContext, POINT* mousePos) override;
-            virtual bool routeMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, POINT* mousePos) override;
-            virtual bool removeChild(Controls::Control* child, bool shouldRelease);
-            virtual bool destroyChildren(bool* callExtraFlag);
+            virtual bool onDrop(void** items, long count, long type, POINT* where) override;
+            virtual bool removeChild(Controls::Control* child, const bool& withForget);
+            virtual bool destroyChildren(const bool& withForget);
             virtual bool containsChild(Controls::Control* target);
             int32_t setModalView(Base::View* view);
             void beginEdit(int parameterId);

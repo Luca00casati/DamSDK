@@ -37,7 +37,7 @@ namespace Base {
             virtual void onDraw(Platform::Windows::GDIDrawingContext* drawingContext);
             virtual void onMouseDown(Platform::Windows::GDIDrawingContext* drawingContext, POINT* point);
             virtual void update(Platform::Windows::GDIDrawingContext *drawingContext);
-            virtual bool routeMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, POINT* mousePos);
+            virtual bool onDrop(void** items, long count, long type, POINT* where);
             virtual bool onMouseWheel(Platform::Windows::GDIDrawingContext *drawingContext, POINT *relativeMousePoint, float scrollDelta);
             virtual void onFocusLost(Platform::Windows::GDIDrawingContext* drawingContext);
             virtual void onFocusGained(Platform::Windows::GDIDrawingContext* drawingContext);
@@ -51,8 +51,8 @@ namespace Base {
             virtual bool getUseAlphaBlending();
             virtual void setRect(RECT* rect);
             virtual void setParent(Platform::Windows::Window* parent);
-            virtual bool returnTrue1(Platform::Windows::Window *frame);
-            virtual bool returnTrue2(Platform::Windows::Window *frame);
+            virtual bool removed(Platform::Windows::Window *frame);
+            virtual bool attached(Platform::Windows::Window *frame);
             virtual void release();
             virtual void remember();
             virtual int getReferenceCount();
