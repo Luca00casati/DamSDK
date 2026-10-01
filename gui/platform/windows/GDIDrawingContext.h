@@ -24,6 +24,7 @@ namespace Windows {
     extern Api::Color DAT_FOREGROUND_COLOR;
     extern Api::Color DAT_GRAY_COLOR;
     extern Api::Color DAT_BACK_COLOR;
+    extern Api::Color DAT_TRANSPARENT_COLOR;
 
     // VTABLE: DELAYLAMA 0x1000bbe4
     class GDIDrawingContext {

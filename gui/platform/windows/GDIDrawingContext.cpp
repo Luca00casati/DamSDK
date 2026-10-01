@@ -13,6 +13,10 @@ namespace Windows {
     Api::Color DAT_GRAY_COLOR = {127, 127, 127, 0};
     Api::Color DAT_BACK_COLOR = {0, 0, 0, 0};
 
+    // Colour treated as transparent by Bitmap::drawMasked (white)
+    // GLOBAL: DELAYLAMA 0x1000d86c
+    Api::Color DAT_TRANSPARENT_COLOR = {255, 255, 255, 0};
+
     // FUNCTION: DELAYLAMA 0x10006960
     GDIDrawingContext::GDIDrawingContext(Window *parentFramePtr,HDC hDC,HWND hWnd) {
         this->screenPos.x = 0;
