@@ -92,7 +92,7 @@ namespace Api {
             case pluginGetCompanyVersion:
                 v = this->getCompanyVersion();
                 break;
-            case plugingSpecific:
+            case pluginSpecific:
                 v = this->companySpecific(index, value, data, optional);
                 break;
             case pluginSupportsFeature:
@@ -156,7 +156,7 @@ namespace Api {
             case pluginNameOfMidiKey:
                 v = this->getMidiKeyName(index, (char*)data) ? 1 : 0;
                 break;
-            case pluginStartSettigMidiProgram:
+            case pluginStartSettingMidiProgram:
                 v = this->beginSetMidiProgram() ? 1 : 0;
                 break;
             case pluginStopSettingMidiProgram:
