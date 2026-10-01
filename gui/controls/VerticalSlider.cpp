@@ -90,7 +90,7 @@ namespace Controls {
             }
         }
 
-        offscreen->copyToScreen(drawingContext, this->rect.left, this->rect.top, this->rect.right, this->rect.bottom, 0, 0);
+        offscreen->copyToScreen(drawingContext, this->rect, Platform::Windows::Point(0, 0));
         delete offscreen;
 
         this->trackTopY = this->rect.top + handleRect.top;
@@ -134,9 +134,9 @@ namespace Controls {
             delta += this->handleHeight / 2 - 1;
         }
 
+        float range = (float)(this->trackMaxY - this->trackMinY);
         float oldValue = this->value;
         uint32_t oldButton = button;
-        float range = (float)(this->trackMaxY - this->trackMinY);
 
         this->parent->beginEdit(this->parameterId);
         while (1) {

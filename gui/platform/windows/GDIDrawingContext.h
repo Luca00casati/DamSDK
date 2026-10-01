@@ -21,6 +21,16 @@ namespace Windows {
 
     extern HINSTANCE g_hInstance;
 
+    // VSTGUI's CRect and CPoint, used where the original passes them by value.
+    // The copy constructor is a real function in the original (not inlined).
+    struct Rect : RECT {
+        Rect(const RECT& rect);
+    };
+
+    struct Point : POINT {
+        Point(long x, long y) { this->x = x; this->y = y; }
+    };
+
     extern Api::Color DAT_FOREGROUND_COLOR;
     extern Api::Color DAT_GRAY_COLOR;
     extern Api::Color DAT_BACK_COLOR;
@@ -64,7 +74,7 @@ namespace Windows {
             void drawRectangleOutline(RECT* param_1);
             void fillRectangleInset(RECT* param_1);
             void getRelativeMousePos(POINT* outRelMousePos);
-            void copyToScreen(GDIDrawingContext* dest, int dstLeft, int dstTop, int dstRight, int dstBottom, int srcX, int srcY);
+            void copyToScreen(GDIDrawingContext* dest, Rect destRect, Point srcOffset);
             uint32_t getMouseButtons();
     };
 }

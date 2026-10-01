@@ -280,9 +280,19 @@ namespace Windows {
         return buttons;
     }
 
+    // FUNCTION: DELAYLAMA 0x100070d0
+    Rect::Rect(const RECT& rect) {
+        this->left = rect.left;
+        this->top = rect.top;
+        this->right = rect.right;
+        this->bottom = rect.bottom;
+    }
+
     // FUNCTION: DELAYLAMA 0x100070f0
-    void GDIDrawingContext::copyToScreen(GDIDrawingContext* dest, int dstLeft, int dstTop, int dstRight, int dstBottom, int srcX, int srcY) {
-        BitBlt(dest->hDC,dest->drawOffset.x + dstLeft, dest->drawOffset.y + dstTop,dstRight - dstLeft,dstBottom - dstTop, this->hDC,srcX,srcY,SRCCOPY);
+    void GDIDrawingContext::copyToScreen(GDIDrawingContext* dest, Rect destRect, Point srcOffset) {
+        BitBlt(dest->hDC, dest->drawOffset.x + destRect.left, dest->drawOffset.y + destRect.top,
+            destRect.right - destRect.left, destRect.bottom - destRect.top,
+            this->hDC, srcOffset.x, srcOffset.y, SRCCOPY);
     }
 }
 }
